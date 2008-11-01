@@ -883,7 +883,6 @@ class definition(object):
     is_scope = False
 
     attribute_names = [
-        "style",
         "help",
         "caption",
         "short_caption",
@@ -891,6 +890,7 @@ class definition(object):
         "type",
         "multiple",
         "input_size",
+        "style",
         "expert_level",
     ]
 
