@@ -209,8 +209,8 @@ def number_from_value_string(value_string, words, path):
         return Auto
     if value_string.lower() in ["true", "false"]:
         raise RuntimeError(
-            'Error interpreting "%s" as a numeric expression%s'
-            % (value_string, words[0].where_str())
+            'Error interpreting %s="%s" as a numeric expression%s'
+            % (path, value_string, words[0].where_str())
         )
     try:
         return int(value_string)
