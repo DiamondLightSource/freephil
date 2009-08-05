@@ -663,6 +663,7 @@ class choice_converters(object):
             words.append(
                 tokenizer.word(
                     value=value,
+                    quote_token=word.quote_token,
                     line_number=word.line_number,
                     source_info=word.source_info,
                 )
