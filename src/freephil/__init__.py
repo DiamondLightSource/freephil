@@ -600,7 +600,7 @@ class choice_converters(object):
                 value = word.value[1:]
             else:
                 value = word.value
-            flags[value] = False
+            flags[value.lower()] = False
         if (master.optional is not None and not master.optional) or not is_plain_none(
             words=source_words
         ):
@@ -637,7 +637,7 @@ class choice_converters(object):
                             continue
                         if value not in flags:
                             raise_not_a_possible_choice(value)
-                        flags[value] = True
+                        flags[value.lower()] = True
             else:
                 for word in source_words:
                     if word.value.startswith("*"):
@@ -649,16 +649,16 @@ class choice_converters(object):
                             flag = True
                         else:
                             flag = False
-                    if flag and value not in flags:
+                    if flag and value.lower() not in flags:
                         raise_not_a_possible_choice(value)
-                    flags[value] = flag
+                    flags[value.lower()] = flag
         words = []
         for word in master.words:
             if word.value.startswith("*"):
                 value = word.value[1:]
             else:
                 value = word.value
-            if flags[value]:
+            if flags[value.lower()]:
                 value = "*" + value
             words.append(
                 tokenizer.word(
