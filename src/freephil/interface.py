@@ -523,4 +523,11 @@ def reformat_phil_name(phil_name):
     return name
 
 
+def join_scope_paths(scope1, scope2):
+    if scope1 == "":
+        return scope2
+    else:
+        return "%s.%s" % (scope1, scope2)
+
+
 # ---end
