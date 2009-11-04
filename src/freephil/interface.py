@@ -441,12 +441,17 @@ def index_phil_objects(
     multiple_scopes=None,
     multiple_defs=None,
     collect_multiple=True,
+    in_template=False,
 ):
     full_path = phil_object.full_path()
     if phil_object.is_template != 0:
         template_index[full_path] = phil_object
         if phil_object.is_template == -1:
             return
+        else:
+            in_template = True
+    elif in_template:
+        template_index[full_path] = phil_object
     if phil_object.multiple == True:
         if collect_multiple:
             if phil_object.is_scope and multiple_scopes is not None:
@@ -477,6 +482,7 @@ def index_phil_objects(
                 multiple_scopes=multiple_scopes,
                 multiple_defs=multiple_defs,
                 collect_multiple=collect_multiple,
+                in_template=in_template,
             )
 
 
