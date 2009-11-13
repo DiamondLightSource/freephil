@@ -17,6 +17,7 @@ class index(object):
         self._template_index = {}
         self._multiple_scopes = {}
         self._multiple_defs = {}
+        self._expert_levels = {}
         self._hidden = []  # XXX: not implemented here (for phenix GUI)
         self._phil_has_changed = False
         self._log = str_utils.StringIO()
@@ -65,6 +66,7 @@ class index(object):
             multiple_scopes=self._multiple_scopes,
             multiple_defs=self._multiple_defs,
             collect_multiple=collect_multiple,
+            expert_levels=self._expert_levels,
         )
 
     def rebuild_index(self):
@@ -268,6 +270,9 @@ class index(object):
         else:
             return None
 
+    def get_expert_level(self, phil_name):
+        return self._expert_levels.get(phil_name, 0)
+
     # ---------------------------------------------------------------------
     # EDITING METHODS
     def reset_scope(self, phil_scope_name):
@@ -441,8 +446,15 @@ def index_phil_objects(
     multiple_defs=None,
     collect_multiple=True,
     in_template=False,
+    expert_levels=None,
 ):
     full_path = phil_object.full_path()
+    if expert_levels is not None:
+        if phil_object.expert_level is not None:
+            expert_levels[full_path] = phil_object.expert_level
+        else:
+            parent_scope = ".".join(full_path.split(".")[:-1])
+            expert_levels[full_path] = expert_levels.get(parent_scope, 0)
     if phil_object.is_template != 0:
         template_index[full_path] = phil_object
         if phil_object.is_template == -1:
@@ -482,6 +494,7 @@ def index_phil_objects(
                 multiple_defs=multiple_defs,
                 collect_multiple=collect_multiple,
                 in_template=in_template,
+                expert_levels=expert_levels,
             )
 
 
