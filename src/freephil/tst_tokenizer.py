@@ -1,8 +1,7 @@
 from libtbx.phil import tokenizer
-import sys
 
 
-def exercise():
+def exercise_basic(verbose):
     tests = [
         ["", []],
         ["resname=a and chain=b", ["resname", "=", "a", "and", "chain", "=", "b"]],
@@ -40,7 +39,6 @@ def exercise():
         ['name """o1\n  o2\'"""', ["name", "o1\n  o2'"]],
         ['name """o1\\\n  o2\'"""', ["name", "o1  o2'"]],
     ]
-    verbose = "--verbose" in sys.argv[1:]
     for input_string, expected_result in tests:
         show = verbose or expected_result is None
         if show:
@@ -54,8 +52,33 @@ def exercise():
             assert result == expected_result
         if show:
             print
+
+
+def exercise_pickle():
+    import pickle
+    import cPickle
+
+    for p in [pickle, cPickle]:
+        o = tokenizer.word(value="hello")
+        l = p.loads(p.dumps(o))
+        assert l.value == "hello"
+        o = tokenizer.settings(meta_comment="%")
+        l = p.loads(p.dumps(o))
+        assert l.meta_comment == "%"
+        o = tokenizer.word_iterator(input_string="all")
+        l = p.loads(p.dumps(o))
+        assert l.char_iter.input_string == "all"
+
+
+def run(args):
+    assert args in [[], ["--verbose"]]
+    verbose = len(args) != 0
+    exercise_basic(verbose=verbose)
+    exercise_pickle()
     print "OK"
 
 
 if __name__ == "__main__":
-    exercise()
+    import sys
+
+    run(args=sys.argv[1:])
