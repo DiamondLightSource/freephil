@@ -475,6 +475,8 @@ def index_phil_objects(
             path_index[full_path] = [phil_object]
     else:
         path_index[full_path] = phil_object
+    if phil_object.is_definition and phil_object.type is None:
+        raise RuntimeError("Type required for parameter '%s'." % full_path)
     label = get_standard_phil_label(phil_object)
     text_fields = (
         label,
