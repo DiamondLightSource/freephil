@@ -556,4 +556,8 @@ def join_scope_paths(scope1, scope2):
         return "%s.%s" % (scope1, scope2)
 
 
+def get_adjoining_phil_path(def_path, def_name):
+    return ".".join(def_path.split(".")[:-1]) + "." + def_name
+
+
 # ---end
