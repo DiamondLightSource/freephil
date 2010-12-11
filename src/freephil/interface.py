@@ -297,6 +297,7 @@ class index(object):
         rebuild_index=True,
         only_scope=None,
     ):
+        assert [phil_object, phil_string, phil_file].count(None) == 2
         if phil_string is not None:
             phil_object = self.parse(phil_string)
         elif phil_file is not None:
