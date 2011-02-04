@@ -2095,6 +2095,7 @@ d { a {} }
         )
     else:
         raise Exception_expected
+    master.fetch(source=source, skip_incompatible_objects=True)
     source = phil.parse(input_string="b=None")
     try:
         master.fetch(source=source)
@@ -2105,6 +2106,7 @@ d { a {} }
         )
     else:
         raise Exception_expected
+    master.fetch(source=source, skip_incompatible_objects=True)
     source = phil.parse(input_string="c { a { } }")
     try:
         master.fetch(source=source)
@@ -2115,6 +2117,7 @@ d { a {} }
         )
     else:
         raise Exception_expected
+    master.fetch(source=source, skip_incompatible_objects=True)
     source = phil.parse(input_string="d { a=None\n}")
     try:
         master.fetch(source=source)
@@ -2125,6 +2128,7 @@ d { a {} }
         )
     else:
         raise Exception_expected
+    master.fetch(source=source, skip_incompatible_objects=True)
     #
     master = phil.parse(
         input_string="""\

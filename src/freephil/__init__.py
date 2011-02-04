@@ -1046,8 +1046,10 @@ class definition(slots_getstate_setstate):
         if not active_only or not self.is_disabled:
             self.tmp = value
 
-    def fetch_value(self, source, diff_mode=False):
+    def fetch_value(self, source, diff_mode=False, skip_incompatible_objects=False):
         if source.is_scope:
+            if skip_incompatible_objects:
+                return self.copy()
             raise RuntimeError(
                 'Incompatible parameter objects: definition "%s"%s vs. scope "%s"%s'
                 % (self.name, self.where_str, source.name, source.where_str)
@@ -1059,18 +1061,26 @@ class definition(slots_getstate_setstate):
             return self.customized_copy(words=source.words)
         return type_fetch(source_words=source.words, master=self)
 
-    def fetch_diff(self, source):
-        result = self.fetch_value(source=source, diff_mode=True)
+    def fetch_diff(self, source, skip_incompatible_objects=False):
+        result = self.fetch_value(
+            source=source,
+            diff_mode=True,
+            skip_incompatible_objects=skip_incompatible_objects,
+        )
         result_as_str = self.extract_format(source=result).as_str()
         self_as_str = self.extract_format().as_str()
         if result_as_str == self_as_str:
             result = None
         return result
 
-    def fetch(self, source, diff=False):
+    def fetch(self, source, diff=False, skip_incompatible_objects=False):
         if diff:
-            return self.fetch_diff(source=source)
-        return self.fetch_value(source=source)
+            return self.fetch_diff(
+                source=source, skip_incompatible_objects=skip_incompatible_objects
+            )
+        return self.fetch_value(
+            source=source, skip_incompatible_objects=skip_incompatible_objects
+        )
 
     def has_attribute_with_name(self, name):
         return name in self.attribute_names
@@ -1944,7 +1954,12 @@ class scope(slots_getstate_setstate):
         ).extract()
 
     def fetch(
-        self, source=None, sources=None, track_unused_definitions=False, diff=False
+        self,
+        source=None,
+        sources=None,
+        track_unused_definitions=False,
+        diff=False,
+        skip_incompatible_objects=False,
     ):
         combined_objects = []
         if source is not None or sources is not None:
@@ -1955,6 +1970,8 @@ class scope(slots_getstate_setstate):
             for source in sources:
                 assert source.name == self.name
                 if source.is_definition:
+                    if skip_incompatible_objects:
+                        continue
                     raise RuntimeError(
                         "Incompatible parameter objects:"
                         ' scope "%s"%s vs. definition "%s"%s'
@@ -1978,11 +1995,15 @@ class scope(slots_getstate_setstate):
                     result_object = None
                     for matching_source in matching_sources.active_objects():
                         result_object = master_object.fetch(
-                            source=matching_source, diff=diff
+                            source=matching_source,
+                            diff=diff,
+                            skip_incompatible_objects=skip_incompatible_objects,
                         )
                 else:
                     result_object = master_object.fetch(
-                        sources=matching_sources.active_objects(), diff=diff
+                        sources=matching_sources.active_objects(),
+                        diff=diff,
+                        skip_incompatible_objects=skip_incompatible_objects,
                     )
                     if diff and len(result_object.objects) == 0:
                         result_object = None
@@ -2002,7 +2023,9 @@ class scope(slots_getstate_setstate):
                         if matching_source is master_object:
                             continue
                         candidate = master_object.fetch(
-                            source=matching_source, diff=diff
+                            source=matching_source,
+                            diff=diff,
+                            skip_incompatible_objects=skip_incompatible_objects,
                         )
                         if diff:
                             if master_object.is_scope:
@@ -2047,12 +2070,19 @@ class scope(slots_getstate_setstate):
             return result, source.all_definitions(select_tmp=False)
         return result
 
-    def fetch_diff(self, source=None, sources=None, track_unused_definitions=False):
+    def fetch_diff(
+        self,
+        source=None,
+        sources=None,
+        track_unused_definitions=False,
+        skip_incompatible_objects=False,
+    ):
         return self.fetch(
             source=source,
             sources=sources,
             track_unused_definitions=track_unused_definitions,
             diff=True,
+            skip_incompatible_objects=skip_incompatible_objects,
         )
 
     def process_includes(
