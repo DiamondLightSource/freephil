@@ -122,7 +122,7 @@ class index(object):
         else:
             output_phil = final_phil
         if replace_path is not None:
-            _substitute_directory_name(
+            substitute_directory_name(
                 phil_object=output_phil,
                 path_name=replace_path,
                 sub_name="LIBTBX_BASE_DIR",
@@ -387,7 +387,7 @@ class index(object):
     # ---------------------------------------------------------------------
     # EDITING METHODS
     def substitute_directory(self, path_name, sub_name):
-        _substitute_directory_name(
+        substitute_directory_name(
             phil_object=self.working_phil, path_name=path_name, sub_name=sub_name
         )
 
@@ -792,7 +792,7 @@ def reindex_phil_objects(phil_object, path_index, only_scope=None):
 non_alnum = re.compile("[^A-Za-z0-9_]")
 
 
-def _substitute_directory_name(
+def substitute_directory_name(
     phil_object, path_name, sub_name, treat_name_as_var_name=True
 ):
     assert not non_alnum.search(sub_name)
@@ -812,7 +812,7 @@ def _substitute_directory_name(
                 new_object = object.format(python_object=py_object)
                 object.words = new_object.words
         else:
-            _substitute_directory_name(object, path_name, sub_name)
+            substitute_directory_name(object, path_name, sub_name)
 
 
 def update_phil_file_paths(
@@ -839,7 +839,7 @@ def update_phil_file_paths(
     else:
         file_phil = parse(file_name=file_name)
         working_phil = master_phil.fetch(source=file_phil)
-        _substitute_directory_name(
+        substitute_directory_name(
             phil_object=working_phil, path_name=old_path, sub_name="LIBTBX_BASE_DIR"
         )
         f = open(file_name, "w")
