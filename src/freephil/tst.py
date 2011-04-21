@@ -1,6 +1,6 @@
 from __future__ import division
 from libtbx import phil
-import libtbx.phil.command_line
+import libtbx.phil
 from libtbx.utils import Sorry
 from libtbx.test_utils import Exception_expected, show_diff
 from libtbx import Auto
@@ -6451,10 +6451,8 @@ bar {
 }
 """
     )
-    itpr_bar = phil.command_line.argument_interpreter(
-        master_phil=master_phil, home_scope="bar"
-    )
-    itpr_neutral = phil.command_line.argument_interpreter(master_phil=master_phil)
+    itpr_bar = master_phil.command_line_argument_interpreter(home_scope="bar")
+    itpr_neutral = master_phil.command_line_argument_interpreter()
     for itpr in [itpr_bar, itpr_neutral]:
         itpr.process(
             arg="foo.limit=4\nbar.max=2"
@@ -6506,9 +6504,7 @@ Error interpreting command line argument as parameter definition:
         assert str(e) == 'Command line parameter definition has no effect: "  "'
     else:
         raise Exception_expected
-    itpr = phil.command_line.argument_interpreter(
-        master_phil=master_phil, argument_description=""
-    )
+    itpr = master_phil.command_line_argument_interpreter(argument_description="")
     try:
         itpr.process(arg="bar {}")
     except Sorry, e:
@@ -6527,7 +6523,7 @@ def exercise_choice_multi_plus_support():
     )
     # argument_interpreter used only for convenience
     # (i.e. it is not exercised here)
-    cai = libtbx.phil.command_line.argument_interpreter(master_phil=master_phil)
+    cai = master_phil.command_line_argument_interpreter()
     for arg, expected_result in [
         ("u=a", "u = *a b c"),
         ("u=b", "u = a *b c"),
