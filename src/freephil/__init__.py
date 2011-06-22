@@ -258,13 +258,13 @@ def number_from_value_string(value_string, words, path):
         return int(value_string)
     except KeyboardInterrupt:
         raise
-    except:
+    except Exception:
         pass
     try:
         return eval(value_string, math.__dict__, {})
     except KeyboardInterrupt:
         raise
-    except:
+    except Exception:
         raise RuntimeError(
             'Error interpreting %s="%s" as a numeric expression: %s%s'
             % (path, value_string, format_exception(), words[0].where_str())
@@ -858,7 +858,7 @@ def definition_converters_from_words(words, converter_registry, converter_cache)
             )
         except KeyboardInterrupt:
             raise
-        except:
+        except Exception:
             raise RuntimeError(
                 'Error constructing definition type "%s": %s%s'
                 % (call_expression, format_exception(), words[0].where_str())
@@ -875,7 +875,7 @@ def definition_converters_from_words(words, converter_registry, converter_cache)
                 )
             except KeyboardInterrupt:
                 raise
-            except:
+            except Exception:
                 raise RuntimeError(
                     'Error evaluating definition type "%s": %s%s'
                     % (call_expression, format_exception(), words[0].where_str())
@@ -901,7 +901,7 @@ def definition_converters_from_words(words, converter_registry, converter_cache)
             converters_instance = imported.object(**keyword_args)
         except KeyboardInterrupt:
             raise
-        except:
+        except Exception:
             raise RuntimeError(
                 'Error constructing definition type "%s": %s%s'
                 % (call_expression, format_exception(), words[0].where_str())
@@ -1402,7 +1402,7 @@ def scope_extract_call_proxy(full_path, words, cache):
                 )
             except KeyboardInterrupt:
                 raise
-            except:
+            except Exception:
                 raise RuntimeError(
                     'scope "%s" .call=%s: %s%s'
                     % (full_path, call_expression, format_exception(), where_str)
@@ -1557,7 +1557,7 @@ class scope_extract(object):
             return call_proxy.callable(self, **effective_keyword_args)
         except KeyboardInterrupt:
             raise
-        except:
+        except Exception:
             raise RuntimeError(
                 'scope "%s" .call=%s execution: %s%s'
                 % (
