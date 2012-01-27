@@ -85,6 +85,7 @@ class style(object):
         "no_map",
         "file_type_default",
         "expand",
+        "output_dir",
     ]
     style_kwds = [
         "auto_launch_dialog",
