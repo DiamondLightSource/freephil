@@ -121,7 +121,7 @@ class argument_interpreter(object):
                     arg_work += " = True"
                 user_phils.append(self.process_arg(arg=arg_work))
                 continue
-            if op.isfile(arg):
+            if op.isfile(arg) and op.getsize(arg) > 0:
                 try:
                     user_phils.append(libtbx.phil.parse(file_name=arg))
                 except Exception:
