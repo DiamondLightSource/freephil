@@ -8,11 +8,19 @@ from itertools import count
 from libtbx import Auto, slots_getstate_setstate
 from cStringIO import StringIO
 import tokenize as python_tokenize
+import warnings
 import math
 import weakref
 import sys, os
 
 default_print_width = 79
+
+
+class PhilDeprecationWarning(DeprecationWarning):
+    pass
+
+
+warnings.filterwarnings("always", category=PhilDeprecationWarning)
 
 
 def is_reserved_identifier(string):
@@ -927,6 +935,8 @@ def show_attributes(self, out, prefix, attributes_level, print_width):
         return
     for name in self.attribute_names:
         value = getattr(self, name)
+        if (name == "deprecated") and (not value):
+            continue  # only show .deprecated if True
         if (
             (name == "help" and value is not None)
             or (value is not None and attributes_level > 1)
@@ -1009,6 +1019,7 @@ class definition(slots_getstate_setstate):
         "input_size",
         "style",
         "expert_level",
+        "deprecated",
     ]
 
     __slots__ = [
@@ -1043,6 +1054,7 @@ class definition(slots_getstate_setstate):
         input_size=None,
         style=None,
         expert_level=None,
+        deprecated=None,
     ):
         if is_reserved_identifier(name):
             raise RuntimeError('Reserved identifier: "%s"%s' % (name, where_str))
@@ -1066,6 +1078,7 @@ class definition(slots_getstate_setstate):
         self.input_size = input_size
         self.style = style
         self.expert_level = expert_level
+        self.deprecated = deprecated
 
     def copy(self):
         keyword_args = {}
@@ -1100,6 +1113,18 @@ class definition(slots_getstate_setstate):
         source.tmp = True
         source = source.resolve_variables(diff_mode=diff_mode)
         type_fetch = getattr(self.type, "fetch", None)
+        if self.deprecated:
+            # issue warning if value is not the default, otherwise return None so
+            # this parameter stays invisible to users
+            result_as_str = strings_from_words(source.words)
+            self_as_str = strings_from_words(self.words)
+            if result_as_str != self_as_str:
+                warnings.warn(
+                    "%s is deprecated - not recommended for use." % self.full_path(),
+                    PhilDeprecationWarning,
+                )
+            else:
+                return None
         if type_fetch is None:
             return self.customized_copy(words=source.words)
         return type_fetch(source_words=source.words, master=self)
@@ -1155,6 +1180,8 @@ class definition(slots_getstate_setstate):
     ):
         if self.is_template < 0 and attributes_level < 2:
             return
+        elif self.deprecated and attributes_level < 3:
+            return
         if (
             self.expert_level is not None
             and expert_level is not None
@@ -1174,6 +1201,8 @@ class definition(slots_getstate_setstate):
         if self.name != "include":
             line += " ="
         indent = " " * len(line)
+        if self.deprecated:
+            print >> out, prefix + "# WARNING: deprecated parameter"
         for word in self.words:
             line_plus = line + " " + str(word)
             if len(line_plus) > print_width - 2 and len(line) > len(indent):
@@ -1573,6 +1602,7 @@ class scope(slots_getstate_setstate):
 
     is_definition = False
     is_scope = True
+    deprecated = False
 
     attribute_names = [
         "style",
@@ -1997,6 +2027,7 @@ class scope(slots_getstate_setstate):
         track_unused_definitions=False,
         diff=False,
         skip_incompatible_objects=False,
+        warn_deprecated=True,
     ):
         combined_objects = []
         if source is not None or sources is not None:
@@ -2046,7 +2077,7 @@ class scope(slots_getstate_setstate):
                         result_object = None
                 if result_object is not None:
                     result_objects.append(result_object)
-                elif not diff:
+                elif (not diff) and (not master_object.deprecated):
                     result_objects.append(master_object.copy())
             else:
                 processed_as_str = {}
