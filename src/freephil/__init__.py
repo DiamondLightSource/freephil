@@ -74,7 +74,11 @@ def tokenize_value_literal(input_string, source_info):
         tokenizer.word_iterator(
             input_string=input_string,
             source_info=source_info,
-            list_of_settings=[tokenizer.settings(contiguous_word_characters="")],
+            list_of_settings=[
+                tokenizer.settings(
+                    contiguous_word_characters="", enable_quoted_t_n_r_x_escapes=True
+                )
+            ],
         )
     )
 
@@ -2416,11 +2420,14 @@ def parse(
                 tokenizer.settings(
                     unquoted_single_character_words="{}=",
                     contiguous_word_characters="",
+                    enable_quoted_t_n_r_x_escapes=True,
                     comment_characters="#",
                     meta_comment="phil",
                 ),
                 tokenizer.settings(
-                    unquoted_single_character_words="{};", contiguous_word_characters=""
+                    unquoted_single_character_words="{};",
+                    contiguous_word_characters="",
+                    enable_quoted_t_n_r_x_escapes=True,
                 ),
             ],
         ),
