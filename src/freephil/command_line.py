@@ -58,8 +58,7 @@ class argument_interpreter(object):
     def process_arg(self, arg):
         try:
             params = libtbx.phil.parse(
-                input_string=arg,  # XXX was: arg.replace(r"\n", "\n")
-                source_info=self.argument_description + "argument",
+                input_string=arg, source_info=self.argument_description + "argument"
             )
         except RuntimeError:
             raise Sorry(
