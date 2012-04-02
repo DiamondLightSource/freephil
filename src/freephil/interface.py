@@ -839,7 +839,8 @@ def substitute_directory_name(
                 py_object = object.extract()
                 if (py_object is None) or (py_object is Auto):
                     continue
-                py_object = re.sub(path_name, sub_var, py_object)
+                assert isinstance(py_object, str)
+                py_object = py_object.replace(path_name, sub_var)
                 new_object = object.format(python_object=py_object)
                 object.words = new_object.words
         else:
@@ -860,7 +861,7 @@ def update_phil_file_paths(
     out_lines = []
     for line in phil_in.splitlines():
         if line.startswith("LIBTBX_BASE_DIR"):
-            line = re.sub(old_path, new_path, line)
+            line = line.replace(old_path, new_path)
             new_format = True
             out_lines.append(line)
         else:
