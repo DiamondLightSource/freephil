@@ -7059,7 +7059,35 @@ class scope_call_class_object(object):
         self.keyword_args = keyword_args
 
 
+def exercise_find_scope():
+    phil_scope = phil.parse(
+        """\
+scope1 {
+  a = 1
+  b = 2
+}
+scope2 {
+  c = 3
+  d = 4
+}
+"""
+    )
+    scope2 = phil.find_scope(current_phil=phil_scope, scope_name="scope2")
+    s = StringIO()
+    scope2.show(out=s)
+    assert not show_diff(
+        s.getvalue(),
+        """\
+scope2 {
+  c = 3
+  d = 4
+}
+""",
+    )
+
+
 def exercise():
+    exercise_find_scope()
     exercise_string_quote_and_tokenize()
     exercise_parse_and_show()
     exercise_import_converters()
