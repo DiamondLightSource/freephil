@@ -53,6 +53,12 @@ refinement {
         .help = Restrained selection
     }
   }
+  developer
+    .expert_level = 3
+  {
+    place_elemental_ions = False
+      .type = bool
+  }
 }
 """
     )
@@ -170,6 +176,8 @@ refinement.ncs.restraint_group {
     assert len(names) == 3
     names = i.search_phil_text("selection group", match_all=True, labels_only=False)
     assert len(names) == 3
+    names = i.search_phil_text("elemental")
+    assert len(names) == 0
 
     assert (
         libtbx.phil.interface.get_adjoining_phil_path(
@@ -255,7 +263,7 @@ refinement.ncs.restraint_group {
   selection = "chain D"
 }"""
 
-    master_phil = runtime.master_phil
+    master_phil = runtime.master_phil()
     i = interface.index(master_phil=master_phil, parse=iotbx.phil.parse)
     t1 = time()
     i.merge_phil(phil_string=phil_str)
