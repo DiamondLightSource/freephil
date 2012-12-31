@@ -59,8 +59,15 @@ refinement {
     place_elemental_ions = False
       .type = bool
   }
+  gui {
+    include scope libtbx.phil.interface.tracking_params
+    output_dir = None
+      .type = path
+      .style = output_dir
+  }
 }
-"""
+""",
+        process_includes=True,
     )
     refine_phil1 = libtbx.phil.parse(
         """
@@ -178,6 +185,10 @@ refinement.ncs.restraint_group {
     assert len(names) == 3
     names = i.search_phil_text("elemental")
     assert len(names) == 0
+    i.update("refinement.gui.output_dir=/var/tmp")
+    i.update('refinement.gui.job_title="Hello, world!"')
+    assert i.get_output_dir() == "/var/tmp"
+    assert i.get_job_title() == "Hello, world!"
 
     assert (
         libtbx.phil.interface.get_adjoining_phil_path(
