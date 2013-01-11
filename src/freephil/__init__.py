@@ -96,7 +96,7 @@ class words_converters(object):
     def as_words(self, python_object, master):
         if python_object is None:
             return [tokenizer.word(value="None")]
-        if python_object is Auto:
+        if (python_object is Auto) or (type(python_object) == type(Auto)):
             return [tokenizer.word(value="Auto")]
         for word in python_object:
             assert isinstance(word, tokenizer.word)
@@ -114,7 +114,7 @@ def strings_from_words(words):
 def strings_as_words(python_object):
     if python_object is None:
         return [tokenizer.word(value="None")]
-    if python_object is Auto:
+    if (python_object is Auto) or (type(python_object) == type(Auto)):
         return [tokenizer.word(value="Auto")]
     words = []
     for value in python_object:
@@ -160,7 +160,7 @@ class str_converters(object):
     def as_words(self, python_object, master):
         if python_object is None:
             return [tokenizer.word(value="None")]
-        if python_object is Auto:
+        if (python_object is Auto) or (type(python_object) == type(Auto)):
             return [tokenizer.word(value="Auto")]
         return [tokenizer.word(value=python_object, quote_token='"')]
 
@@ -182,7 +182,7 @@ class qstr_converters(object):
     def as_words(self, python_object, master):
         if python_object is None:
             return [tokenizer.word(value="None")]
-        if python_object is Auto:
+        if (python_object is Auto) or (type(python_object) == type(Auto)):
             return [tokenizer.word(value="Auto")]
         return tokenize_value_literal(
             input_string=python_object, source_info="python_object"
@@ -242,7 +242,7 @@ class bool_converters(object):
     def as_words(self, python_object, master):
         if python_object is None:
             return [tokenizer.word(value="None")]
-        if python_object is Auto:
+        if (python_object is Auto) or (type(python_object) == type(Auto)):
             return [tokenizer.word(value="Auto")]
         if python_object:
             return [tokenizer.word(value="True")]
@@ -406,7 +406,7 @@ class number_converters_base(_check_value_base):
     def as_words(self, python_object, master):
         if python_object is None:
             return [tokenizer.word(value="None")]
-        if python_object is Auto:
+        if (python_object is Auto) or (type(python_object) == type(Auto)):
             return [tokenizer.word(value="Auto")]
         return [tokenizer.word(value=self._value_as_str(value=python_object))]
 
@@ -551,7 +551,9 @@ class numbers_converters_base(_check_value_base):
     def as_words(self, python_object, master):
         if python_object is None:
             return [tokenizer.word(value="None")]
-        if python_object is Auto:
+        # XXX note that pickling the object will lose the identity of Auto, so
+        # we also need to check the type
+        if (python_object is Auto) or (type(python_object) == type(Auto)):
             return [tokenizer.word(value="Auto")]
         self._check_size(size=len(python_object), path_producer=master.full_path)
         result = []
@@ -640,7 +642,7 @@ class choice_converters(object):
         return result
 
     def as_words(self, python_object, master):
-        if python_object is Auto:
+        if (python_object is Auto) or (type(python_object) == type(Auto)):
             return [tokenizer.word(value="Auto")]
         assert not self.multi or python_object is not None
         if self.multi:
@@ -1994,7 +1996,7 @@ class scope(slots_getstate_setstate):
                 multiple_scopes_done[object.name] = False
             if python_object is None:
                 result.append(object.format(None))
-            elif python_object is Auto:
+            elif (python_object is Auto) or (type(python_object) == type(Auto)):
                 result.append(object.format(Auto))
             else:
                 if isinstance(python_object, scope_extract):

@@ -3,6 +3,7 @@ from libtbx import phil
 import libtbx.phil
 from libtbx.utils import Sorry
 from libtbx.test_utils import Exception_expected, show_diff, anchored_block_show_diff
+from libtbx import easy_pickle
 from libtbx import Auto
 import warnings
 from cStringIO import StringIO
@@ -6008,6 +6009,26 @@ awords=Auto
         assert params.awords is Auto
         assert not show_diff(
             master.format(params).as_str(),
+            """\
+abool = Auto
+aint = Auto
+afloat = Auto
+astr = Auto
+achoice = Auto
+achoicemand = Auto
+achoicemult = Auto
+achoicemultmand = Auto
+apath = Auto
+akey = Auto
+anone = Auto
+astrings = Auto
+awords = Auto
+""",
+        )
+        params_pkl = easy_pickle.dumps(params)
+        params2 = easy_pickle.loads(params_pkl)
+        assert not show_diff(
+            master.format(params2).as_str(),
             """\
 abool = Auto
 aint = Auto
