@@ -88,6 +88,7 @@ class style(object):
         "file_type_default",
         "expand",
         "output_dir",
+        "seq_file",
     ]
     style_kwds = [
         "auto_launch_dialog",
