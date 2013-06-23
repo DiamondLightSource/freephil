@@ -700,7 +700,7 @@ class choice_converters(object):
                 )
         return words
 
-    def fetch(self, source_words, master):
+    def fetch(self, source_words, master, ignore_errors=False):
         assert not is_plain_none(words=master.words)
         assert not is_plain_auto(words=master.words)
         if is_plain_auto(words=source_words):
@@ -761,7 +761,10 @@ class choice_converters(object):
                         else:
                             flag = False
                     if flag and value.lower() not in flags:
-                        raise_not_a_possible_choice(value)
+                        if ignore_errors:
+                            continue
+                        else:
+                            raise_not_a_possible_choice(value)
                     flags[value.lower()] = flag
         words = []
         for word in master.words:
@@ -1141,7 +1144,14 @@ class definition(slots_getstate_setstate):
                 return None
         if type_fetch is None:
             return self.customized_copy(words=source.words)
-        return type_fetch(source_words=source.words, master=self)
+        if self.type.phil_type == "choice":
+            return type_fetch(
+                source_words=source.words,
+                master=self,
+                ignore_errors=skip_incompatible_objects,
+            )
+        else:
+            return type_fetch(source_words=source.words, master=self)
 
     def fetch_diff(self, source, skip_incompatible_objects=False):
         result = self.fetch_value(
