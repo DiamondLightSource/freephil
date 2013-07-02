@@ -80,6 +80,7 @@ class style(object):
         "force_data",
         "anom",
         "non_anom",
+        "no_view",
         "process_hkl",
         "force_rfree",
         "combo_box",
