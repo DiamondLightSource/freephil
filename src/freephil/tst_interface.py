@@ -376,7 +376,7 @@ def exercise_3():
     import iotbx.phil
     import phaser.phenix_interface
 
-    master_phil = phaser.phenix_interface.master_phil
+    master_phil = phaser.phenix_interface.master_phil()
     i = interface.index(master_phil=master_phil, parse=iotbx.phil.parse)
     i.merge_phil(
         phil_string="""\
