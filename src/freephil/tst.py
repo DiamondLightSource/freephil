@@ -7256,17 +7256,26 @@ scope2 {
 def exercise_alias():
     master_phil = phil.parse(
         """
-refinement {
-  main {
-    nproc = 1
-      .type = int
-  }
-}
 pdb_interpretation
   .alias = refinement.pdb_interpretation
 {
   auto_link = False
     .type = bool
+}
+geometry_restraints
+  .alias = refinement.geometry_restraints
+{
+ edits {
+  excessive_bond_distance_limit = 10
+    .type = float
+  bond
+    .multiple = True
+    .optional = True
+  {
+    distance = None
+      .type = float
+  }
+ }
 }
 """,
         process_includes=True,
@@ -7275,7 +7284,17 @@ pdb_interpretation
         """
 pdb_interpretation {
   auto_link = True
-}"""
+}
+geometry_restraints.edits {
+  excessive_bond_distance_limit = 5
+  bond {
+    distance = 1.5
+  }
+  bond {
+    distance = 2.5
+  }
+}
+"""
     )
     geo_phil_old = phil.parse(
         """
@@ -7283,7 +7302,17 @@ refinement {
   pdb_interpretation {
     auto_link = True
   }
-}"""
+  geometry_restraints.edits {
+    excessive_bond_distance_limit = 5
+    bond {
+      distance = 1.5
+    }
+    bond {
+      distance = 2.5
+    }
+  }
+}
+"""
     )
 
     work_old = master_phil.fetch(source=geo_phil_old)
@@ -7301,15 +7330,20 @@ refinement {
     assert (
         s.getvalue()
         == """\
-refinement {
-  main {
-    nproc = 1
-  }
-}
 pdb_interpretation
   .alias = refinement.pdb_interpretation
 {
   auto_link = False
+}
+geometry_restraints
+  .alias = refinement.geometry_restraints
+{
+  edits {
+    excessive_bond_distance_limit = 10
+    bond {
+      distance = None
+    }
+  }
 }
 """
     )
