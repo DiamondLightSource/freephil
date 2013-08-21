@@ -924,7 +924,9 @@ def update_phil_file_paths(
         open(file_name, "w").write("\n".join(out_lines))
     else:
         file_phil = parse(file_name=file_name)
-        working_phil = master_phil.fetch(source=file_phil)
+        working_phil = master_phil.fetch(
+            source=file_phil, skip_incompatible_objects=True
+        )
         substitute_directory_name(
             phil_object=working_phil, path_name=old_path, sub_name="LIBTBX_BASE_DIR"
         )
