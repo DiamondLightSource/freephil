@@ -231,7 +231,7 @@ class word_iterator(slots_getstate_setstate):
         char_iter = O.char_iter
         char_iter.mark_for_backup()
         while True:
-            c = char_iter.next()
+            c = next(char_iter)
             if c is None:
                 break
             if c.isspace():
@@ -242,7 +242,7 @@ class word_iterator(slots_getstate_setstate):
                 != settings.meta_comment
             ):
                 while True:
-                    c = char_iter.next()
+                    c = next(char_iter)
                     if c is None or c == "\n":
                         break
             elif c in ['"', "'"]:
@@ -256,7 +256,7 @@ class word_iterator(slots_getstate_setstate):
                 else:
                     quote_token = quote_char
                 while True:
-                    c = char_iter.next()
+                    c = next(char_iter)
                     if c == quote_char:
                         if quote_token is quote_char:
                             break
@@ -269,7 +269,7 @@ class word_iterator(slots_getstate_setstate):
                         if _ == "\\":
                             char_iter.skip_ahead_1()
                         elif _ == quote_char:
-                            c = char_iter.next()
+                            c = next(char_iter)
                         elif _ == "\n":
                             char_iter.skip_ahead_1()
                             continue

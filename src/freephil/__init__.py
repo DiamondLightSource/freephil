@@ -2410,13 +2410,13 @@ class variable_substitution_proxy(slots_getstate_setstate):
         self.fragments = []
         fragment_value = ""
         char_iter = tokenizer.character_iterator(word.value)
-        c = char_iter.next()
+        c = next(char_iter)
         while c is not None:
             if c != "$":
                 fragment_value += c
                 if c == "\\" and char_iter.look_ahead_1() == "$":
-                    fragment_value += char_iter.next()
-                c = char_iter.next()
+                    fragment_value += next(char_iter)
+                c = next(char_iter)
             else:
                 self.have_variables = True
                 if len(fragment_value) > 0:
@@ -2426,16 +2426,16 @@ class variable_substitution_proxy(slots_getstate_setstate):
                         )
                     )
                     fragment_value = ""
-                c = char_iter.next()
+                c = next(char_iter)
                 if c is None:
                     word.raise_syntax_error("$ must be followed by an identifier: ")
                 if c == "(":
                     while True:
-                        c = char_iter.next()
+                        c = next(char_iter)
                         if c is None:
                             word.raise_syntax_error('missing ")": ')
                         if c == ")":
-                            c = char_iter.next()
+                            c = next(char_iter)
                             break
                         fragment_value += c
                     offs = int(fragment_value.startswith("."))
@@ -2451,7 +2451,7 @@ class variable_substitution_proxy(slots_getstate_setstate):
                         word.raise_syntax_error("improper variable name ")
                     fragment_value = c
                     while True:
-                        c = char_iter.next()
+                        c = next(char_iter)
                         if c is None:
                             break
                         if c == ".":
