@@ -1,12 +1,13 @@
 "Documentation: http://cctbx.sourceforge.net/libtbx_phil.html"
 
 from __future__ import division
+from __future__ import print_function
 from libtbx.phil import tokenizer
 from libtbx.str_utils import line_breaker
 from libtbx.utils import Sorry, format_exception, import_python_object
 from itertools import count
 from libtbx import Auto, slots_getstate_setstate
-from cStringIO import StringIO
+from six.moves import cStringIO as StringIO
 import tokenize as python_tokenize
 import warnings
 import math
@@ -872,7 +873,7 @@ def definition_converters_from_words(words, converter_registry, converter_cache)
     call_expression_raw = str_from_words(words).strip()
     try:
         call_expression = normalize_call_expression(expression=call_expression_raw)
-    except python_tokenize.TokenError, e:
+    except python_tokenize.TokenError as e:
         raise RuntimeError(
             'Error evaluating definition type "%s": %s%s'
             % (call_expression_raw, str(e), words[0].where_str())
@@ -1003,7 +1004,7 @@ def show_attributes(self, out, prefix, attributes_level, print_width):
                         value = "False"
                     elif value is True:
                         value = "True"
-                print >> out, prefix + "  ." + name, "=", value
+                print(prefix + "  ." + name, "=", value, file=out)
             else:
                 indent = " " * (len(prefix) + 3 + len(name) + 3)
                 fits_on_one_line = len(indent + value) < print_width
@@ -1011,17 +1012,19 @@ def show_attributes(self, out, prefix, attributes_level, print_width):
                     value = str(tokenizer.word(value=value, quote_token='"'))
                     fits_on_one_line = len(indent + value) < print_width
                 if fits_on_one_line:
-                    print >> out, prefix + "  ." + name, "=", value
+                    print(prefix + "  ." + name, "=", value, file=out)
                 else:
                     is_first = True
                     for block in line_breaker(
                         value[1:-1], print_width - 2 - len(indent)
                     ):
                         if is_first:
-                            print >> out, prefix + "  ." + name, "=", '"' + block + '"'
+                            print(
+                                prefix + "  ." + name, "=", '"' + block + '"', file=out
+                            )
                             is_first = False
                         else:
-                            print >> out, indent + '"' + block + '"'
+                            print(indent + '"' + block + '"', file=out)
 
 
 class object_locator(object):
@@ -1275,15 +1278,15 @@ class definition(slots_getstate_setstate):
             line += " ="
         indent = " " * len(line)
         if self.deprecated:
-            print >> out, prefix + "# WARNING: deprecated parameter"
+            print(prefix + "# WARNING: deprecated parameter", file=out)
         for word in self.words:
             line_plus = line + " " + str(word)
             if len(line_plus) > print_width - 2 and len(line) > len(indent):
-                print >> out, line + " \\"
+                print(line + " \\", file=out)
                 line = indent + " " + str(word)
             else:
                 line = line_plus
-        print >> out, line
+        print(line, file=out)
         show_attributes(
             self=self,
             out=out,
@@ -1344,7 +1347,7 @@ class definition(slots_getstate_setstate):
             return try_extract_proxy(
                 error_message=None, extracted=type_from_words(self.words, master=self)
             )
-        except RuntimeError, e:
+        except RuntimeError as e:
             return try_extract_proxy(error_message=str(e), extracted=None)
 
     def extract(self, parent=None):
@@ -1384,7 +1387,7 @@ class definition(slots_getstate_setstate):
             words = tokenize_value_literal(
                 input_string=input_string, source_info=source_info
             )
-        except RuntimeError, e:
+        except RuntimeError as e:
             return try_tokenize_proxy(error_message=str(e), tokenized=None)
         if len(words) == 0:
             words = [tokenizer.word(value="None")]
@@ -1486,7 +1489,7 @@ def scope_extract_call_proxy(full_path, words, cache):
     call_expression_raw = str_from_words(words).strip()
     try:
         call_expression = normalize_call_expression(expression=call_expression_raw)
-    except python_tokenize.TokenError, e:
+    except python_tokenize.TokenError as e:
         raise RuntimeError(
             'scope "%s" .call=%s: %s%s'
             % (full_path, call_expression_raw, str(e), words[0].where_str())
@@ -1936,11 +1939,11 @@ class scope(slots_getstate_setstate):
             merged_name = ".".join(merged_names + [self.name])
             merged_names = []
             if len(out_attributes) == 0:
-                print >> out, prefix + hash + merged_name, "{"
+                print(prefix + hash + merged_name, "{", file=out)
             else:
-                print >> out, prefix + hash + merged_name
+                print(prefix + hash + merged_name, file=out)
                 out.write(out_attributes)
-                print >> out, prefix + "{"
+                print(prefix + "{", file=out)
             prefix += "  "
         for object in self.objects:
             object.show(
@@ -1952,7 +1955,7 @@ class scope(slots_getstate_setstate):
                 print_width=print_width,
             )
         if is_proper_scope:
-            print >> out, prefix[:-2] + "}"
+            print(prefix[:-2] + "}", file=out)
 
     def as_str(
         self, prefix="", expert_level=None, attributes_level=0, print_width=None
