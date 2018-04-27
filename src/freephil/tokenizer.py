@@ -63,6 +63,8 @@ class character_iterator(slots_getstate_setstate):
                 O.line_number += 1
         return result
 
+    next = __next__
+
     def scan_for_start(O, intro, followups):
         while True:
             if O.i_char == len(O.input_string):
