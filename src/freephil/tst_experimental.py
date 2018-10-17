@@ -1,4 +1,5 @@
 from __future__ import division
+from __future__ import print_function
 
 # -*- Mode: Python; c-basic-offset: 2; indent-tabs-mode: nil; tab-width: 8 -*-
 
@@ -130,4 +131,4 @@ first_scope {
 
 if __name__ == "__main__":
     exercise()
-    print "OK"
+    print("OK")

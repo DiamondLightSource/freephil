@@ -1,4 +1,5 @@
 from __future__ import division
+from __future__ import print_function
 from libtbx.phil import tokenizer
 
 
@@ -43,16 +44,16 @@ def exercise_basic(verbose):
     for input_string, expected_result in tests:
         show = verbose or expected_result is None
         if show:
-            print input_string
+            print(input_string)
         result = [
             word.value for word in tokenizer.word_iterator(input_string=input_string)
         ]
         if show:
-            print result
+            print(result)
         if expected_result is not None:
             assert result == expected_result
         if show:
-            print
+            print()
 
 
 def exercise_pickle():
@@ -76,7 +77,7 @@ def run(args):
     verbose = len(args) != 0
     exercise_basic(verbose=verbose)
     exercise_pickle()
-    print "OK"
+    print("OK")
 
 
 if __name__ == "__main__":
