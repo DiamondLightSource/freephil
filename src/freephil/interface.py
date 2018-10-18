@@ -317,7 +317,7 @@ class index(object):
         regex_list = [re.compile(word, re.I) for word in fields]
         matching_defs = []
         n_words = len(regex_list)
-        for phil_name, phil_text in self._full_text_index.iteritems():
+        for phil_name, phil_text in self._full_text_index.items():
             (label, caption, help, is_def) = phil_text
             if (phil_name in self._hidden) or (not is_def):
                 continue
@@ -408,7 +408,7 @@ class index(object):
         return files
 
     def get_job_title(self):
-        for def_name in self._full_path_index.keys():
+        for def_name in list(self._full_path_index.keys()):
             if (def_name in ["title", "job_title"]) or (
                 def_name.endswith(".title") or def_name.endswith(".job_title")
             ):
@@ -656,7 +656,7 @@ class index(object):
         if file_type in self._file_type_mappings:
             return self._file_type_mappings[file_type]
         param_info = []
-        for path_name, def_style in self.style.iteritems():
+        for path_name, def_style in self.style.items():
             def_types = []
             if def_style.file_type is not None:
                 def_types = def_style.get_list("file_type")
@@ -689,7 +689,7 @@ class index(object):
 
     def get_seq_file_def_name(self):
         paths = []
-        for path_name, def_style in self.style.iteritems():
+        for path_name, def_style in self.style.items():
             if def_style.seq_file:
                 paths.append(path_name)
         if len(paths) == 0:
