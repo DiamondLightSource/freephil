@@ -58,7 +58,7 @@ def exercise_basic(verbose):
 
 def exercise_pickle():
     import pickle
-    import cPickle
+    from six.moves import cPickle
 
     for p in [pickle, cPickle]:
         o = tokenizer.word(value="hello")
