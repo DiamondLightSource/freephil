@@ -8,7 +8,7 @@ from libtbx.test_utils import Exception_expected, show_diff, anchored_block_show
 from libtbx import easy_pickle
 from libtbx import Auto
 import warnings
-from cStringIO import StringIO
+from six.moves import cStringIO as StringIO
 import copy
 import sys, os
 
