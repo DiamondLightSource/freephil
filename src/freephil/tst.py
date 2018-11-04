@@ -7439,9 +7439,7 @@ scope {
             master_phil_str, new_default_str
         )
     except Sorry as e:
-        assert (
-            e.message == "Unrecognized PHIL parameter(s)\nunknown.name (input line 1)"
-        )
+        assert str(e) == "Unrecognized PHIL parameter(s)\nunknown.name (input line 1)"
     else:
         raise Exception_expected
 
@@ -7452,7 +7450,7 @@ scope {
             master_phil_str, new_default_str
         )
     except RuntimeError as e:
-        assert 'Error interpreting scope.number="what"' in e.message
+        assert 'Error interpreting scope.number="what"' in str(e)
     else:
         raise Exception_expected
 
