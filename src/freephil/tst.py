@@ -10,6 +10,7 @@ import warnings
 from six.moves import cStringIO as StringIO
 import copy
 import sys, os
+from six.moves import range
 
 
 def exercise_string_quote_and_tokenize():
