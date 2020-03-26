@@ -2140,7 +2140,6 @@ class scope(slots_getstate_setstate):
         track_unused_definitions=False,
         diff=False,
         skip_incompatible_objects=False,
-        warn_deprecated=True,
     ):
         combined_objects = []
         if source is not None or sources is not None:
