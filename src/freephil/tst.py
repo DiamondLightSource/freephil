@@ -1199,7 +1199,7 @@ m=$k
 a=x
 b=$a
 c=$a $b.d
-d=$a \$b
+d=$a \\$b
 answer=yes no
 e="$a"
 f=$(a)
@@ -1341,27 +1341,30 @@ a0 {
 
 
 def exercise_include():
-    print(
-        """\
+    with open("tmp1.params", "w") as f:
+        print(
+            """\
 !include none
 a=x
 """,
-        file=open("tmp1.params", "w"),
-    )
-    print(
-        """\
+            file=f,
+        )
+    with open("tmp2.params", "w") as f:
+        print(
+            """\
 b=y
 """,
-        file=open("tmp2.params", "w"),
-    )
-    print(
-        """\
+            file=f,
+        )
+    with open("tmp3.params", "w") as f:
+        print(
+            """\
 c=z
 include file tmp2.params
 d=$z
 """,
-        file=open("tmp3.params", "w"),
-    )
+            file=f,
+        )
     parameters = phil.parse(
         input_string="""\
 tmp2=tmp2.params
@@ -1414,24 +1417,27 @@ s = 1
     except OSError:
         pass
     #
-    print(
-        """\
+    with open("tmp1.params", "w") as f:
+        print(
+            """\
 include file tmp3.params
 """,
-        file=open("tmp1.params", "w"),
-    )
-    print(
-        """\
+            file=f,
+        )
+    with open("tmp2.params", "w") as f:
+        print(
+            """\
 include file tmp1.params
 """,
-        file=open("tmp2.params", "w"),
-    )
-    print(
-        """\
+            file=f,
+        )
+    with open("tmp3.params", "w") as f:
+        print(
+            """\
 include file tmp2.params
 """,
-        file=open("tmp3.params", "w"),
-    )
+            file=f,
+        )
     try:
         parameters = phil.parse(file_name="tmp1.params", process_includes=True)
     except RuntimeError as e:
@@ -1440,29 +1446,32 @@ include file tmp2.params
     else:
         raise Exception_expected
     #
-    print(
-        """\
+    with open("tmp1.params", "w") as f:
+        print(
+            """\
 a=0
 include file tmp/tmp1.params
 x=1
 """,
-        file=open("tmp1.params", "w"),
-    )
-    print(
-        """\
+            file=f,
+        )
+    with open("tmp/tmp1.params", "w") as f:
+        print(
+            """\
 b=1
 include file tmp2.params
 y=2
 """,
-        file=open("tmp/tmp1.params", "w"),
-    )
-    print(
-        """\
+            file=f,
+        )
+    with open("tmp/tmp2.params", "w") as f:
+        print(
+            """\
 c=2
 z=3
 """,
-        file=open("tmp/tmp2.params", "w"),
-    )
+            file=f,
+        )
     parameters = phil.parse(file_name="tmp1.params", process_includes=True)
     out = StringIO()
     parameters.show(out=out)
@@ -1477,8 +1486,9 @@ y = 2
 x = 1
 """,
     )
-    print(
-        """\
+    with open("tmp4.params", "w") as f:
+        print(
+            """\
 a=1
 include file tmp1.params
 s {
@@ -1493,8 +1503,8 @@ s {
 }
 z=1
 """,
-        file=open("tmp4.params", "w"),
-    )
+            file=f,
+        )
     parameters = phil.parse(file_name="tmp4.params", process_includes=True)
     out = StringIO()
     parameters.show(out=out)
@@ -6657,7 +6667,8 @@ Error interpreting command line argument as parameter definition:
     else:
         raise Exception_expected
     #
-    print("foo.limit=-3", file=open("tmp0d5f6e10.phil", "w"))
+    with open("tmp0d5f6e10.phil", "w") as f:
+        print("foo.limit=-3", file=f)
     user_phils = itpr_bar.process(
         args=["", "--flag", "--flag=no", "tmp0d5f6e10.phil", "max=8", "limit=9"]
     )
@@ -6683,7 +6694,8 @@ Error interpreting command line argument as parameter definition:
             )
         else:
             raise Exception_expected
-    print("foo$limit=0", file=open("tmp0d5f6e10.phil", "w"))
+    with open("tmp0d5f6e10.phil", "w") as f:
+        print("foo$limit=0", file=f)
     try:
         itpr_bar.process(args=["tmp0d5f6e10.phil"])
     except RuntimeError as e:
