@@ -15,6 +15,8 @@ import tokenize as python_tokenize
 import warnings
 import weakref
 
+__version__ = "0.0.1"
+
 default_print_width = 79
 
 
