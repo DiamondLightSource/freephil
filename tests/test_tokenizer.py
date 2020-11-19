@@ -1,7 +1,11 @@
-from libtbx.phil import tokenizer
+# Content in this file falls under the libtbx license
+
+import pickle
+
+from freephil import tokenizer
 
 
-def exercise_basic(verbose):
+def test_basic():
     tests = [
         ["", []],
         ["resname=a and chain=b", ["resname", "=", "a", "and", "chain", "=", "b"]],
@@ -40,45 +44,23 @@ def exercise_basic(verbose):
         ['name """o1\\\n  o2\'"""', ["name", "o1  o2'"]],
     ]
     for input_string, expected_result in tests:
-        show = verbose or expected_result is None
-        if show:
-            print(input_string)
+        print(input_string)
         result = [
             word.value for word in tokenizer.word_iterator(input_string=input_string)
         ]
-        if show:
-            print(result)
+        print(result)
         if expected_result is not None:
             assert result == expected_result
-        if show:
-            print()
+        print()
 
 
-def exercise_pickle():
-    # TODO: verify this is intended change for py2/3 compat
-    from six.moves import cPickle as pickle
-
-    for p in [pickle]:
-        o = tokenizer.word(value="hello")
-        l = p.loads(p.dumps(o))
-        assert l.value == "hello"
-        o = tokenizer.settings(meta_comment="%")
-        l = p.loads(p.dumps(o))
-        assert l.meta_comment == "%"
-        o = tokenizer.word_iterator(input_string="all")
-        l = p.loads(p.dumps(o))
-        assert l.char_iter.input_string == "all"
-
-
-def run(args):
-    assert args in [[], ["--verbose"]]
-    verbose = len(args) != 0
-    exercise_basic(verbose=verbose)
-    exercise_pickle()
-    print("OK")
-
-
-if __name__ == "__main__":
-    import sys
-
-    run(args=sys.argv[1:])
+def test_pickle():
+    o = tokenizer.word(value="hello")
+    l = pickle.loads(pickle.dumps(o))
+    assert l.value == "hello"
+    o = tokenizer.settings(meta_comment="%")
+    l = pickle.loads(pickle.dumps(o))
+    assert l.meta_comment == "%"
+    o = tokenizer.word_iterator(input_string="all")
+    l = pickle.loads(pickle.dumps(o))
+    assert l.char_iter.input_string == "all"
