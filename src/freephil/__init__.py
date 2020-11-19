@@ -1,6 +1,5 @@
 "Documentation: https://cctbx.github.io/libtbx/libtbx.phil.html"
 
-from __future__ import absolute_import, division, print_function
 from libtbx.phil import tokenizer
 from libtbx.str_utils import line_breaker
 from libtbx.utils import Sorry, format_exception, import_python_object, to_str
@@ -83,7 +82,7 @@ def tokenize_value_literal(input_string, source_info):
     )
 
 
-class words_converters(object):
+class words_converters:
 
     phil_type = "words"
 
@@ -129,7 +128,7 @@ def strings_as_words(python_object):
     return words
 
 
-class strings_converters(object):
+class strings_converters:
 
     phil_type = "strings"
 
@@ -151,7 +150,7 @@ def str_from_words(words):
     return " ".join([word.value for word in words])
 
 
-class str_converters(object):
+class str_converters:
 
     phil_type = "str"
 
@@ -169,7 +168,7 @@ class str_converters(object):
         return [tokenizer.word(value=python_object, quote_token='"')]
 
 
-class qstr_converters(object):
+class qstr_converters:
 
     phil_type = "qstr"
 
@@ -233,7 +232,7 @@ def bool_from_words(words, path):
     )
 
 
-class bool_converters(object):
+class bool_converters:
 
     phil_type = "bool"
 
@@ -351,7 +350,7 @@ def float_from_words(words, path):
     return float_from_number(number=result, words=words, path=path)
 
 
-class _check_value_base(object):
+class _check_value_base:
     def _check_value(self, value, path_producer, words=None):
         def where_str():
             if words is None:
@@ -553,14 +552,14 @@ class numbers_converters_base(_check_value_base):
                     value = number
                 else:
                     raise RuntimeError(
-                        "%s element cannot be None%s" % (path, where_str())
+                        f"{path} element cannot be None{where_str()}"
                     )
             elif number is Auto:
                 if self.allow_auto_elements:
                     value = number
                 else:
                     raise RuntimeError(
-                        "%s element cannot be Auto%s" % (path, where_str())
+                        f"{path} element cannot be Auto{where_str()}"
                     )
             else:
                 value = self._value_from_number(number=number, words=words, path=path)
@@ -618,7 +617,7 @@ class floats_converters(numbers_converters_base):
         return "%.10g" % value
 
 
-class choice_converters(object):
+class choice_converters:
 
     phil_type = "choice"
 
@@ -668,7 +667,7 @@ class choice_converters(object):
             return [tokenizer.word(value="Auto")]
         assert not self.multi or python_object is not None
         if self.multi:
-            use_flags = dict([(value, False) for value in python_object])
+            use_flags = {value: False for value in python_object}
         n_choices = 0
 
         def raise_improper_master():
@@ -704,7 +703,7 @@ class choice_converters(object):
                 or python_object is not None
             ):
                 raise RuntimeError(
-                    "Invalid choice: %s=%s" % (master.full_path(), str(python_object))
+                    "Invalid choice: {}={}".format(master.full_path(), str(python_object))
                 )
         else:
             unused = []
@@ -714,11 +713,11 @@ class choice_converters(object):
             n = len(unused)
             if n != 0:
                 raise RuntimeError(
-                    "Invalid %s: %s=%s" % (str(self), master.full_path(), str(unused))
+                    "Invalid {}: {}={}".format(str(self), master.full_path(), str(unused))
                 )
             if n_choices == 0 and (master.optional is not None and not master.optional):
                 raise RuntimeError(
-                    "Empty list for mandatory %s: %s" % (str(self), master.full_path())
+                    "Empty list for mandatory {}: {}".format(str(self), master.full_path())
                 )
         return words
 
@@ -1030,14 +1029,14 @@ def show_attributes(self, out, prefix, attributes_level, print_width):
                             print(indent + '"' + block + '"', file=out)
 
 
-class object_locator(object):
+class object_locator:
     def __init__(self, parent, path, object):
         self.parent = parent
         self.path = path
         self.object = object
 
     def __str__(self):
-        return "%s%s" % (self.path, self.object.where_str)
+        return f"{self.path}{self.object.where_str}"
 
 
 # is_template (set by .fetch() and .format() methods of definition or scope):
@@ -1046,19 +1045,19 @@ class object_locator(object):
 #   1: template and there are no copies
 
 
-class try_tokenize_proxy(object):
+class try_tokenize_proxy:
     def __init__(self, error_message, tokenized):
         self.error_message = error_message
         self.tokenized = tokenized
 
 
-class try_extract_proxy(object):
+class try_extract_proxy:
     def __init__(self, error_message, extracted):
         self.error_message = error_message
         self.extracted = extracted
 
 
-class try_format_proxy(object):
+class try_format_proxy:
     def __init__(self, error_message, formatted):
         self.error_message = error_message
         self.formatted = formatted
@@ -1119,7 +1118,7 @@ class definition(slots_getstate_setstate):
         alias=None,
     ):
         if is_reserved_identifier(name):
-            raise RuntimeError('Reserved identifier: "%s"%s' % (name, where_str))
+            raise RuntimeError(f'Reserved identifier: "{name}"{where_str}')
         if name != "include" and "include" in name.split("."):
             raise RuntimeError('Reserved identifier: "include"%s' % where_str)
         self.name = name
@@ -1460,7 +1459,7 @@ class definition(slots_getstate_setstate):
                         ]
                 if variable_words is None:
                     raise RuntimeError(
-                        "Undefined variable: $%s%s" % (fragment.value, word.where_str())
+                        f"Undefined variable: ${fragment.value}{word.where_str()}"
                     )
                 if not substitution_proxy.force_string:
                     fragment.result = variable_words
@@ -1473,7 +1472,7 @@ class definition(slots_getstate_setstate):
         return self.customized_copy(words=new_words)
 
 
-class scope_extract_call_proxy_object(object):
+class scope_extract_call_proxy_object:
     def __init__(self, where_str, expression, callable, keyword_args):
         self.where_str = where_str
         self.expression = expression
@@ -1538,11 +1537,11 @@ def scope_extract_call_proxy(full_path, words, cache):
     return call_proxy
 
 
-class scope_extract_attribute_error(object):
+class scope_extract_attribute_error:
     pass
 
 
-class scope_extract_is_disabled(object):
+class scope_extract_is_disabled:
     pass
 
 
@@ -1552,7 +1551,7 @@ class scope_extract_list(list):
         list.__init__(self)
 
 
-class scope_extract(object):
+class scope_extract:
     def __init__(self, name, parent, call):
         object.__setattr__(self, "__phil_name__", name)
         object.__setattr__(self, "__phil_parent__", parent)
@@ -1757,7 +1756,7 @@ class scope(slots_getstate_setstate):
         if objects is None:
             self.objects = []
         if is_reserved_identifier(name):
-            raise RuntimeError('Reserved identifier: "%s"%s' % (name, where_str))
+            raise RuntimeError(f'Reserved identifier: "{name}"{where_str}')
         if "include" in name.split("."):
             raise RuntimeError('Reserved identifier: "include"%s' % where_str)
         if sequential_format is not None:
@@ -2522,7 +2521,7 @@ def parse(
     assert source_info is None or file_name is None
     if input_string is None:
         assert file_name is not None
-        with io.open(file_name, encoding="utf-8", errors="ignore") as f:
+        with open(file_name, encoding="utf-8", errors="ignore") as f:
             input_string = to_str(f.read())
     if converter_registry is None:
         converter_registry = default_converter_registry

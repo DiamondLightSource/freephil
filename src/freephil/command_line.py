@@ -1,13 +1,11 @@
-from __future__ import absolute_import, division, print_function
 import libtbx.phil
 from libtbx.utils import Sorry, format_exception
 import os
-from six.moves import zip
 
 op = os.path
 
 
-class argument_interpreter(object):
+class argument_interpreter:
     def __init__(
         self,
         master_phil=None,
@@ -227,7 +225,7 @@ class argument_interpreter(object):
         return result, remaining_args
 
 
-class process(object):
+class process:
     def __init__(self, args, master_string, parse=None, extra_sources=()):
         if parse is None:
             parse = libtbx.phil.parse

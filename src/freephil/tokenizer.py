@@ -1,4 +1,3 @@
-from __future__ import absolute_import, division, print_function
 from libtbx import slots_getstate_setstate
 
 
@@ -160,7 +159,7 @@ class word(slots_getstate_setstate):
         return where_str(O.source_info, O.line_number)
 
     def raise_syntax_error(O, message):
-        raise RuntimeError('Syntax error: %s"%s"%s' % (message, O.value, O.where_str()))
+        raise RuntimeError(f'Syntax error: {message}"{O.value}"{O.where_str()}')
 
     def assert_expected(O, value):
         if O.value != value:
@@ -168,7 +167,7 @@ class word(slots_getstate_setstate):
 
     def raise_unquoted_word_expected(O):
         raise RuntimeError(
-            "Unquoted word expected, found %s%s" % (str(O), O.where_str())
+            "Unquoted word expected, found {}{}".format(str(O), O.where_str())
         )
 
 

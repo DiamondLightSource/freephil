@@ -1,4 +1,3 @@
-from __future__ import absolute_import, division, print_function
 from libtbx import phil
 import libtbx.phil
 from libtbx.utils import Sorry
@@ -9,7 +8,6 @@ import warnings
 from six.moves import cStringIO as StringIO
 import copy
 import sys, os
-from six.moves import range
 
 
 def exercise_string_quote_and_tokenize():
@@ -66,7 +64,7 @@ def exercise_string_quote_and_tokenize():
     assert words[0].value == value
 
 
-class recycle(object):
+class recycle:
     def __init__(
         self,
         input_string,
@@ -387,7 +385,7 @@ t
 improper_phil_converters = None
 
 
-class int_phil_converters(object):
+class int_phil_converters:
     def __init__(self, factor=1):
         assert int(factor) == factor
         self.factor = factor
@@ -1038,7 +1036,7 @@ def check_resolve_variables(parameters, path, expected_out=None, n_matches=1):
             % (path, result.replace("\n", "\\n"))
         )
     elif result != expected_out:
-        raise AssertionError('"%s" != "%s"' % (result, expected_out))
+        raise AssertionError(f'"{result}" != "{expected_out}"')
 
 
 def exercise_get_with_substitution():
@@ -1168,7 +1166,7 @@ m=$k
             parameters.get(path=path)
         except RuntimeError as e:
             if str(e) != diags[path]:
-                raise AssertionError("%s != %s" % (repr(str(e)), repr(diags[path])))
+                raise AssertionError("{} != {}".format(repr(str(e)), repr(diags[path])))
         else:
             raise Exception_expected
     try:
@@ -5650,7 +5648,7 @@ a = y
     )
 
 
-class foo1_converters(object):
+class foo1_converters:
 
     phil_type = "foo1"
 
@@ -5662,7 +5660,7 @@ class foo1_converters(object):
             raise RuntimeError("foo1 problem")
 
 
-class foo2_converters(object):
+class foo2_converters:
     def __str__(self):
         return "foo2"
 
@@ -7064,7 +7062,7 @@ strategy = *xyz *adp tls
 """
     )
 
-    class _showwarning(object):
+    class _showwarning:
         def __init__(self):
             self.n = 0
             self.message = None
@@ -7113,7 +7111,7 @@ class scope_call_class:
         self.keyword_args = keyword_args
 
 
-class scope_call_class_object(object):
+class scope_call_class_object:
     def __init__(self, scope_extract, **keyword_args):
         self.scope_extract = scope_extract
         self.keyword_args = keyword_args

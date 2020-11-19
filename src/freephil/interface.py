@@ -1,7 +1,6 @@
 # XXX: this module is used exclusively by the Phenix GUI, which needs an
 # index of all current phil parameters, and an easy way to change them.
 
-from __future__ import absolute_import, division, print_function
 from libtbx import easy_pickle, str_utils, smart_open
 from libtbx import adopt_init_args, Auto
 from libtbx.phil import gui_objects
@@ -22,7 +21,7 @@ tracking_params = libtbx.phil.parse(
 )
 
 
-class index(object):
+class index:
     def __init__(self, master_phil, working_phil=None, parse=None, fetch_new=False):
         adopt_init_args(self, locals())
         self._states = []
@@ -147,7 +146,7 @@ class index(object):
             )
         try:
             f = smart_open.for_writing(file_name, "w")
-        except IOError as e:
+        except OSError as e:
             raise Sorry(str(e))
         else:
             if replace_path is not None:
@@ -980,7 +979,7 @@ def join_scope_paths(scope1, scope2):
     if scope1 == "":
         return scope2
     else:
-        return "%s.%s" % (scope1, scope2)
+        return f"{scope1}.{scope2}"
 
 
 def get_adjoining_phil_path(def_path, def_name):

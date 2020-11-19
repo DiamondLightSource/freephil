@@ -1,4 +1,3 @@
-from __future__ import absolute_import, division, print_function
 import libtbx.phil
 
 
@@ -35,7 +34,7 @@ def collect_assigned_words(word_iterator, lead_word):
         last_word = word
     if len(result) == 0:
         raise RuntimeError(
-            "Missing value for %s%s" % (str(lead_word), lead_word.where_str())
+            "Missing value for {}{}".format(str(lead_word), lead_word.where_str())
         )
     return result
 
@@ -68,7 +67,7 @@ def collect_objects(
                 continue
             if word.value != "__OFF__":
                 raise RuntimeError(
-                    "Unknown: %s %s%s" % (lead_word.value, word.value, word.where_str())
+                    f"Unknown: {lead_word.value} {word.value}{word.where_str()}"
                 )
             if (
                 word_iterator.scan_for_start(
