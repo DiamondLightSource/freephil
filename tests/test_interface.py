@@ -8,7 +8,7 @@ from libtbx.test_utils import show_diff
 import freephil
 
 
-def test():
+def test(tmp_path):
     master_phil = freephil.parse(
         """
 refinement {
@@ -124,12 +124,12 @@ refinement.refine.adp.tls = None
     phil1 = freephil.parse("""refinement.refine.strategy = *tls""")
     phil2 = freephil.parse("""refinement.input.pdb.file_name = ligand2.pdb""")
     i.save_param_file(
-        file_name="tst_params.eff",
+        file_name=tmp_path / "tst_params.eff",
         sources=[phil1, phil2],
         extra_phil="refinement.main.ias = True",
         diff_only=True,
     )
-    params = i.get_python_from_file("tst_params.eff")
+    params = i.get_python_from_file(tmp_path / "tst_params.eff")
     assert params.refinement.refine.strategy == ["tls"]
     assert params.refinement.input.pdb.file_name == ["model1.pdb", "ligand2.pdb"]
     assert params.refinement.main.ias is True
