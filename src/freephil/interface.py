@@ -12,7 +12,7 @@ import sys
 import freephil
 from freephil import gui_objects
 
-from .legacy import adopt_init_args, open_for_writing
+from .legacy import open_for_writing
 
 tracking_params = freephil.parse(
     """
@@ -27,7 +27,10 @@ tracking_params = freephil.parse(
 
 class index:
     def __init__(self, master_phil, working_phil=None, parse=None, fetch_new=False):
-        adopt_init_args(self, locals())
+        self.master_phil = master_phil
+        self.working_phil = working_phil
+        self.parse = parse
+        self.fetch_new = fetch_new
         self._states = []
         self._full_path_index = {}
         self._full_text_index = {}
