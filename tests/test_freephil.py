@@ -4,9 +4,10 @@ import copy
 import os
 import sys
 import warnings
+import pickle
 
 import pytest
-from libtbx import Auto, easy_pickle
+from libtbx import Auto
 from libtbx.test_utils import Exception_expected, anchored_block_show_diff, show_diff
 from libtbx.utils import Sorry
 from six.moves import cStringIO as StringIO
@@ -5975,8 +5976,7 @@ astrings = Auto
 awords = Auto
 """,
         )
-        params_pkl = easy_pickle.dumps(params)
-        params2 = easy_pickle.loads(params_pkl)
+        params2 = pickle.loads(pickle.dumps(params))
         assert not show_diff(
             master.format(params2).as_str(),
             """\
