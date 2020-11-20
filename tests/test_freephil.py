@@ -5,6 +5,7 @@ import os
 import sys
 import warnings
 
+import pytest
 from libtbx import Auto, easy_pickle
 from libtbx.test_utils import Exception_expected, anchored_block_show_diff, show_diff
 from libtbx.utils import Sorry
@@ -1311,38 +1312,32 @@ a0 {
         assert params.get(path).objects[0].full_path() == path
 
 
-def test_include():
-    with open("tmp1.params", "w") as f:
-        print(
-            """\
+def test_include(tmp_path):
+    tmp_path.joinpath("tmp1.params").write_text(
+        """\
 !include none
 a=x
-""",
-            file=f,
-        )
-    with open("tmp2.params", "w") as f:
-        print(
-            """\
+"""
+    )
+    tmp_path.joinpath("tmp2.params").write_text(
+        """\
 b=y
-""",
-            file=f,
-        )
-    with open("tmp3.params", "w") as f:
-        print(
-            """\
+"""
+    )
+    tmp_path.joinpath("tmp3.params").write_text(
+        """\
 c=z
 include file tmp2.params
 d=$z
-""",
-            file=f,
-        )
+"""
+    )
     parameters = freephil.parse(
-        input_string="""\
-tmp2=tmp2.params
-include file tmp1.params
+        input_string=f"""\
+tmp2={tmp_path.joinpath('tmp2.params')}
+include file {tmp_path.joinpath('tmp1.params')}
 include file $tmp2
 r=0
-include file tmp3.params
+include file {tmp_path.joinpath('tmp3.params')}
 s=1
 """,
         process_includes=True,
@@ -1351,8 +1346,8 @@ s=1
     parameters.show(out=out)
     assert not show_diff(
         out.getvalue(),
-        """\
-tmp2 = tmp2.params
+        f"""\
+tmp2 = {tmp_path.joinpath('tmp2.params')}
 !include none
 a = x
 b = y
@@ -1367,8 +1362,8 @@ s = 1
     parameters.unique().show(out=out)
     assert not show_diff(
         out.getvalue(),
-        """\
-tmp2 = tmp2.params
+        f"""\
+tmp2 = {tmp_path.joinpath('tmp2.params')}
 a = x
 r = 0
 c = z
@@ -1377,89 +1372,76 @@ d = $z
 s = 1
 """,
     )
-    try:
+    with pytest.raises(
+        RuntimeError, match=r'Undefined variable: \$z \(file ".*tmp3.params", line 3\)'
+    ):
         parameters.get(path="d")
-    except RuntimeError as e:
-        assert str(e) == 'Undefined variable: $z (file "tmp3.params", line 3)'
-    else:
-        raise Exception_expected
-    try:
-        os.makedirs("tmp")
-    except OSError:
-        pass
-    #
-    with open("tmp1.params", "w") as f:
-        print(
-            """\
-include file tmp3.params
-""",
-            file=f,
+
+
+def test_include_2(tmp_path):
+    tmp_path.joinpath("tmp1.params").write_text(
+        f"""\
+include file {tmp_path.joinpath('tmp3.params')}
+"""
+    )
+    tmp_path.joinpath("tmp2.params").write_text(
+        f"""\
+include file {tmp_path.joinpath('tmp1.params')}
+"""
+    )
+    tmp_path.joinpath("tmp3.params").write_text(
+        f"""\
+include file {tmp_path.joinpath('tmp2.params')}
+"""
+    )
+    with pytest.raises(
+        RuntimeError, match=r"Include dependency cycle: [^,]*, [^,]*, [^,]*, [^,]*$"
+    ):
+        parameters = freephil.parse(
+            file_name=tmp_path / "tmp1.params", process_includes=True
         )
-    with open("tmp2.params", "w") as f:
-        print(
-            """\
-include file tmp1.params
-""",
-            file=f,
-        )
-    with open("tmp3.params", "w") as f:
-        print(
-            """\
-include file tmp2.params
-""",
-            file=f,
-        )
-    try:
-        parameters = freephil.parse(file_name="tmp1.params", process_includes=True)
-    except RuntimeError as e:
-        assert str(e).startswith("Include dependency cycle: ")
-        assert len(str(e).split(",")) == 4
-    else:
-        raise Exception_expected
-    #
-    with open("tmp1.params", "w") as f:
-        print(
-            """\
+
+
+def test_include_3(tmp_path):
+    tmp_path.joinpath("tmp").mkdir()
+    tmp_path.joinpath("tmp1.params").write_text(
+        """\
 a=0
 include file tmp/tmp1.params
 x=1
-""",
-            file=f,
-        )
-    with open("tmp/tmp1.params", "w") as f:
-        print(
-            """\
+"""
+    )
+    tmp_path.joinpath("tmp", "tmp1.params").write_text(
+        """\
 b=1
 include file tmp2.params
 y=2
-""",
-            file=f,
-        )
-    with open("tmp/tmp2.params", "w") as f:
-        print(
-            """\
+"""
+    )
+    tmp_path.joinpath("tmp", "tmp2.params").write_text(
+        """\
 c=2
 z=3
-""",
-            file=f,
-        )
-    parameters = freephil.parse(file_name="tmp1.params", process_includes=True)
+"""
+    )
+    parameters = freephil.parse(
+        file_name=tmp_path / "tmp1.params", process_includes=True
+    )
     out = StringIO()
     parameters.show(out=out)
-    assert not show_diff(
-        out.getvalue(),
-        """\
+    assert (
+        out.getvalue()
+        == """\
 a = 0
 b = 1
 c = 2
 z = 3
 y = 2
 x = 1
-""",
+"""
     )
-    with open("tmp4.params", "w") as f:
-        print(
-            """\
+    tmp_path.joinpath("tmp4.params").write_text(
+        """\
 a=1
 include file tmp1.params
 s {
@@ -1473,10 +1455,11 @@ s {
   z=3
 }
 z=1
-""",
-            file=f,
-        )
-    parameters = freephil.parse(file_name="tmp4.params", process_includes=True)
+"""
+    )
+    parameters = freephil.parse(
+        file_name=tmp_path / "tmp4.params", process_includes=True
+    )
     out = StringIO()
     parameters.show(out=out)
     assert not show_diff(
@@ -1533,7 +1516,9 @@ s {
 z = 1
 """,
     )
-    #
+
+
+def test_include_4():
     try:
         freephil.parse(
             input_string="""\
