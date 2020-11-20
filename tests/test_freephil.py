@@ -13,7 +13,7 @@ from six.moves import cStringIO as StringIO
 import freephil
 
 
-def exercise_string_quote_and_tokenize():
+def test_string_quote_and_tokenize():
     n_ok = [0]
     for quote_token in ["'", '"', "'''", '"""']:
 
@@ -107,7 +107,7 @@ class recycle:
                 raise RuntimeError("out_out != self.out")
 
 
-def exercise_parse_and_show():
+def test_parse_and_show():
     for input_string in ["", "\n", "   \n", "   \t \n \t ", "#", "\t#"]:
         recycle(input_string=input_string, expected_out="")
     recycle(input_string="   name\t=value\n\n", expected_out="name = value\n")
@@ -423,7 +423,7 @@ def converter_factory_phil_converters(**args):
     return converter_implementation(**args)
 
 
-def exercise_import_converters():
+def test_import_converters():
     input_string = """\
 x1=None
   .type=freephil.tst.int
@@ -551,7 +551,7 @@ def _test_exception(input_string, exception_string=None):
         raise Exception_expected
 
 
-def exercise_syntax_errors():
+def test_syntax_errors():
     _test_exception("'a'", """Unquoted word expected, found 'a' (input line 1)""")
     _test_exception("a", "Unexpected end of input.")
     _test_exception("a=\nb", "Missing value for a (input line 1)")
@@ -589,7 +589,7 @@ def exercise_syntax_errors():
     )
 
 
-def exercise_phil_on_off_end():
+def test_phil_on_off_end():
     assert freephil.parse(input_string="#phil __ON__\na=1").as_str() == "a = 1\n"
     assert freephil.parse(input_string="#phil __OFF__\na=1").as_str() == ""
     assert freephil.parse(input_string="#phil __END__\na=1").as_str() == ""
@@ -641,7 +641,7 @@ d = 4
         raise Exception_expected
 
 
-def exercise_deepcopy():
+def test_deepcopy():
     parameters = freephil.parse(
         input_string="""\
   a=1
@@ -667,7 +667,7 @@ def check_get_sub(parameters, path, expected_out=None):
     check_get(parameters, path, expected_out, with_substitution=True)
 
 
-def exercise_get_without_substitution():
+def test_get_without_substitution():
     parameters = freephil.parse(
         input_string="""\
 a=b
@@ -726,7 +726,7 @@ b = x
     check_get(parameters, path="e.c", expected_out="")
 
 
-def exercise_nested():
+def test_nested():
     parameters = recycle(
         input_string="""\
 d0=0
@@ -1048,7 +1048,7 @@ def check_resolve_variables(parameters, path, expected_out=None, n_matches=1):
         raise AssertionError(f'"{result}" != "{expected_out}"')
 
 
-def exercise_get_with_substitution():
+def test_get_with_substitution():
     parameters = freephil.parse(
         input_string="""\
 a=b
@@ -1315,7 +1315,7 @@ a=$b
         raise Exception_expected
 
 
-def exercise_full_path():
+def test_full_path():
     params = freephil.parse(
         input_string="""\
 d0=0
@@ -1347,7 +1347,7 @@ a0 {
         assert params.get(path).objects[0].full_path() == path
 
 
-def exercise_include():
+def test_include():
     with open("tmp1.params", "w") as f:
         print(
             """\
@@ -1875,7 +1875,7 @@ x=3
 include_scope_target_2 = freephil.parse(include_scope_target_2s)
 
 
-def exercise_fetch():
+def test_fetch():
     master = freephil.parse(
         input_string="""\
 a=None
@@ -3431,7 +3431,7 @@ Duplicate definitions in master (first not marked with .multiple=True):
         raise Exception_expected
 
 
-def exercise_fetch_diff():
+def test_fetch_diff():
     source = freephil.parse(
         input_string="""\
 a = "a" "b"
@@ -4046,7 +4046,7 @@ s {
     )
 
 
-def exercise_extract():
+def test_extract():
     parameters = freephil.parse(
         input_string="""\
 group {
@@ -4629,7 +4629,7 @@ eq = "1\\"" '2\\\\"\\''
         )
 
 
-def exercise_format():
+def test_format():
     parameters = freephil.parse(
         input_string="""\
 group {
@@ -5683,7 +5683,7 @@ foo_converter_registry = freephil.extended_converter_registry(
 )
 
 
-def exercise_choice():
+def test_choice():
     master = freephil.parse(
         input_string="""\
 x=*a b
@@ -5830,7 +5830,7 @@ y = b
     assert params.y == "B"
 
 
-def exercise_type_constructors():
+def test_type_constructors():
     params = freephil.parse(
         input_string="""\
 a=None
@@ -5936,7 +5936,7 @@ a=None
         raise Exception_expected
 
 
-def exercise_auto():
+def test_auto():
     for nao in [None, Auto]:
         na = str(nao)
         master = freephil.parse(
@@ -6078,7 +6078,7 @@ awords = Auto
         )
 
 
-def exercise_int_and_float():
+def test_int_and_float():
     master_phil = freephil.parse(
         input_string="""\
 a=None
@@ -6205,7 +6205,7 @@ d=None
         raise Exception_expected
 
 
-def exercise_ints_and_floats():
+def test_ints_and_floats():
     master_phil = freephil.parse(
         input_string="""\
 a=None
@@ -6522,7 +6522,7 @@ b = 3 4
     )
 
 
-def exercise_definition_validate_etc():
+def test_definition_validate_etc():
     working_phil = freephil.parse(
         input_string="""\
 a=None
@@ -6596,7 +6596,7 @@ a=None
     assert proxy2.extracted is None
 
 
-def exercise_command_line():
+def test_command_line():
     master_string = """\
 foo {
   min=0
@@ -6786,7 +6786,7 @@ sites = None
     assert params.sites == 2
 
 
-def exercise_choice_multi_plus_support():
+def test_choice_multi_plus_support():
     master_phil = freephil.parse(
         """\
   u = a b c
@@ -6847,7 +6847,7 @@ Not a possible choice for u: %s (command line argument, line 1)
             raise Exception_expected
 
 
-def exercise_scope_call():
+def test_scope_call():
     try:
         freephil.parse(
             """\
@@ -7057,7 +7057,7 @@ u
     assert c.keyword_args == {"a": 3, "b": 4}
 
 
-def exercise_deprecation():
+def test_deprecation():
     master = freephil.parse(
         """
 foo {
@@ -7128,7 +7128,7 @@ class scope_call_class_object:
         self.keyword_args = keyword_args
 
 
-def exercise_find_scope():
+def test_find_scope():
     phil_scope = freephil.parse(
         """\
 scope1 {
@@ -7155,7 +7155,7 @@ scope2 {
     )
 
 
-def exercise_path():
+def test_path():
     master = freephil.parse(
         """\
 a = None
@@ -7182,7 +7182,7 @@ c = Auto
     assert params.c is Auto
 
 
-def exercise_adopt_scope():
+def test_adopt_scope():
     master_phil = freephil.parse(
         """\
 scope1 {
@@ -7301,7 +7301,7 @@ scope2 {
     )
 
 
-def exercise_alias():
+def test_alias():
     master_phil = freephil.parse(
         """
 pdb_interpretation
@@ -7397,7 +7397,7 @@ geometry_restraints
     )
 
 
-def exercise_alias_bug():
+def test_alias_bug():
     # phil scope with .alias attribute
     buggy_phil_str = """
 a
@@ -7432,7 +7432,7 @@ a
         assert diff == result
 
 
-def exercise_change_default():
+def test_change_default():
     # master phil
     master_phil_str = """
 scope {
@@ -7472,37 +7472,3 @@ scope {
         assert 'Error interpreting scope.number="what"' in str(e)
     else:
         raise Exception_expected
-
-
-def test():
-    exercise_alias()
-    exercise_alias_bug()
-    exercise_adopt_scope()
-    exercise_path()
-    exercise_find_scope()
-    exercise_string_quote_and_tokenize()
-    exercise_parse_and_show()
-    exercise_import_converters()
-    exercise_syntax_errors()
-    exercise_phil_on_off_end()
-    exercise_deepcopy()
-    exercise_get_without_substitution()
-    exercise_nested()
-    exercise_get_with_substitution()
-    exercise_include()
-    exercise_full_path()
-    exercise_fetch()
-    exercise_fetch_diff()
-    exercise_extract()
-    exercise_format()
-    exercise_type_constructors()
-    exercise_choice()
-    exercise_scope_call()
-    exercise_auto()
-    exercise_int_and_float()
-    exercise_ints_and_floats()
-    exercise_definition_validate_etc()
-    exercise_command_line()
-    exercise_choice_multi_plus_support()
-    exercise_deprecation()
-    exercise_change_default()

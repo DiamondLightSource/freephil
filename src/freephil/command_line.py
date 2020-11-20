@@ -1,6 +1,8 @@
-import libtbx.phil
-from libtbx.utils import Sorry, format_exception
 import os
+
+from libtbx.utils import Sorry, format_exception
+
+import freephil
 
 op = os.path
 
@@ -57,7 +59,7 @@ class argument_interpreter:
 
     def process_arg(self, arg):
         try:
-            params = libtbx.phil.parse(
+            params = freephil.parse(
                 input_string=arg, source_info=self.argument_description + "argument"
             )
         except RuntimeError:
@@ -145,7 +147,7 @@ class argument_interpreter:
                     % (self.argument_description, arg)
                 ).capitalize()
             )
-        return libtbx.phil.parse(
+        return freephil.parse(
             input_string=complete_definitions,
             source_info=self.argument_description + "argument",
         )
@@ -163,7 +165,7 @@ class argument_interpreter:
                 continue
             if op.isfile(arg) and op.getsize(arg) > 0:
                 try:
-                    user_phils.append(libtbx.phil.parse(file_name=arg))
+                    user_phils.append(freephil.parse(file_name=arg))
                 except Exception:
                     pass
                 else:
@@ -177,13 +179,13 @@ class argument_interpreter:
                     continue
             if custom_processor is not None:
                 result = custom_processor(arg=arg)
-                if isinstance(result, libtbx.phil.scope):
+                if isinstance(result, freephil.scope):
                     user_phils.append(result)
                     continue
                 elif (result is not None) and (result != False):
                     continue
             if op.isfile(arg):
-                libtbx.phil.parse(file_name=arg)  # exception expected
+                freephil.parse(file_name=arg)  # exception expected
                 from libtbx.str_utils import show_string
 
                 raise RuntimeError(
@@ -228,7 +230,7 @@ class argument_interpreter:
 class process:
     def __init__(self, args, master_string, parse=None, extra_sources=()):
         if parse is None:
-            parse = libtbx.phil.parse
+            parse = freephil.parse
         self.parse = parse
         self.master = self.parse(input_string=master_string, process_includes=True)
         self.work, self.remaining_args = argument_interpreter(

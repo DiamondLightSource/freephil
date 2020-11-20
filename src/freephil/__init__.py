@@ -1,18 +1,20 @@
 "Documentation: https://cctbx.github.io/libtbx/libtbx.phil.html"
 
-from libtbx.phil import tokenizer
-from libtbx.str_utils import line_breaker
-from libtbx.utils import Sorry, format_exception, import_python_object, to_str
-from itertools import count
-from libtbx import Auto, slots_getstate_setstate
-from six.moves import cStringIO as StringIO
-import math
 import io
+import math
 import os
 import sys
 import tokenize as python_tokenize
 import warnings
 import weakref
+from itertools import count
+
+from libtbx import Auto, slots_getstate_setstate
+from libtbx.str_utils import line_breaker
+from libtbx.utils import Sorry, format_exception, import_python_object, to_str
+from six.moves import cStringIO as StringIO
+
+from . import tokenizer
 
 __version__ = "0.0.1"
 
@@ -551,16 +553,12 @@ class numbers_converters_base(_check_value_base):
                 if self.allow_none_elements:
                     value = number
                 else:
-                    raise RuntimeError(
-                        f"{path} element cannot be None{where_str()}"
-                    )
+                    raise RuntimeError(f"{path} element cannot be None{where_str()}")
             elif number is Auto:
                 if self.allow_auto_elements:
                     value = number
                 else:
-                    raise RuntimeError(
-                        f"{path} element cannot be Auto{where_str()}"
-                    )
+                    raise RuntimeError(f"{path} element cannot be Auto{where_str()}")
             else:
                 value = self._value_from_number(number=number, words=words, path=path)
                 self._check_value(
@@ -703,7 +701,9 @@ class choice_converters:
                 or python_object is not None
             ):
                 raise RuntimeError(
-                    "Invalid choice: {}={}".format(master.full_path(), str(python_object))
+                    "Invalid choice: {}={}".format(
+                        master.full_path(), str(python_object)
+                    )
                 )
         else:
             unused = []
@@ -713,11 +713,15 @@ class choice_converters:
             n = len(unused)
             if n != 0:
                 raise RuntimeError(
-                    "Invalid {}: {}={}".format(str(self), master.full_path(), str(unused))
+                    "Invalid {}: {}={}".format(
+                        str(self), master.full_path(), str(unused)
+                    )
                 )
             if n_choices == 0 and (master.optional is not None and not master.optional):
                 raise RuntimeError(
-                    "Empty list for mandatory {}: {}".format(str(self), master.full_path())
+                    "Empty list for mandatory {}: {}".format(
+                        str(self), master.full_path()
+                    )
                 )
         return words
 
@@ -2613,25 +2617,25 @@ def change_default_phil_values(
     attributes_level=4,
 ):
     """
-  Function for updating the default values in a PHIL scope
+    Function for updating the default values in a PHIL scope
 
-  Parameters
-  ----------
-  master_phil_str: str
-  new_default_phil_str: str
-  phil_parse: function for parsing PHIL (optional, defaults to libtbx.parse)
-  expert_level: int (optional, defaults to 4)
-  attributes_level: int (optional, defaults to 4)
+    Parameters
+    ----------
+    master_phil_str: str
+    new_default_phil_str: str
+    phil_parse: function for parsing PHIL (optional, defaults to libtbx.parse)
+    expert_level: int (optional, defaults to 4)
+    attributes_level: int (optional, defaults to 4)
 
-  Returns
-  -------
-  str: the master_phil_str with the updated default values
+    Returns
+    -------
+    str: the master_phil_str with the updated default values
 
-  Raises
-  ------
-  Sorry: if unrecognized PHIL parameters are encountered
-  RuntimeError: if new value cannot be interpreted (e.g str instead of float)
-  """
+    Raises
+    ------
+    Sorry: if unrecognized PHIL parameters are encountered
+    RuntimeError: if new value cannot be interpreted (e.g str instead of float)
+    """
 
     if phil_parse is None:
         phil_parse = parse

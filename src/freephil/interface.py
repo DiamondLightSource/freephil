@@ -1,16 +1,17 @@
 # XXX: this module is used exclusively by the Phenix GUI, which needs an
 # index of all current phil parameters, and an easy way to change them.
 
-from libtbx import easy_pickle, str_utils, smart_open
-from libtbx import adopt_init_args, Auto
-from libtbx.phil import gui_objects
-from libtbx.utils import Sorry
-import libtbx.phil
-import re
 import os
+import re
 import sys
 
-tracking_params = libtbx.phil.parse(
+from libtbx import Auto, adopt_init_args, easy_pickle, smart_open, str_utils
+from libtbx.utils import Sorry
+
+import freephil
+from freephil import gui_objects
+
+tracking_params = freephil.parse(
     """
   job_title = None
     .type = str
@@ -38,7 +39,7 @@ class index:
         self._log = str_utils.StringIO()
         self._prefix = None
         if parse is None:
-            self.parse = libtbx.phil.parse
+            self.parse = freephil.parse
         self.setup_phil(working_phil, fetch_new)
         self.parse_styles()
 
@@ -545,7 +546,7 @@ class index:
         if phil_string:
             phil_object = self.parse(phil_string)
         elif phil_file:
-            phil_object = libtbx.phil.parse(file_name=phil_file)
+            phil_object = freephil.parse(file_name=phil_file)
         self.master_phil.adopt_scope(phil_object)
         self.working_phil = self.master_phil.fetch(sources=[self.working_phil])
         self.rebuild_index()
@@ -921,7 +922,7 @@ def update_phil_file_paths(
 
         parse = iotbx.phil.parse
     else:
-        parse = libtbx.phil.parse
+        parse = freephil.parse
     phil_in = open(file_name).read()
     new_format = False
     out_lines = []
