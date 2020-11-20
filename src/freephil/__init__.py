@@ -4,13 +4,13 @@ import io
 import math
 import os
 import sys
+import textwrap
 import tokenize as python_tokenize
 import warnings
 import weakref
 from itertools import count
 
 from libtbx import Auto, slots_getstate_setstate
-from libtbx.str_utils import line_breaker
 from libtbx.utils import Sorry, import_python_object, to_str
 
 from . import tokenizer
@@ -1019,8 +1019,8 @@ def show_attributes(self, out, prefix, attributes_level, print_width):
                     print(prefix + "  ." + name, "=", value, file=out)
                 else:
                     is_first = True
-                    for block in line_breaker(
-                        value[1:-1], print_width - 2 - len(indent)
+                    for block in textwrap.wrap(
+                        value[1:-1], width=print_width - 2 - len(indent)
                     ):
                         if is_first:
                             print(
