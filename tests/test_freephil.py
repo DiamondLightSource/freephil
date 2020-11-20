@@ -2,17 +2,22 @@
 
 import copy
 import os
+import pickle
 import sys
 import warnings
-import pickle
 
 import pytest
 from libtbx import Auto
-from libtbx.test_utils import Exception_expected, anchored_block_show_diff, show_diff
+from libtbx.test_utils import Exception_expected
 from libtbx.utils import Sorry
 from six.moves import cStringIO as StringIO
 
 import freephil
+
+
+def show_diff(a, b):
+    # pytest does a better job than libtbx
+    return a != b
 
 
 def test_string_quote_and_tokenize():
@@ -115,7 +120,7 @@ def test_parse_and_show():
     recycle(input_string="   name\t=value\n\n", expected_out="name = value\n")
     recycle(input_string='name="value\\\\"', expected_out='name = "value\\\\"\n')
     recycle(input_string='name="value\\\\\\""', expected_out='name = "value\\\\\\""\n')
-    r = recycle(
+    recycle(
         input_string="   name\t=\tvalue\n\n",
         attributes_level=3,
         expected_out="""\
@@ -1398,9 +1403,7 @@ include file {tmp_path.joinpath('tmp2.params')}
     with pytest.raises(
         RuntimeError, match=r"Include dependency cycle: [^,]*, [^,]*, [^,]*, [^,]*$"
     ):
-        parameters = freephil.parse(
-            file_name=tmp_path / "tmp1.params", process_includes=True
-        )
+        freephil.parse(file_name=tmp_path / "tmp1.params", process_includes=True)
 
 
 def test_include_3(tmp_path):
@@ -4176,7 +4179,7 @@ group {
         .objects[0]
         .extract()
     ] == ["plain", "% ^&*"]
-    definition = parameters.get(path="group.a", with_substitution=False).objects[0]
+    assert parameters.get(path="group.a", with_substitution=False).objects[0]
     try:
         parameters.get(path="group.int_true", with_substitution=False).objects[
             0
@@ -4640,7 +4643,7 @@ a=1
 """
     )
     extracted = master.fetch(custom).extract()
-    assert extracted.a == None
+    assert extracted.a is None
     out = StringIO()
     master.format(extracted).show(out=out)
     assert out.getvalue() == "a = None\n"
@@ -6476,7 +6479,7 @@ a=None
 Error interpreting a="x" as a numeric expression:\
  NameError: name 'x' is not defined (Src, line 1)""",
     )
-    assert proxy2.extracted == None
+    assert proxy2.extracted is None
     proxy2f = proxy.tokenized.try_extract_format()
     assert not show_diff(proxy2f.error_message, proxy2.error_message)
     assert proxy2f.formatted is None
@@ -6659,13 +6662,7 @@ Error interpreting command line argument as parameter definition:
         raise Exception_expected
     assert intercepted == args[:1]
     user_phil = itpr_bar.process_and_fetch(args=["limit=12"])
-    assert not anchored_block_show_diff(
-        user_phil.as_str(),
-        9,
-        """\
-    limit = 12
-""",
-    )
+    assert user_phil.as_str().split("\n")[9] == "    limit = 12"
     #
     pcl = freephil.process_command_line(
         args=["bar.max=4943"], master_string=master_string
@@ -6674,13 +6671,7 @@ Error interpreting command line argument as parameter definition:
     assert not show_diff(pcl.master.as_str(), master_phil.as_str())
     s = StringIO()
     pcl.show(out=s)
-    assert not anchored_block_show_diff(
-        s.getvalue(),
-        7,
-        """\
-  max = 4943
-""",
-    )
+    assert s.getvalue().split("\n")[7] == "  max = 4943"
     assert pcl.remaining_args == []
     pcl = freephil.process_command_line(args=["892c8632"], master_string=master_string)
     assert pcl.remaining_args == ["892c8632"]
@@ -7010,12 +7001,12 @@ strategy = *xyz *adp tls
     w0 = master.fetch()
     out = StringIO()
     w0.show(out=out, attributes_level=2)
-    assert not "fubar" in out.getvalue()
+    assert "fubar" not in out.getvalue()
     user1 = freephil.parse("""fubar=None""")
     w1 = master.fetch(source=user1)
     out = StringIO()
     w1.show(out=out, attributes_level=3)
-    assert not "fubar" in out.getvalue()
+    assert "fubar" not in out.getvalue()
     user2 = freephil.parse("""fubar=abcedf""")
     w2 = master.fetch(source=user2)
     assert warn.n == 1
@@ -7268,7 +7259,7 @@ refinement {
     work_new = master_phil.fetch(source=geo_phil_new)
     p1 = work_old.extract()
     p2 = work_new.extract()
-    assert p2.pdb_interpretation.auto_link == p2.pdb_interpretation.auto_link
+    assert p1.pdb_interpretation.auto_link == p2.pdb_interpretation.auto_link
     s1 = StringIO()
     s2 = StringIO()
     work_old.show(out=s1)

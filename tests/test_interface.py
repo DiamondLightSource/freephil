@@ -3,7 +3,6 @@
 import io
 
 import pytest
-from libtbx.test_utils import show_diff
 
 import freephil
 
@@ -243,21 +242,21 @@ scope2 {
     scope1 = i.get_scope_by_name("scope1")
     s = io.StringIO()
     scope1.show(out=s)
-    assert not show_diff(
-        s.getvalue(),
-        """\
+    assert (
+        s.getvalue()
+        == """\
 scope1 {
   a = 3
   b = 4
   c = 3
 }
-""",
+"""
     )
     s = io.StringIO()
     i.working_phil.show(out=s)
-    assert not show_diff(
-        s.getvalue(),
-        """\
+    assert (
+        s.getvalue()
+        == """\
 scope1 {
   a = 3
   b = 4
@@ -269,5 +268,5 @@ scope2 {
   }
   e = 5
 }
-""",
+"""
     )
