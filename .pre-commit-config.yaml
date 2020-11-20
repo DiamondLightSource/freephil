@@ -22,8 +22,6 @@ repos:
   hooks:
   - id: black
     args: [--safe, --quiet]
-    files: \.pyi?$|SConscript$|^libtbx_config$
-    types: [file]
 
 # Static code analysis
 - repo: https://github.com/PyCQA/flake8
