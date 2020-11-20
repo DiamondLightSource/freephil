@@ -12,7 +12,6 @@ from itertools import count
 from libtbx import Auto, slots_getstate_setstate
 from libtbx.str_utils import line_breaker
 from libtbx.utils import Sorry, format_exception, import_python_object, to_str
-from six.moves import cStringIO as StringIO
 
 from . import tokenizer
 
@@ -260,7 +259,6 @@ def number_from_value_string(value_string, words, path):
         return None
     if value_string is Auto:
         return Auto
-    value_string_lower = value_string.lower()
     # similar to libtbx.utils.number_from_string
     # (please review if making changes here)
     value_string_lower_strip = value_string.lower().strip()
@@ -852,7 +850,7 @@ def extract_args(*args, **keyword_args):
 def normalize_call_expression(expression):
     result = []
     p = ""
-    for info in python_tokenize.generate_tokens(StringIO(expression).readline):
+    for info in python_tokenize.generate_tokens(io.StringIO(expression).readline):
         t = info[1]
         if len(t) == 0:
             continue
@@ -1304,7 +1302,7 @@ class definition(slots_getstate_setstate):
     def as_str(
         self, prefix="", expert_level=None, attributes_level=0, print_width=None
     ):
-        out = StringIO()
+        out = io.StringIO()
         self.show(
             out=out,
             prefix=prefix,
@@ -1632,7 +1630,7 @@ class scope_extract:
                     self_value_phil_join(other_value)
 
     def __phil_set__(self, name, optional, multiple, value):
-        assert not "." in name
+        assert "." not in name
         node = getattr(self, name, scope_extract_attribute_error)
         if not multiple:
             if value is scope_extract_is_disabled:
@@ -1649,13 +1647,13 @@ class scope_extract:
             if node is scope_extract_attribute_error:
                 node = scope_extract_list(optional=optional)
                 object.__setattr__(self, name, node)
-            if not value is scope_extract_is_disabled and (
+            if value is not scope_extract_is_disabled and (
                 value is not None or optional is not True
             ):
                 node.append(value)
 
     def __phil_get__(self, name):
-        assert not "." in name
+        assert "." not in name
         return getattr(self, name, scope_extract_attribute_error)
 
     def __call__(self, **keyword_args):
@@ -1934,7 +1932,7 @@ class scope(slots_getstate_setstate):
                 hash = "!"
             else:
                 hash = ""
-            out_attributes = StringIO()
+            out_attributes = io.StringIO()
             show_attributes(
                 self=self,
                 out=out_attributes,
@@ -1967,7 +1965,7 @@ class scope(slots_getstate_setstate):
     def as_str(
         self, prefix="", expert_level=None, attributes_level=0, print_width=None
     ):
-        out = StringIO()
+        out = io.StringIO()
         self.show(
             out=out,
             prefix=prefix,
@@ -2239,7 +2237,7 @@ class scope(slots_getstate_setstate):
                 if not diff:
                     obj = master_object.copy()
                     if (
-                        not master_object.optional is None
+                        master_object.optional is not None
                         and not master_object.optional
                     ):
                         obj.is_template = 0

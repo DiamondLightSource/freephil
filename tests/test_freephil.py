@@ -5,14 +5,17 @@ import os
 import pickle
 import sys
 import warnings
+from io import StringIO
 
 import pytest
 from libtbx import Auto
-from libtbx.test_utils import Exception_expected
 from libtbx.utils import Sorry
-from six.moves import cStringIO as StringIO
 
 import freephil
+
+
+class Exception_expected(Exception):
+    """TODO: replace these constructs with pytest.raises"""
 
 
 def show_diff(a, b):
@@ -6051,16 +6054,12 @@ a=-1.5
   .type=float(value_min=1.0, allow_none=True)
 """
     )
-    try:
+    with pytest.raises(
+        RuntimeError,
+        match="^a element is less than the minimum allowed value:"
+        " -1.5 < 1 \\(input line 1\\)$",
+    ):
         master_phil.extract()
-    except RuntimeError as e:
-        assert not show_diff(
-            str(e),
-            "a element is less than the minimum allowed value:"
-            " -1.5 < 1 (input line 1)",
-        )
-    else:
-        raise Exception_expected
     #
     master_phil = freephil.parse(
         input_string="""\
@@ -6068,16 +6067,12 @@ b=5.1
   .type=float(value_min=0.0, value_max=5.0)
 """
     )
-    try:
+    with pytest.raises(
+        RuntimeError,
+        match="^b element is greater than the maximum allowed value:"
+        " 5.1 > 5 \\(input line 1\\)$",
+    ):
         master_phil.extract()
-    except RuntimeError as e:
-        assert not show_diff(
-            str(e),
-            "b element is greater than the maximum allowed value:"
-            " 5.1 > 5 (input line 1)",
-        )
-    else:
-        raise Exception_expected
     #
     master_phil = freephil.parse(
         input_string="""\
@@ -6085,16 +6080,12 @@ c=7
   .type=int(value_max=6)
 """
     )
-    try:
+    with pytest.raises(
+        RuntimeError,
+        match="^c element is greater than the maximum allowed value:"
+        " 7 > 6 \\(input line 1\\)$",
+    ):
         master_phil.extract()
-    except RuntimeError as e:
-        assert not show_diff(
-            str(e),
-            "c element is greater than the maximum allowed value:"
-            " 7 > 6 (input line 1)",
-        )
-    else:
-        raise Exception_expected
     #
     master_phil = freephil.parse(
         input_string="""\
@@ -6102,16 +6093,12 @@ d=-6
   .type=int(value_min=3, value_max=25)
 """
     )
-    try:
+    with pytest.raises(
+        RuntimeError,
+        match="^d element is less than the minimum allowed value:"
+        " -6 < 3 \\(input line 1\\)$",
+    ):
         master_phil.extract()
-    except RuntimeError as e:
-        assert not show_diff(
-            str(e),
-            "d element is less than the minimum allowed value:"
-            " -6 < 3 (input line 1)",
-        )
-    else:
-        raise Exception_expected
     #
     master_phil = freephil.parse(
         input_string="""\
@@ -6119,12 +6106,8 @@ d=None
   .type=int(allow_none=False)
 """
     )
-    try:
+    with pytest.raises(RuntimeError, match="^d cannot be None$"):
         master_phil.extract()
-    except RuntimeError as e:
-        assert not show_diff(str(e), "d cannot be None")
-    else:
-        raise Exception_expected
 
 
 def test_ints_and_floats():
@@ -6251,14 +6234,10 @@ f=10
     work_phil = master_phil.fetch(source=user_phil)
     work_params = work_phil.extract()
     work_params.f[0] = 9
-    try:
+    with pytest.raises(
+        RuntimeError, match="^f element is less than the minimum allowed value: 9 < 10$"
+    ):
         master_phil.format(python_object=work_params)
-    except RuntimeError as e:
-        assert not show_diff(
-            str(e), "f element is less than the minimum allowed value: 9 < 10"
-        )
-    else:
-        raise Exception_expected
     #
     user_phil = freephil.parse(
         input_string="""\
@@ -6284,14 +6263,11 @@ f=20
     work_phil = master_phil.fetch(source=user_phil)
     work_params = work_phil.extract()
     work_params.f[0] = 21
-    try:
+    with pytest.raises(
+        RuntimeError,
+        match="^f element is greater than the maximum allowed value: 21 > 20$",
+    ):
         master_phil.format(python_object=work_params)
-    except RuntimeError as e:
-        assert not show_diff(
-            str(e), "f element is greater than the maximum allowed value: 21 > 20"
-        )
-    else:
-        raise Exception_expected
     #
     user_phil = freephil.parse(
         input_string="""\
@@ -6310,14 +6286,10 @@ e=1
         raise Exception_expected
     work_params = master_phil.extract()
     work_params.e = [1]
-    try:
+    with pytest.raises(
+        RuntimeError, match="^Not enough values for e: 1 given, at least 2 required$"
+    ):
         master_phil.format(python_object=work_params)
-    except RuntimeError as e:
-        assert not show_diff(
-            str(e), "Not enough values for e: 1 given, at least 2 required"
-        )
-    else:
-        raise Exception_expected
     #
     user_phil = freephil.parse(
         input_string="""\
@@ -6336,14 +6308,10 @@ a=1
         raise Exception_expected
     work_params = master_phil.extract()
     work_params.a = [1]
-    try:
+    with pytest.raises(
+        RuntimeError, match="^Not enough values for a: 1 given, exactly 2 required$"
+    ):
         master_phil.format(python_object=work_params)
-    except RuntimeError as e:
-        assert not show_diff(
-            str(e), "Not enough values for a: 1 given, exactly 2 required"
-        )
-    else:
-        raise Exception_expected
     #
     user_phil = freephil.parse(
         input_string="""\
@@ -6361,14 +6329,10 @@ e=1 2 3 4 5
         raise Exception_expected
     work_params = master_phil.extract()
     work_params.e = [1, 2, 3, 4, 5]
-    try:
+    with pytest.raises(
+        RuntimeError, match="^Too many values for e: 5 given, 4 allowed at most$"
+    ):
         master_phil.format(python_object=work_params)
-    except RuntimeError as e:
-        assert not show_diff(
-            str(e), "Too many values for e: 5 given, 4 allowed at most"
-        )
-    else:
-        raise Exception_expected
     #
     user_phil = freephil.parse(
         input_string="""\
@@ -6386,14 +6350,10 @@ a=1 2 3
         raise Exception_expected
     work_params = master_phil.extract()
     work_params.a = [1, 2, 3]
-    try:
+    with pytest.raises(
+        RuntimeError, match="^Too many values for a: 3 given, exactly 2 required$"
+    ):
         master_phil.format(python_object=work_params)
-    except RuntimeError as e:
-        assert not show_diff(
-            str(e), "Too many values for a: 3 given, exactly 2 required"
-        )
-    else:
-        raise Exception_expected
     #
     for value in ["None", "Auto"]:
         user_phil = freephil.parse(
@@ -6413,12 +6373,8 @@ a=1 %s
             raise Exception_expected
         work_params = master_phil.extract()
         work_params.a = [1, eval(value)]
-        try:
+        with pytest.raises(RuntimeError, match=f"^a element cannot be {value}$"):
             master_phil.format(python_object=work_params)
-        except RuntimeError as e:
-            assert not show_diff(str(e), "a element cannot be %s" % value)
-        else:
-            raise Exception_expected
     #
     master_phil = freephil.parse(
         input_string="""\
@@ -6576,25 +6532,17 @@ Error interpreting command line argument as parameter definition:
         )
     else:
         raise Exception_expected
-    try:
+    with pytest.raises(
+        Sorry, match="^Unknown command line parameter definition: xyz = 8$"
+    ):
         itpr_bar.process(arg="xyz=8")
-    except Sorry as e:
-        assert str(e) == "Unknown command line parameter definition: xyz = 8"
-    else:
-        raise Exception_expected
-    try:
+    with pytest.raises(
+        Sorry, match='^Command line parameter definition has no effect: "  "$'
+    ):
         itpr_bar.process(arg="  ")
-    except Sorry as e:
-        assert str(e) == 'Command line parameter definition has no effect: "  "'
-    else:
-        raise Exception_expected
     itpr = master_phil.command_line_argument_interpreter(argument_description="")
-    try:
+    with pytest.raises(Sorry, match='^Parameter definition has no effect: "bar {}"$'):
         itpr.process(arg="bar {}")
-    except Sorry as e:
-        assert str(e) == 'Parameter definition has no effect: "bar {}"'
-    else:
-        raise Exception_expected
     #
     tmp_path.joinpath("tmp0d5f6e10.phil").write_text("foo.limit=-3")
     user_phils = itpr_bar.process(
@@ -6654,12 +6602,10 @@ Error interpreting command line argument as parameter definition:
         intercepted.append(arg)
         return True
 
-    try:
+    with pytest.raises(
+        Sorry, match='^Uninterpretable command line argument: "lmit=3"$'
+    ):
         itpr_bar.process(args=args, custom_processor=custom_processor)
-    except Sorry as e:
-        assert not show_diff(str(e), 'Uninterpretable command line argument: "lmit=3"')
-    else:
-        raise Exception_expected
     assert intercepted == args[:1]
     user_phil = itpr_bar.process_and_fetch(args=["limit=12"])
     assert user_phil.as_str().split("\n")[9] == "    limit = 12"
@@ -7345,22 +7291,17 @@ scope {
 
     # invalid name
     new_default_str = 'unknown.name = "what"'
-    try:
+    with pytest.raises(
+        Sorry,
+        match="^Unrecognized PHIL parameter\\(s\\)\nunknown.name \\(input line 1\\)$",
+    ):
         new_phil_str = freephil.change_default_phil_values(
             master_phil_str, new_default_str
         )
-    except Sorry as e:
-        assert str(e) == "Unrecognized PHIL parameter(s)\nunknown.name (input line 1)"
-    else:
-        raise Exception_expected
 
     # valid name, invalid value
     new_default_str = 'scope.number = "what"'
-    try:
+    with pytest.raises(RuntimeError, match='Error interpreting scope.number="what"'):
         new_phil_str = freephil.change_default_phil_values(
             master_phil_str, new_default_str
         )
-    except RuntimeError as e:
-        assert 'Error interpreting scope.number="what"' in str(e)
-    else:
-        raise Exception_expected
