@@ -11,7 +11,7 @@ from itertools import count
 
 from libtbx import Auto, slots_getstate_setstate
 from libtbx.str_utils import line_breaker
-from libtbx.utils import Sorry, format_exception, import_python_object, to_str
+from libtbx.utils import Sorry, import_python_object, to_str
 
 from . import tokenizer
 
@@ -281,10 +281,10 @@ def number_from_value_string(value_string, words, path):
         return eval(value_string, math.__dict__, {})
     except KeyboardInterrupt:
         raise
-    except Exception:
+    except Exception as e:
         raise RuntimeError(
-            'Error interpreting %s="%s" as a numeric expression: %s%s'
-            % (path, value_string, format_exception(), words[0].where_str())
+            f'Error interpreting %s="%s" as a numeric expression: {e.__class__.__name__}: {e!s}%s'
+            % (path, value_string, words[0].where_str())
         )
 
 
@@ -900,10 +900,10 @@ def definition_converters_from_words(words, converter_registry, converter_cache)
             )
         except KeyboardInterrupt:
             raise
-        except Exception:
+        except Exception as e:
             raise RuntimeError(
-                'Error constructing definition type "%s": %s%s'
-                % (call_expression, format_exception(), words[0].where_str())
+                f'Error constructing definition type "%s": {e.__class__.__name__}: {e!s}%s'
+                % (call_expression, words[0].where_str())
             )
     else:
         import_path = flds[0] + "_phil_converters"
@@ -917,10 +917,10 @@ def definition_converters_from_words(words, converter_registry, converter_cache)
                 )
             except KeyboardInterrupt:
                 raise
-            except Exception:
+            except Exception as e:
                 raise RuntimeError(
-                    'Error evaluating definition type "%s": %s%s'
-                    % (call_expression, format_exception(), words[0].where_str())
+                    f'Error evaluating definition type "%s": {e.__class__.__name__}: {e!s}%s'
+                    % (call_expression, words[0].where_str())
                 )
         try:
             imported = import_python_object(
@@ -943,10 +943,10 @@ def definition_converters_from_words(words, converter_registry, converter_cache)
             converters_instance = imported.object(**keyword_args)
         except KeyboardInterrupt:
             raise
-        except Exception:
+        except Exception as e:
             raise RuntimeError(
-                'Error constructing definition type "%s": %s%s'
-                % (call_expression, format_exception(), words[0].where_str())
+                f'Error constructing definition type "%s": {e.__class__.__name__}: {e!s}%s'
+                % (call_expression, words[0].where_str())
             )
     converter_cache[call_expression] = weakref.ref(converters_instance)
     return converters_instance
@@ -1335,10 +1335,10 @@ class definition(slots_getstate_setstate):
     def _type_from_words(self):
         try:
             return self.type.from_words
-        except AttributeError:
+        except AttributeError as e:
             raise RuntimeError(
-                ".type=%s does not have a from_words method%s: %s"
-                % (str(self.type), self.where_str, format_exception())
+                f".type=%s does not have a from_words method%s: {e.__class__.__name__}: {e!s}"
+                % (str(self.type), self.where_str)
             )
 
     def try_extract(self):
@@ -1365,10 +1365,10 @@ class definition(slots_getstate_setstate):
         else:
             try:
                 type_as_words = self.type.as_words
-            except AttributeError:
+            except AttributeError as e:
                 raise RuntimeError(
-                    ".type=%s does not have an as_words method%s: %s"
-                    % (str(self.type), self.where_str, format_exception())
+                    f".type=%s does not have an as_words method%s: {e.__class__.__name__}: {e!s}"
+                    % (str(self.type), self.where_str)
                 )
             words = type_as_words(python_object=python_object, master=self)
         return self.customized_copy(words=words)
@@ -1513,10 +1513,10 @@ def scope_extract_call_proxy(full_path, words, cache):
                 )
             except KeyboardInterrupt:
                 raise
-            except Exception:
+            except Exception as e:
                 raise RuntimeError(
-                    'scope "%s" .call=%s: %s%s'
-                    % (full_path, call_expression, format_exception(), where_str)
+                    f'scope "%s" .call=%s: {e.__class__.__name__}: {e!s}%s'
+                    % (full_path, call_expression, where_str)
                 )
         imported = import_python_object(
             import_path=import_path,
@@ -1668,13 +1668,12 @@ class scope_extract:
             return call_proxy.callable(self, **effective_keyword_args)
         except KeyboardInterrupt:
             raise
-        except Exception:
+        except Exception as e:
             raise RuntimeError(
-                'scope "%s" .call=%s execution: %s%s'
+                f'scope "%s" .call=%s execution: {e.__class__.__name__}: {e!s}%s'
                 % (
                     self.__phil_path__(),
                     call_proxy.expression,
-                    format_exception(),
                     call_proxy.where_str,
                 )
             )

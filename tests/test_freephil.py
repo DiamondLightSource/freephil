@@ -503,7 +503,7 @@ x=None
     except RuntimeError as e:
         assert (
             str(e) == 'Error evaluating definition type "freephil.test_scopes.int'
-            '(a=1=2)": SyntaxError: invalid syntax (line 1) (input line 2)'
+            '(a=1=2)": SyntaxError: invalid syntax (<string>, line 1) (input line 2)'
         )
     else:
         raise Exception_expected
@@ -5856,7 +5856,7 @@ a=None
     except RuntimeError as e:
         assert (
             str(e) == 'Error constructing definition type "foo2(foo=1=2)":'
-            " SyntaxError: invalid syntax (line 1) (input line 2)"
+            " SyntaxError: invalid syntax (<string>, line 1) (input line 2)"
         )
     else:
         raise Exception_expected
@@ -6447,11 +6447,11 @@ Error interpreting a="x" as a numeric expression:\
     assert not show_diff(proxy.formatted.as_str(), "a = 1 2 3 4\n")
     for v, m in [(a.validate, "extracted"), (a.validate_and_format, "formatted")]:
         proxy = v(input_string="*", source_info="si")
-        assert not show_diff(
-            proxy.error_message,
-            """\
+        assert (
+            proxy.error_message
+            == """\
 Error interpreting a="*" as a numeric expression:\
- SyntaxError: unexpected EOF while parsing (line 1) (si, line 1)""",
+ SyntaxError: unexpected EOF while parsing (<string>, line 1) (si, line 1)"""
         )
         assert getattr(proxy, m) is None
     proxy = a.validate(input_string="1;2,3")
@@ -6768,7 +6768,7 @@ s
     except RuntimeError as e:
         assert (
             str(e) == 'scope "s" .call=freephil.test_scopes.scope_call_func(a=b=c):'
-            " SyntaxError: invalid syntax (line 1) (input line 2)"
+            " SyntaxError: invalid syntax (<string>, line 1) (input line 2)"
         )
     else:
         raise Exception_expected

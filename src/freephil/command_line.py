@@ -1,6 +1,7 @@
 import os
 
-from libtbx.utils import Sorry, format_exception
+from libtbx.str_utils import show_string
+from libtbx.utils import Sorry
 
 import freephil
 
@@ -62,13 +63,13 @@ class argument_interpreter:
             params = freephil.parse(
                 input_string=arg, source_info=self.argument_description + "argument"
             )
-        except RuntimeError:
+        except RuntimeError as e:
             raise Sorry(
                 (
                     "Error interpreting %sargument as parameter definition:\n"
-                    '  "%s"\n  %s'
+                    f'  "%s"\n  {e.__class__.__name__}: {e!s}'
                 )
-                % (self.argument_description, arg, format_exception())
+                % (self.argument_description, arg)
             )
         if self.target_paths is None:
             self.target_paths = [
@@ -182,18 +183,16 @@ class argument_interpreter:
                 if isinstance(result, freephil.scope):
                     user_phils.append(result)
                     continue
-                elif (result is not None) and (result != False):
+                elif (result is not None) and (result is not False):
                     continue
             if op.isfile(arg):
                 freephil.parse(file_name=arg)  # exception expected
-                from libtbx.str_utils import show_string
 
                 raise RuntimeError(
                     "Programming error or highly unusual situation"
                     " (while processing %sargument %s)."
                     % (self.argument_description, show_string(arg))
                 )
-            from libtbx.str_utils import show_string
 
             raise Sorry(
                 "Uninterpretable %sargument: %s"
