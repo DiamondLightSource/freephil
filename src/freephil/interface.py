@@ -9,10 +9,12 @@ import pickle
 import re
 import sys
 
-from libtbx import adopt_init_args, smart_open
+from libtbx import adopt_init_args
 
 import freephil
 from freephil import gui_objects
+
+from .legacy import open_for_writing
 
 tracking_params = freephil.parse(
     """
@@ -147,7 +149,7 @@ class index:
                 sub_name="LIBTBX_BASE_DIR",
             )
         try:
-            f = smart_open.for_writing(file_name, "w")
+            f = open_for_writing(file_name, "w")
         except OSError as e:
             raise freephil.Sorry(str(e))
         else:

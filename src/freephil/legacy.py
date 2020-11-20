@@ -1,4 +1,7 @@
 # Content in this file falls under the libtbx license
+import bz2
+import gzip
+import os.path
 
 MANGLE_LEN = 256  # magic constant from compile.c
 
@@ -117,3 +120,17 @@ class AutoType(object):
         if cls.singleton is None:
             cls.singleton = super(AutoType, cls).__new__(cls)
         return cls.singleton
+
+
+def open_for_writing(file_name, mode="w", gzip_mode="wb"):
+    assert mode in ["w", "wb", "a", "ab"]
+    assert gzip_mode in ["w", "wb", "a", "ab"]
+    file_name = os.path.expanduser(file_name)
+    if file_name.endswith(".gz"):
+        return gzip.open(file_name, gzip_mode)
+    elif file_name.endswith(".bz2"):
+        return bz2.BZ2File(file_name, mode)
+    try:
+        return open(file_name, mode)
+    except IOError as e:
+        raise IOError("Cannot open file for writing: %r\n" % file_name + "  " + str(e))

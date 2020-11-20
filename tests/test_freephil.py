@@ -1713,13 +1713,13 @@ include scope foo foo foo
         try:
             freephil.parse(
                 input_string="""\
-include scope libtbx
+include scope freephil
 """,
                 process_includes=True,
             )
         except ValueError as e:
             assert (
-                str(e) == 'include scope: import path "libtbx" is too short;'
+                str(e) == 'include scope: import path "freephil" is too short;'
                 " target must be a phil scope object or phil string (input line 1)"
             )
         else:
