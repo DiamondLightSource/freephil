@@ -1,11 +1,11 @@
-from libtbx import phil
+import freephil as phil
 
 
 def _merge_param_into_list(dst_list, src, key):
     """The _merge_param_into_list() helper function returns @c True if
-  the phil extract @p src was merged into the extract list @p dst_list
-  and @c False otherwise.
-  """
+    the phil extract @p src was merged into the extract list @p dst_list
+    and @c False otherwise.
+    """
 
     for dst in dst_list:
         if merge_params_by_key(dst, src, key):
@@ -15,11 +15,11 @@ def _merge_param_into_list(dst_list, src, key):
 
 def merge_params_by_key(dst, src, key):
     """The merge_params_by_key() function recursively merges the phil
-  extract @p src into @p dst.  Two scopes with attributes named @p key
-  are merged only if the values of @p key are equal.  The function
-  returns @c True if @p src was merged into @p dst, and @c False
-  otherwise.
-  """
+    extract @p src into @p dst.  Two scopes with attributes named @p key
+    are merged only if the values of @p key are equal.  The function
+    returns @c True if @p src was merged into @p dst, and @c False
+    otherwise.
+    """
 
     # Base case: if dst and src both have keys, they must match.
     if (

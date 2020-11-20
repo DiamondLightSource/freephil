@@ -2363,7 +2363,7 @@ class scope(slots_getstate_setstate):
     def command_line_argument_interpreter(
         self, home_scope=None, argument_description=None
     ):
-        from libtbx.phil.command_line import argument_interpreter as _
+        from freephil.command_line import argument_interpreter as _
 
         return _(
             master_phil=self,
@@ -2391,7 +2391,7 @@ def process_include_scope(
     elif source_scope is None or not isinstance(source_scope, scope):
         raise RuntimeError(
             'include scope: python object "%s" in module "%s" is not a'
-            " libtbx.phil.scope instance%s"
+            " freephil.scope instance%s"
             % (imported.path_elements[-1], imported.module_path, object.where_str)
         )
     source_scope = source_scope.process_includes(
@@ -2520,7 +2520,7 @@ def parse(
     process_includes=False,
     include_stack=None,
 ):
-    from libtbx.phil import parser
+    from freephil import parser
 
     assert source_info is None or file_name is None
     if input_string is None:
@@ -2593,7 +2593,7 @@ def read_default(
 
 
 def process_command_line(args, master_string, parse=None):
-    from libtbx.phil import command_line
+    from freephil import command_line
 
     return command_line.process(args=args, master_string=master_string, parse=parse)
 

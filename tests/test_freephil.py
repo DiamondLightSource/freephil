@@ -387,68 +387,32 @@ t
     )
 
 
-improper_phil_converters = None
-
-
-class int_phil_converters:
-    def __init__(self, factor=1):
-        assert int(factor) == factor
-        self.factor = factor
-
-    def __str__(self):
-        if self.factor == 1:
-            return "freephil.tst.int"
-        return "freephil.tst.int(factor=%d)" % self.factor
-
-    def from_words(self, words, master):
-        value = freephil.int_from_words(words=words, path=master.full_path())
-        if value is None:
-            return value
-        return value * self.factor
-
-    def as_words(self, python_object, master):
-        if python_object is None:
-            return [freephil.tokenizer.word(value="None")]
-        return [freephil.tokenizer.word(value=str(python_object / self.factor))]
-
-
-class converter_implementation(int_phil_converters):
-    def __str__(self):
-        if self.factor == 1:
-            return "freephil.tst.converter_factory"
-        return "freephil.tst.converter_factory(factor=%d)" % self.factor
-
-
-def converter_factory_phil_converters(**args):
-    return converter_implementation(**args)
-
-
 def test_import_converters():
     input_string = """\
 x1=None
-  .type=freephil.tst.int
+  .type=freephil.test_scopes.int
 y1=3
-  .type=freephil.tst.int
+  .type=freephil.test_scopes.int
 x2=None
-  .type=freephil.tst.int(factor=2)
+  .type=freephil.test_scopes.int(factor=2)
 y2=3
-  .type=freephil.tst.int( factor = 2 )
+  .type=freephil.test_scopes.int( factor = 2 )
 z3=4
-  .type=freephil.tst.converter_factory( factor= 3 )
+  .type=freephil.test_scopes.converter_factory( factor= 3 )
 """
     r = recycle(
         input_string=input_string,
         expected_out="""\
 x1 = None
-  .type = freephil.tst.int
+  .type = freephil.test_scopes.int
 y1 = 3
-  .type = freephil.tst.int
+  .type = freephil.test_scopes.int
 x2 = None
-  .type = freephil.tst.int(factor=2)
+  .type = freephil.test_scopes.int(factor=2)
 y2 = 3
-  .type = freephil.tst.int(factor=2)
+  .type = freephil.test_scopes.int(factor=2)
 z3 = 4
-  .type = freephil.tst.converter_factory(factor=3)
+  .type = freephil.test_scopes.converter_factory(factor=3)
 """,
         attributes_level=2,
     )
@@ -475,13 +439,13 @@ x=None
         freephil.parse(
             """\
 x=None
-  .type=freephil.tst.none
+  .type=freephil.test_scopes.none
 """
         )
     except AttributeError as e:
         assert (
-            str(e) == ".type=freephil.tst.none: object"
-            ' "none_phil_converters" not found in module "freephil.tst"'
+            str(e) == ".type=freephil.test_scopes.none: object"
+            ' "none_phil_converters" not found in module "freephil.test_scopes"'
             " (input line 2)"
         )
     else:
@@ -491,12 +455,12 @@ x=None
         freephil.parse(
             """\
 x=None
-  .type=freephil.tst.improper
+  .type=freephil.test_scopes.improper
 """
         )
     except TypeError as e:
         assert (
-            str(e) == '"freephil.tst.improper_phil_converters" is not'
+            str(e) == '"freephil.test_scopes.improper_phil_converters" is not'
             " a callable Python object (input line 2)"
         )
     else:
@@ -506,13 +470,13 @@ x=None
         freephil.parse(
             """\
 x=None
-  .type=freephil.tst.int(factor=1.5)
+  .type=freephil.test_scopes.int(factor=1.5)
 """
         )
     except RuntimeError as e:
         e = str(e)
         assert e.startswith(
-            'Error constructing definition type "freephil.tst.int(factor=1.5)":'
+            'Error constructing definition type "freephil.test_scopes.int(factor=1.5)":'
             " AssertionError: "
         )
         assert e.endswith(" (input line 2)")
@@ -523,12 +487,12 @@ x=None
         freephil.parse(
             """\
 x=None
-  .type=freephil.tst.int(a=1=2)
+  .type=freephil.test_scopes.int(a=1=2)
 """
         )
     except RuntimeError as e:
         assert (
-            str(e) == 'Error evaluating definition type "freephil.tst.int'
+            str(e) == 'Error evaluating definition type "freephil.test_scopes.int'
             '(a=1=2)": SyntaxError: invalid syntax (line 1) (input line 2)'
         )
     else:
@@ -1612,7 +1576,7 @@ include file foo foo
     #
     params = freephil.parse(
         input_string="""\
-include scope freephil.tst.include_scope_target_1
+include scope freephil.test_scopes.include_scope_target_1
 """,
         process_includes=True,
     )
@@ -1632,7 +1596,7 @@ s
     params = freephil.parse(
         input_string="""\
 o {
-  include scope freephil.tst.include_scope_target_1
+  include scope freephil.test_scopes.include_scope_target_1
 }
 """,
         process_includes=True,
@@ -1655,7 +1619,7 @@ o {
     assert not show_diff(params.get("o.s.y").objects[0].full_path(), "o.s.y")
     params = freephil.parse(
         input_string="""\
-include scope freephil.tst.include_scope_target_1 x
+include scope freephil.test_scopes.include_scope_target_1 x
 """,
         process_includes=True,
     )
@@ -1668,7 +1632,7 @@ x = 1
     )
     params = freephil.parse(
         input_string="""\
-include scope freephil.tst.include_scope_target_1 s
+include scope freephil.test_scopes.include_scope_target_1 s
 """,
         process_includes=True,
     )
@@ -1687,7 +1651,7 @@ s
         input_string="""\
 a = None
 c {
-  include scope freephil.tst.include_scope_target_1 s.y
+  include scope freephil.test_scopes.include_scope_target_1 s.y
 }
 b = None
 """,
@@ -1709,7 +1673,7 @@ b = None
             input_string="""\
 a = None
 c {
-  include scope freephil.tst.include_scope_target_2%s
+  include scope freephil.test_scopes.include_scope_target_2%s
 }
 b = None
 """
@@ -1787,14 +1751,14 @@ include scope freephil.t_s_t.include_scope_target_1
         try:
             freephil.parse(
                 input_string="""\
-include scope freephil.tst.include_scope_target_none
+include scope freephil.test_scopes.include_scope_target_none
 """,
                 process_includes=True,
             )
         except AttributeError as e:
             assert (
                 str(e) == "include scope: object"
-                ' "include_scope_target_none" not found in module "freephil.tst"'
+                ' "include_scope_target_none" not found in module "freephil.test_scopes"'
                 " (input line 1)"
             )
         else:
@@ -1802,14 +1766,14 @@ include scope freephil.tst.include_scope_target_none
         try:
             freephil.parse(
                 input_string="""\
-include scope freephil.tst.include_scope_target_0n
+include scope freephil.test_scopes.include_scope_target_0n
 """,
                 process_includes=True,
             )
         except RuntimeError as e:
             assert (
                 str(e) == "include scope: python object"
-                ' "include_scope_target_0n" in module "freephil.tst"'
+                ' "include_scope_target_0n" in module "freephil.test_scopes"'
                 " is not a freephil.scope instance (input line 1)"
             )
         else:
@@ -1817,14 +1781,14 @@ include scope freephil.tst.include_scope_target_0n
         try:
             freephil.parse(
                 input_string="""\
-include scope freephil.tst.include_scope_target_0f
+include scope freephil.test_scopes.include_scope_target_0f
 """,
                 process_includes=True,
             )
         except RuntimeError as e:
             assert (
                 str(e) == "include scope: python object"
-                ' "include_scope_target_0f" in module "freephil.tst"'
+                ' "include_scope_target_0f" in module "freephil.test_scopes"'
                 " is not a freephil.scope instance (input line 1)"
             )
         else:
@@ -1832,47 +1796,17 @@ include scope freephil.tst.include_scope_target_0f
         try:
             freephil.parse(
                 input_string="""\
-include scope freephil.tst.include_scope_target_1 t
+include scope freephil.test_scopes.include_scope_target_1 t
 """,
                 process_includes=True,
             )
         except RuntimeError as e:
             assert (
-                str(e) == 'include scope: path "t" not found in freephil scope object'
-                ' "include_scope_target_1" in module "freephil.tst" (input line 1)'
+                str(e) == 'include scope: path "t" not found in phil scope object'
+                ' "include_scope_target_1" in module "freephil.test_scopes" (input line 1)'
             )
         else:
             raise Exception_expected
-
-
-include_scope_target_0n = None
-
-include_scope_target_0f = 1.0
-
-include_scope_target_1 = freephil.parse(
-    """\
-x=1
-  .help=u
-s
-  .help=v
-{
-  y=2
-    .help=w
-}
-"""
-)
-
-include_scope_target_2s = """\
-p=1
-include scope freephil.tst.include_scope_target_1
-q=2
-r {
-  include scope freephil.tst.include_scope_target_1 s.y
-}
-x=3
-"""
-
-include_scope_target_2 = freephil.parse(include_scope_target_2s)
 
 
 def test_fetch():
@@ -6852,7 +6786,7 @@ def test_scope_call():
         freephil.parse(
             """\
 s
-  .call=freephil.tst.scope_call_none
+  .call=freephil.test_scopes.scope_call_none
 {
 }
 """
@@ -6860,7 +6794,7 @@ s
     except AttributeError as e:
         assert (
             str(e) == 'scope "s" .call: object "scope_call_none" not found in'
-            ' module "freephil.tst" (input line 2)'
+            ' module "freephil.test_scopes" (input line 2)'
         )
     else:
         raise Exception_expected
@@ -6869,14 +6803,14 @@ s
         freephil.parse(
             """\
 s
-  .call=freephil.tst.scope_call_not_callable
+  .call=freephil.test_scopes.scope_call_not_callable
 {
 }
 """
         )
     except TypeError as e:
         assert (
-            str(e) == 'scope "s" .call: "freephil.tst.scope_call_not_callable"'
+            str(e) == 'scope "s" .call: "freephil.test_scopes.scope_call_not_callable"'
             " is not a callable Python object (input line 2)"
         )
     else:
@@ -6886,13 +6820,15 @@ s
         freephil.parse(
             """\
 s
-  .call=freephil.tst.scope_call_func(
+  .call=freephil.test_scopes.scope_call_func(
 {
 }
 """
         )
     except RuntimeError as e:
-        assert str(e).startswith('scope "s" .call=freephil.tst.scope_call_func(: ')
+        assert str(e).startswith(
+            'scope "s" .call=freephil.test_scopes.scope_call_func(: '
+        )
         assert str(e).endswith(" (input line 2)")
     else:
         raise Exception_expected
@@ -6901,14 +6837,14 @@ s
         freephil.parse(
             """\
 s
-  .call=freephil.tst.scope_call_func(a=b=c)
+  .call=freephil.test_scopes.scope_call_func(a=b=c)
 {
 }
 """
         )
     except RuntimeError as e:
         assert (
-            str(e) == 'scope "s" .call=freephil.tst.scope_call_func(a=b=c):'
+            str(e) == 'scope "s" .call=freephil.test_scopes.scope_call_func(a=b=c):'
             " SyntaxError: invalid syntax (line 1) (input line 2)"
         )
     else:
@@ -6917,15 +6853,15 @@ s
     master = freephil.parse(
         """\
 s
-  .call=freephil.tst.scope_call_func
+  .call=freephil.test_scopes.scope_call_func
 {
 }
 t
-  .call=freephil.tst.scope_call_func(a =1)
+  .call=freephil.test_scopes.scope_call_func(a =1)
 {
 }
 u
-  .call=freephil.tst.scope_call_func (a= 1 , b=2)
+  .call=freephil.test_scopes.scope_call_func (a= 1 , b=2)
 {
 }
 v
@@ -6937,15 +6873,15 @@ v
         master.as_str(attributes_level=2),
         """\
 s
-  .call = freephil.tst.scope_call_func
+  .call = freephil.test_scopes.scope_call_func
 {
 }
 t
-  .call = freephil.tst.scope_call_func(a=1)
+  .call = freephil.test_scopes.scope_call_func(a=1)
 {
 }
 u
-  .call = freephil.tst.scope_call_func(a=1, b=2)
+  .call = freephil.test_scopes.scope_call_func(a=1, b=2)
 {
 }
 v {
@@ -6978,7 +6914,7 @@ v {
         params.u(action="raise")
     except RuntimeError as e:
         assert (
-            str(e) == 'scope "u" .call=freephil.tst.scope_call_func(a=1, b=2)'
+            str(e) == 'scope "u" .call=freephil.test_scopes.scope_call_func(a=1, b=2)'
             " execution: ValueError: action==raise (input line 10)"
         )
     else:
@@ -6993,11 +6929,11 @@ v {
     master = freephil.parse(
         """\
 s
-  .call=freephil.tst.scope_call_class
+  .call=freephil.test_scopes.scope_call_class
 {
 }
 u
-  .call = libtbx . phil .tst. scope_call_class ( a = 1 , b = 2 )
+  .call = freephil . test_scopes. scope_call_class ( a = 1 , b = 2 )
 {
 }
 """
@@ -7006,11 +6942,11 @@ u
         master.as_str(attributes_level=2),
         """\
 s
-  .call = freephil.tst.scope_call_class
+  .call = freephil.test_scopes.scope_call_class
 {
 }
 u
-  .call = freephil.tst.scope_call_class(a=1, b=2)
+  .call = freephil.test_scopes.scope_call_class(a=1, b=2)
 {
 }
 """,
@@ -7026,11 +6962,11 @@ u
     master = freephil.parse(
         """\
 s
-  .call=freephil.tst.scope_call_class_object
+  .call=freephil.test_scopes.scope_call_class_object
 {
 }
 u
-  .call=freephil.tst.scope_call_class_object(a=1, b=2)
+  .call=freephil.test_scopes.scope_call_class_object(a=1, b=2)
 {
 }
 """
@@ -7039,11 +6975,11 @@ u
         master.as_str(attributes_level=2),
         """\
 s
-  .call = freephil.tst.scope_call_class_object
+  .call = freephil.test_scopes.scope_call_class_object
 {
 }
 u
-  .call = freephil.tst.scope_call_class_object(a=1, b=2)
+  .call = freephil.test_scopes.scope_call_class_object(a=1, b=2)
 {
 }
 """,
@@ -7105,27 +7041,6 @@ strategy = *xyz *adp tls
     w2 = master.fetch(source=user3)
     assert warn.n == 2
     assert warn.message == "strategy is deprecated - not recommended for use."
-
-
-scope_call_not_callable = None
-
-
-def scope_call_func(scope_extract, **keyword_args):
-    if keyword_args.get("action") == "raise":
-        raise ValueError("action==raise")
-    return scope_extract, keyword_args
-
-
-class scope_call_class:
-    def __init__(self, scope_extract, **keyword_args):
-        self.scope_extract = scope_extract
-        self.keyword_args = keyword_args
-
-
-class scope_call_class_object:
-    def __init__(self, scope_extract, **keyword_args):
-        self.scope_extract = scope_extract
-        self.keyword_args = keyword_args
 
 
 def test_find_scope():
