@@ -6515,7 +6515,7 @@ a=None
     assert proxy2.extracted is None
 
 
-def test_command_line():
+def test_command_line(tmp_path):
     master_string = """\
 foo {
   min=0
@@ -6593,10 +6593,16 @@ Error interpreting command line argument as parameter definition:
     else:
         raise Exception_expected
     #
-    with open("tmp0d5f6e10.phil", "w") as f:
-        print("foo.limit=-3", file=f)
+    tmp_path.joinpath("tmp0d5f6e10.phil").write_text("foo.limit=-3")
     user_phils = itpr_bar.process(
-        args=["", "--flag", "--flag=no", "tmp0d5f6e10.phil", "max=8", "limit=9"]
+        args=[
+            "",
+            "--flag",
+            "--flag=no",
+            str(tmp_path / "tmp0d5f6e10.phil"),
+            "max=8",
+            "limit=9",
+        ]
     )
     assert len(user_phils) == 5
     for i, expected in enumerate(
@@ -6609,26 +6615,21 @@ Error interpreting command line argument as parameter definition:
         ]
     ):
         assert not show_diff(user_phils[i].as_str(), expected)
-    os.remove("tmp0d5f6e10.phil")
+    tmp_path.joinpath("tmp0d5f6e10.phil").unlink()
     assert not os.path.exists("tmp0d5f6e10.phil")
-    for arg in ["tmp0d5f6e10.phil", "lmit=3"]:
-        try:
+    for arg in [str(tmp_path / "tmp0d5f6e10.phil"), "lmit=3"]:
+        with pytest.raises(
+            Sorry, match=r'Uninterpretable command line argument: "%s"' % arg
+        ):
             itpr_bar.process(args=[arg])
-        except Sorry as e:
-            assert not show_diff(
-                str(e), 'Uninterpretable command line argument: "%s"' % arg
-            )
-        else:
-            raise Exception_expected
-    with open("tmp0d5f6e10.phil", "w") as f:
-        print("foo$limit=0", file=f)
+    tmp_path.joinpath("tmp0d5f6e10.phil").write_text("foo$limit=0")
     try:
-        itpr_bar.process(args=["tmp0d5f6e10.phil"])
+        itpr_bar.process(args=[str(tmp_path / "tmp0d5f6e10.phil")])
     except RuntimeError as e:
         assert not show_diff(
             str(e),
             'Syntax error: improper definition name "foo$limit"'
-            ' (file "tmp0d5f6e10.phil", line 1)',
+            ' (file "%s", line 1)' % tmp_path.joinpath("tmp0d5f6e10.phil"),
         )
     else:
         raise Exception_expected
@@ -6638,7 +6639,7 @@ Error interpreting command line argument as parameter definition:
         intercepted.append(arg)
         return True
 
-    args = ["tmp0d5f6e10.phil", "lmit=3"]
+    args = [str(tmp_path / "tmp0d5f6e10.phil"), "lmit=3"]
     user_phils = itpr_bar.process(args=args, custom_processor=custom_processor)
     assert len(user_phils) == 0
     assert intercepted == args
