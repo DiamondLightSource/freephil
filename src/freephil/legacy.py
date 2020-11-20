@@ -77,3 +77,43 @@ class slots_getstate_setstate(object):
     def __setstate__(self, state):
         for name, value in state.items():
             setattr(self, name, value)
+
+
+class AutoType(object):
+    """
+    Class for creating the Auto instance, which mimics the behavior of None
+    with respect to the 'is' and '==' operators; this is used throughout
+    CCTBX to indicate parameters that should be determined automatically.
+
+    Examples
+    --------
+    >>> def f(optional=libtbx.Auto)
+    ...    if optional is libtbx.Auto:
+    ...        optional = 5
+    ...    return optional
+    ...
+    >>> print(f())
+    5
+    >>> print(f(optional=10))
+    10
+    """
+
+    singleton = None
+
+    def __str__(self):
+        return "Auto"
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        """AutoType behaves as a singleton, so return the same hash value for all instances."""
+        return hash(AutoType)
+
+    def __new__(cls):
+        if cls.singleton is None:
+            cls.singleton = super(AutoType, cls).__new__(cls)
+        return cls.singleton

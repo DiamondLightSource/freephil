@@ -12,8 +12,7 @@ import warnings
 import weakref
 from itertools import count
 
-from libtbx import Auto
-from libtbx.utils import Sorry
+import freephil
 
 from . import parser, tokenizer
 from .legacy import slots_getstate_setstate
@@ -125,13 +124,15 @@ class words_converters:
         if is_plain_none(words=words):
             return None
         if is_plain_auto(words=words):
-            return Auto
+            return freephil.Auto
         return words
 
     def as_words(self, python_object, master):
         if python_object is None:
             return [tokenizer.word(value="None")]
-        if (python_object is Auto) or (isinstance(python_object, type(Auto))):
+        if (python_object is freephil.Auto) or (
+            isinstance(python_object, type(freephil.Auto))
+        ):
             return [tokenizer.word(value="Auto")]
         for word in python_object:
             assert isinstance(word, tokenizer.word)
@@ -142,14 +143,16 @@ def strings_from_words(words):
     if is_plain_none(words=words):
         return None
     if is_plain_auto(words=words):
-        return Auto
+        return freephil.Auto
     return [word.value for word in words]
 
 
 def strings_as_words(python_object):
     if python_object is None:
         return [tokenizer.word(value="None")]
-    if (python_object is Auto) or (isinstance(python_object, type(Auto))):
+    if (python_object is freephil.Auto) or (
+        isinstance(python_object, type(freephil.Auto))
+    ):
         return [tokenizer.word(value="Auto")]
     words = []
     for value in python_object:
@@ -178,7 +181,7 @@ def str_from_words(words):
     if is_plain_none(words=words):
         return None
     if is_plain_auto(words=words):
-        return Auto
+        return freephil.Auto
     return " ".join([word.value for word in words])
 
 
@@ -195,7 +198,9 @@ class str_converters:
     def as_words(self, python_object, master):
         if python_object is None:
             return [tokenizer.word(value="None")]
-        if (python_object is Auto) or (isinstance(python_object, type(Auto))):
+        if (python_object is freephil.Auto) or (
+            isinstance(python_object, type(freephil.Auto))
+        ):
             return [tokenizer.word(value="Auto")]
         return [tokenizer.word(value=python_object, quote_token='"')]
 
@@ -211,13 +216,15 @@ class qstr_converters:
         if is_plain_none(words=words):
             return None
         if is_plain_auto(words=words):
-            return Auto
+            return freephil.Auto
         return " ".join([str(word) for word in words])
 
     def as_words(self, python_object, master):
         if python_object is None:
             return [tokenizer.word(value="None")]
-        if (python_object is Auto) or (isinstance(python_object, type(Auto))):
+        if (python_object is freephil.Auto) or (
+            isinstance(python_object, type(freephil.Auto))
+        ):
             return [tokenizer.word(value="Auto")]
         return tokenize_value_literal(
             input_string=python_object, source_info="python_object"
@@ -233,7 +240,7 @@ class path_converters(str_converters):
 
     def from_words(self, words, master):
         path = str_from_words(words=words)
-        if path not in (None, Auto):
+        if path not in (None, freephil.Auto):
             path = os.path.expanduser(path)
         return path
 
@@ -250,8 +257,8 @@ def bool_from_words(words, path):
     value_string = str_from_words(words)
     if value_string is None:
         return None
-    if value_string is Auto:
-        return Auto
+    if value_string is freephil.Auto:
+        return freephil.Auto
     value_lower = value_string.lower()
     if value_lower in ["false", "no", "off", "0"]:
         return False
@@ -277,7 +284,9 @@ class bool_converters:
     def as_words(self, python_object, master):
         if python_object is None:
             return [tokenizer.word(value="None")]
-        if (python_object is Auto) or (isinstance(python_object, type(Auto))):
+        if (python_object is freephil.Auto) or (
+            isinstance(python_object, type(freephil.Auto))
+        ):
             return [tokenizer.word(value="Auto")]
         if python_object:
             return [tokenizer.word(value="True")]
@@ -288,8 +297,8 @@ class bool_converters:
 def number_from_value_string(value_string, words, path):
     if value_string is None:
         return None
-    if value_string is Auto:
-        return Auto
+    if value_string is freephil.Auto:
+        return freephil.Auto
     # similar to libtbx.utils.number_from_string
     # (please review if making changes here)
     value_string_lower_strip = value_string.lower().strip()
@@ -301,7 +310,7 @@ def number_from_value_string(value_string, words, path):
     if value_string_lower_strip == "none":
         return None
     if value_string_lower_strip == "auto":
-        return Auto
+        return freephil.Auto
     try:
         return int(value_string)
     except KeyboardInterrupt:
@@ -327,7 +336,7 @@ def number_from_words(words, path):
 
 def numbers_from_words(words, path):
     all_values_string = str_from_words(words)
-    if all_values_string is None or all_values_string is Auto:
+    if all_values_string is None or all_values_string is freephil.Auto:
         return all_values_string
     while True:
         have_changes = False
@@ -369,14 +378,14 @@ def float_from_number(number, words, path):
 
 def int_from_words(words, path):
     result = number_from_words(words=words, path=path)
-    if result is None or result is Auto:
+    if result is None or result is freephil.Auto:
         return result
     return int_from_number(number=result, words=words, path=path)
 
 
 def float_from_words(words, path):
     result = number_from_words(words=words, path=path)
-    if result is None or result is Auto:
+    if result is None or result is freephil.Auto:
         return result
     return float_from_number(number=result, words=words, path=path)
 
@@ -447,7 +456,7 @@ class number_converters_base(_check_value_base):
                 return value
             else:
                 raise RuntimeError("%s cannot be None" % path)
-        elif value is Auto:
+        elif value is freephil.Auto:
             return value
         self._check_value(value=value, path_producer=master.full_path, words=words)
         return value
@@ -458,7 +467,9 @@ class number_converters_base(_check_value_base):
                 return [tokenizer.word(value="None")]
             else:
                 raise RuntimeError("%s cannot be None" % master.full_path())
-        if (python_object is Auto) or (isinstance(python_object, type(Auto))):
+        if (python_object is freephil.Auto) or (
+            isinstance(python_object, type(freephil.Auto))
+        ):
             return [tokenizer.word(value="Auto")]
         return [tokenizer.word(value=self._value_as_str(value=python_object))]
 
@@ -567,7 +578,7 @@ class numbers_converters_base(_check_value_base):
     def from_words(self, words, master):
         path = master.full_path()
         numbers = numbers_from_words(words=words, path=path)
-        if numbers is None or numbers is Auto:
+        if numbers is None or numbers is freephil.Auto:
             return numbers
         self._check_size(size=len(numbers), path_producer=master.full_path, words=words)
 
@@ -583,7 +594,7 @@ class numbers_converters_base(_check_value_base):
                     value = number
                 else:
                     raise RuntimeError(f"{path} element cannot be None{where_str()}")
-            elif number is Auto:
+            elif number is freephil.Auto:
                 if self.allow_auto_elements:
                     value = number
                 else:
@@ -601,7 +612,9 @@ class numbers_converters_base(_check_value_base):
             return [tokenizer.word(value="None")]
         # XXX note that pickling the object will lose the identity of Auto, so
         # we also need to check the type
-        if (python_object is Auto) or (isinstance(python_object, type(Auto))):
+        if (python_object is freephil.Auto) or (
+            isinstance(python_object, type(freephil.Auto))
+        ):
             return [tokenizer.word(value="Auto")]
         self._check_size(size=len(python_object), path_producer=master.full_path)
         result = []
@@ -612,7 +625,7 @@ class numbers_converters_base(_check_value_base):
                     result.append(tokenizer.word(value="None"))
                 else:
                     raise RuntimeError("%s element cannot be None" % master.full_path())
-            elif value is Auto:
+            elif value is freephil.Auto:
                 if self.allow_auto_elements:
                     result.append(tokenizer.word(value="Auto"))
                 else:
@@ -658,7 +671,7 @@ class choice_converters:
 
     def from_words(self, words, master):
         if is_plain_auto(words=words):
-            result = Auto
+            result = freephil.Auto
         elif self.multi:
             result = []
             for word in words:
@@ -690,7 +703,9 @@ class choice_converters:
         return result
 
     def as_words(self, python_object, master):
-        if (python_object is Auto) or (isinstance(python_object, type(Auto))):
+        if (python_object is freephil.Auto) or (
+            isinstance(python_object, type(freephil.Auto))
+        ):
             return [tokenizer.word(value="Auto")]
         assert not self.multi or python_object is not None
         if self.multi:
@@ -787,7 +802,7 @@ class choice_converters:
                     process_plus = True
 
             def raise_not_a_possible_choice(value):
-                raise Sorry(
+                raise freephil.Sorry(
                     "Not a possible choice for %s: %s%s\n"
                     % (master.full_path(), value, word.where_str())
                     + "  Possible choices are:\n"
@@ -904,7 +919,7 @@ def definition_converters_from_words(words, converter_registry, converter_cache)
     if is_plain_none(words=words):
         return None
     if is_plain_auto(words=words):
-        return Auto
+        return freephil.Auto
     call_expression_raw = str_from_words(words).strip()
     try:
         call_expression = normalize_call_expression(expression=call_expression_raw)
@@ -1520,7 +1535,7 @@ def scope_extract_call_proxy(full_path, words, cache):
     if is_plain_none(words=words):
         return None
     if is_plain_auto(words=words):
-        return Auto
+        return freephil.Auto
     call_expression_raw = str_from_words(words).strip()
     try:
         call_expression = normalize_call_expression(expression=call_expression_raw)
@@ -2128,8 +2143,10 @@ class scope(slots_getstate_setstate):
                 multiple_scopes_done[object.name] = False
             if python_object is None:
                 result.append(object.format(None))
-            elif (python_object is Auto) or (isinstance(python_object, type(Auto))):
-                result.append(object.format(Auto))
+            elif (python_object is freephil.Auto) or (
+                isinstance(python_object, type(freephil.Auto))
+            ):
+                result.append(object.format(freephil.Auto))
             else:
                 if isinstance(python_object, scope_extract):
                     python_object = [python_object]
@@ -2672,7 +2689,7 @@ def change_default_phil_values(
         track_unused_definitions=True,
     )
     if len(unused_phil) > 0:
-        raise Sorry(
+        raise freephil.Sorry(
             "Unrecognized PHIL parameter(s)\n%s"
             % "\n".join([p.__str__() for p in unused_phil])
         )

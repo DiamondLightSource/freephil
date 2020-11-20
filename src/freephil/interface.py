@@ -9,8 +9,7 @@ import pickle
 import re
 import sys
 
-from libtbx import Auto, adopt_init_args, smart_open
-from libtbx.utils import Sorry
+from libtbx import adopt_init_args, smart_open
 
 import freephil
 from freephil import gui_objects
@@ -150,7 +149,7 @@ class index:
         try:
             f = smart_open.for_writing(file_name, "w")
         except OSError as e:
-            raise Sorry(str(e))
+            raise freephil.Sorry(str(e))
         else:
             if replace_path is not None:
                 f.write('LIBTBX_BASE_DIR = "%s"\n' % replace_path)
@@ -313,7 +312,7 @@ class index:
         for word in fields:
             # this allows matching of phil param paths
             if re.search(r"[^a-zA-Z\.\_]", word) is not None:
-                raise Sorry("Invalid search string '%s'." % word)
+                raise freephil.Sorry("Invalid search string '%s'." % word)
         regex_list = [re.compile(word, re.I) for word in fields]
         matching_defs = []
         n_words = len(regex_list)
@@ -390,7 +389,7 @@ class index:
                 for def_copy in phil_object:
                     assert def_copy.is_definition
                     file_name = def_copy.extract()
-                    if (file_name is not None) and (file_name is not Auto):
+                    if (file_name is not None) and (file_name is not freephil.Auto):
                         if isinstance(file_name, list):
                             for fn in file_name:
                                 files.append((fn, label, def_name))
@@ -399,7 +398,7 @@ class index:
             else:
                 assert phil_object.is_definition
                 file_name = phil_object.extract()
-                if (file_name is not None) and (file_name is not Auto):
+                if (file_name is not None) and (file_name is not freephil.Auto):
                     if isinstance(file_name, list):
                         for fn in file_name:
                             files.append((fn, label, def_name))
@@ -499,14 +498,16 @@ class index:
     # Safe wrapper of merge_phil for loading parameter files from GUI
     def merge_param_file(self, file_name):
         if not os.path.isfile(file_name):
-            raise Sorry("The path %s does not exist or is not a file." % file_name)
+            raise freephil.Sorry(
+                "The path %s does not exist or is not a file." % file_name
+            )
         try:
             phil_object = self.parse(file_name=file_name)
         except KeyboardInterrupt:
             raise
         except Exception as e:
             self.log(e)
-            raise Sorry("This parameter file could not be parsed correctly.")
+            raise freephil.Sorry("This parameter file could not be parsed correctly.")
         try:
             self.master_phil.fetch(source=phil_object)
         except KeyboardInterrupt:
@@ -514,7 +515,7 @@ class index:
         except Exception as e:
             self.log(e)
             self.log(open(file_name).read())
-            raise Sorry(
+            raise freephil.Sorry(
                 "This file contains invalid parameters for this program. "
                 + "Check the manual for a list of allowed parameters "
                 + "for each module."
@@ -533,7 +534,7 @@ class index:
             print("bad string:")
             print(str(phil_string))
             if raise_sorry:
-                raise Sorry(
+                raise freephil.Sorry(
                     "An unknown error occurred parsing internal parameters. "
                     + "This is probably a bug; if the program was launched with "
                     + "the argument --debug, further information will be printed "
@@ -899,7 +900,7 @@ def substitute_directory_name(
                 )
             if object.type.phil_type == "path":
                 py_object = object.extract()
-                if (py_object is None) or (py_object is Auto):
+                if (py_object is None) or (py_object is freephil.Auto):
                     continue
                 if not isinstance(py_object, str):
                     raise RuntimeError(

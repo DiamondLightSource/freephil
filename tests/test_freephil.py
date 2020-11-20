@@ -8,8 +8,6 @@ import warnings
 from io import StringIO
 
 import pytest
-from libtbx import Auto
-from libtbx.utils import Sorry
 
 import freephil
 
@@ -2287,7 +2285,7 @@ c=a *d c
     )
     try:
         fetched = master.fetch(source=source)
-    except Sorry as e:
+    except freephil.Sorry as e:
         assert not show_diff(
             str(e),
             """\
@@ -4534,7 +4532,7 @@ eq="1\\""'2\\"\\''
     for i_cycle in range(2):
         ex = work.extract()
         assert ex.a is None
-        assert ex.b is Auto
+        assert ex.b is freephil.Auto
         assert ex.c == "1 2"
         assert ex.ds == "1 2"
         assert ex.dq == """ "1" '2' """[1:-1]
@@ -5863,7 +5861,7 @@ a=None
 
 
 def test_auto():
-    for nao in [None, Auto]:
+    for nao in [None, freephil.Auto]:
         na = str(nao)
         master = freephil.parse(
             input_string="""\
@@ -5951,19 +5949,19 @@ awords=Auto
 """
         )
         params = master.fetch(source=custom).extract()
-        assert params.abool is Auto
-        assert params.aint is Auto
-        assert params.afloat is Auto
-        assert params.astr is Auto
-        assert params.achoice is Auto
-        assert params.achoicemand is Auto
-        assert params.achoicemult is Auto
-        assert params.achoicemultmand is Auto
-        assert params.apath is Auto
-        assert params.akey is Auto
-        assert params.anone is Auto
-        assert params.astrings is Auto
-        assert params.awords is Auto
+        assert params.abool is freephil.Auto
+        assert params.aint is freephil.Auto
+        assert params.afloat is freephil.Auto
+        assert params.astr is freephil.Auto
+        assert params.achoice is freephil.Auto
+        assert params.achoicemand is freephil.Auto
+        assert params.achoicemult is freephil.Auto
+        assert params.achoicemultmand is freephil.Auto
+        assert params.apath is freephil.Auto
+        assert params.akey is freephil.Auto
+        assert params.anone is freephil.Auto
+        assert params.astrings is freephil.Auto
+        assert params.awords is freephil.Auto
         assert not show_diff(
             master.format(params).as_str(),
             """\
@@ -6355,6 +6353,7 @@ a=1 2 3
     ):
         master_phil.format(python_object=work_params)
     #
+    Auto = freephil.Auto
     for value in ["None", "Auto"]:
         user_phil = freephil.parse(
             input_string="""\
@@ -6504,7 +6503,7 @@ bar.max = 2
     assert itpr_bar.process(arg="ax=7").as_str() == "bar.max = 7\n"
     try:
         assert itpr_neutral.process(arg="max=5")
-    except Sorry as e:
+    except freephil.Sorry as e:
         assert not show_diff(
             str(e),
             """\
@@ -6522,7 +6521,7 @@ Best matches:
         assert itpr.process(arg="ndex=0").as_str() == "foo.index = 0\n"
     try:
         itpr_bar.process(arg="xyz=")
-    except Sorry as e:
+    except freephil.Sorry as e:
         assert not show_diff(
             str(e),
             """\
@@ -6533,15 +6532,17 @@ Error interpreting command line argument as parameter definition:
     else:
         raise Exception_expected
     with pytest.raises(
-        Sorry, match="^Unknown command line parameter definition: xyz = 8$"
+        freephil.Sorry, match="^Unknown command line parameter definition: xyz = 8$"
     ):
         itpr_bar.process(arg="xyz=8")
     with pytest.raises(
-        Sorry, match='^Command line parameter definition has no effect: "  "$'
+        freephil.Sorry, match='^Command line parameter definition has no effect: "  "$'
     ):
         itpr_bar.process(arg="  ")
     itpr = master_phil.command_line_argument_interpreter(argument_description="")
-    with pytest.raises(Sorry, match='^Parameter definition has no effect: "bar {}"$'):
+    with pytest.raises(
+        freephil.Sorry, match='^Parameter definition has no effect: "bar {}"$'
+    ):
         itpr.process(arg="bar {}")
     #
     tmp_path.joinpath("tmp0d5f6e10.phil").write_text("foo.limit=-3")
@@ -6570,7 +6571,7 @@ Error interpreting command line argument as parameter definition:
     assert not os.path.exists("tmp0d5f6e10.phil")
     for arg in [str(tmp_path / "tmp0d5f6e10.phil"), "lmit=3"]:
         with pytest.raises(
-            Sorry, match=r"Uninterpretable command line argument: '%s'" % arg
+            freephil.Sorry, match=r"Uninterpretable command line argument: '%s'" % arg
         ):
             itpr_bar.process(args=[arg])
     tmp_path.joinpath("tmp0d5f6e10.phil").write_text("foo$limit=0")
@@ -6603,7 +6604,7 @@ Error interpreting command line argument as parameter definition:
         return True
 
     with pytest.raises(
-        Sorry, match="^Uninterpretable command line argument: 'lmit=3'$"
+        freephil.Sorry, match="^Uninterpretable command line argument: 'lmit=3'$"
     ):
         itpr_bar.process(args=args, custom_processor=custom_processor)
     assert intercepted == args[:1]
@@ -6673,7 +6674,7 @@ def test_choice_multi_plus_support():
     for arg, err in [("u=a+d", "d"), ("u=e + b", "e")]:
         try:
             master_phil.fetch(source=cai.process(arg=arg))
-        except Sorry as e:
+        except freephil.Sorry as e:
             assert not show_diff(
                 str(e),
                 """\
@@ -6689,7 +6690,7 @@ Not a possible choice for u: %s (command line argument, line 1)
     for val in ["++a", "a++", "a++b", "a+b+"]:
         try:
             master_phil.fetch(source=cai.process(arg="u=" + val))
-        except Sorry as e:
+        except freephil.Sorry as e:
             assert not show_diff(
                 str(e),
                 """\
@@ -7017,7 +7018,7 @@ c = Auto
     params = phil_scope.extract()
     assert not show_diff(params.a, os.path.expanduser(tilde_path))
     assert params.b is None
-    assert params.c is Auto
+    assert params.c is freephil.Auto
 
 
 def test_adopt_scope():
@@ -7292,7 +7293,7 @@ scope {
     # invalid name
     new_default_str = 'unknown.name = "what"'
     with pytest.raises(
-        Sorry,
+        freephil.Sorry,
         match="^Unrecognized PHIL parameter\\(s\\)\nunknown.name \\(input line 1\\)$",
     ):
         new_phil_str = freephil.change_default_phil_values(

@@ -2,8 +2,6 @@
 
 import os
 
-from libtbx.utils import Sorry
-
 import freephil
 
 op = os.path
@@ -65,7 +63,7 @@ class argument_interpreter:
                 input_string=arg, source_info=self.argument_description + "argument"
             )
         except RuntimeError as e:
-            raise Sorry(
+            raise freephil.Sorry(
                 (
                     "Error interpreting %sargument as parameter definition:\n"
                     f'  "%s"\n  {e.__class__.__name__}: {e!s}'
@@ -111,7 +109,7 @@ class argument_interpreter:
             ]
             max_score = max(scores)
             if max_score == 0:
-                raise Sorry(
+                raise freephil.Sorry(
                     "Unknown %sparameter definition: %s"
                     % (self.argument_description, object.as_str().strip())
                 )
@@ -131,7 +129,7 @@ class argument_interpreter:
                 ]
                 max_score = max(scores)
                 if scores.count(max_score) > 1:
-                    raise Sorry("\n".join(error))
+                    raise freephil.Sorry("\n".join(error))
                 print(
                     "Warning: "
                     + "\n".join(error)
@@ -143,7 +141,7 @@ class argument_interpreter:
                 name=self.target_paths[scores.index(max_score)]
             ).as_str()
         if complete_definitions == "":
-            raise Sorry(
+            raise freephil.Sorry(
                 (
                     '%sparameter definition has no effect: "%s"'
                     % (self.argument_description, arg)
@@ -175,7 +173,7 @@ class argument_interpreter:
             if arg.find("=") >= 0:
                 try:
                     user_phils.append(self.process_arg(arg=arg))
-                except Exception:
+                except (Exception, freephil.Sorry):
                     pass
                 else:
                     continue
@@ -195,7 +193,7 @@ class argument_interpreter:
                     % (self.argument_description, arg)
                 )
 
-            raise Sorry(
+            raise freephil.Sorry(
                 "Uninterpretable %sargument: %r" % (self.argument_description, arg)
             )
         return user_phils
