@@ -75,9 +75,7 @@ class index:
             self._multiple_defs = {}
 
     def clear_state_stack(self):
-        while len(self._states) > 0:
-            saved_phil = self._states.pop()
-            del saved_phil
+        self._states.clear()
 
     def push_state(self):
         self._states.append(self.working_phil.fetch())
@@ -216,7 +214,7 @@ class index:
             new_phil = self.master_phil.fetch(source=phil_object)
         except KeyboardInterrupt:
             raise
-        except Exception as e:
+        except Exception:
             return None
         else:
             return new_phil.extract()
@@ -507,7 +505,7 @@ class index:
             self.log(e)
             raise Sorry("This parameter file could not be parsed correctly.")
         try:
-            new_phil = self.master_phil.fetch(source=phil_object)
+            self.master_phil.fetch(source=phil_object)
         except KeyboardInterrupt:
             raise
         except Exception as e:
@@ -524,7 +522,7 @@ class index:
     def update(self, phil_string, only_scope=None, raise_sorry=True):
         try:
             phil_object = self.parse(phil_string)
-            new_phil = self.master_phil.fetch(source=phil_object)
+            self.master_phil.fetch(source=phil_object)
         except KeyboardInterrupt:
             raise
         except Exception as e:
@@ -777,11 +775,11 @@ def get_all_path_names(phil_object, paths=None):
     if paths is None:
         paths = []
     full_path = phil_object.full_path()
-    if not full_path in paths:
+    if full_path not in paths:
         paths.append(full_path)
     if phil_object.is_scope:
-        for object in phil_object.objects:
-            get_all_path_names(object, paths)
+        for obj in phil_object.objects:
+            get_all_path_names(obj, paths)
 
 
 def index_phil_objects(
@@ -811,7 +809,7 @@ def index_phil_objects(
             in_template = True
     elif in_template:
         template_index[full_path] = phil_object
-    if phil_object.multiple == True:
+    if phil_object.multiple is True:
         if collect_multiple:
             if (phil_object.is_scope) and (multiple_scopes is not None):
                 multiple_scopes[full_path] = True
@@ -865,7 +863,7 @@ def reindex_phil_objects(phil_object, path_index, only_scope=None):
     if phil_object.is_template < 0:
         return
     full_path = phil_object.full_path()
-    if phil_object.multiple == True:
+    if phil_object.multiple is True:
         if full_path in path_index:
             path_index[full_path].append(phil_object)
         else:
@@ -901,13 +899,10 @@ def substitute_directory_name(
                 if (py_object is None) or (py_object is Auto):
                     continue
                 if not isinstance(py_object, str):
-                    if isinstance(py_object, unicode):  # FIXME need to prevent this!
-                        py_object = str(py_object)
-                    else:
-                        raise RuntimeError(
-                            "Disallowed type '%s' for path parameter '%s'."
-                            % (type(py_object), object.full_path())
-                        )
+                    raise RuntimeError(
+                        "Disallowed type '%s' for path parameter '%s'."
+                        % (type(py_object), object.full_path())
+                    )
                 py_object = py_object.replace(path_name, sub_var)
                 new_object = object.format(python_object=py_object)
                 object.words = new_object.words
