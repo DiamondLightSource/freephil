@@ -3,7 +3,7 @@
 MANGLE_LEN = 256  # magic constant from compile.c
 
 
-def mangle(name, klass):
+def _mangle(name, klass):
     """
     Since the compiler module is removed in Python 3, this is a copy of the
     mangle function from compiler.misc.
@@ -66,13 +66,11 @@ class slots_getstate_setstate(object):
         try:
             # avoid printing deprecation warning to stderr when loading mangle
             warnings.simplefilter("ignore")
-            from libtbx.utils import mangle
-
         finally:
             warnings.showwarning = show_warning
             warnings.filters = warning_filters
 
-        mnames = [mangle(name, self.__class__.__name__) for name in self.__slots__]
+        mnames = [_mangle(name, self.__class__.__name__) for name in self.__slots__]
 
         return dict([(name, getattr(self, name)) for name in mnames])
 
