@@ -3,12 +3,13 @@
 # XXX: this module is used exclusively by the Phenix GUI, which needs an
 # index of all current phil parameters, and an easy way to change them.
 
+import io
 import os
 import pickle
 import re
 import sys
 
-from libtbx import Auto, adopt_init_args, smart_open, str_utils
+from libtbx import Auto, adopt_init_args, smart_open
 from libtbx.utils import Sorry
 
 import freephil
@@ -39,7 +40,7 @@ class index:
         self._hidden = []  # XXX: not implemented here (for phenix GUI)
         self._phil_has_changed = False
         self._output_dir_path = None
-        self._log = str_utils.StringIO()
+        self._log = io.StringIO()
         self._prefix = None
         if parse is None:
             self.parse = freephil.parse
@@ -357,7 +358,7 @@ class index:
 
     def get_scope_phil(self, scope_name):
         scope_name = self.get_full_path(scope_name)
-        _phil_string = str_utils.StringIO()
+        _phil_string = io.StringIO()
         scope_objects = self.get_scope_by_name(scope_name)
         if isinstance(scope_objects, list):
             for phil_object in scope_objects:
