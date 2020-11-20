@@ -27,6 +27,6 @@ Free PHIL
         :target: https://github.com/ambv/black
         :alt: Code style: black
 
-* Free software: BSD license
+* Free software: BSD license. Some files fall under the BSD-3-Clause-LBNL.
 
 More to come.

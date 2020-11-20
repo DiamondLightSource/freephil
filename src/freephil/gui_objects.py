@@ -1,3 +1,5 @@
+# Content in this file falls under the libtbx license
+
 # various containers for gui directives and objects
 
 
@@ -16,7 +18,7 @@ class menu_hierarchy:
         return self.menu_items + self.submenu_items
 
     def add_menu_item(self, menu_item_name):
-        if not menu_item_name in self._used:
+        if menu_item_name not in self._used:
             self.menu_items.append(menu_item(menu_item_name))
             self._used.append(menu_item_name)
 
@@ -48,9 +50,9 @@ class menu_item:
 
 class style:
     """
-  Container for flags used to alter the appearance of controls in the Phenix
-  GUI.  These can either be booleans (style_args) or other values (style_kwds).
-  """
+    Container for flags used to alter the appearance of controls in the Phenix
+    GUI.  These can either be booleans (style_args) or other values (style_kwds).
+    """
 
     style_args = [
         "auto_align",  # left-align controls and labels separately (scope)
@@ -146,7 +148,7 @@ class style:
             for style_word in style_words:
                 if style_word in self.style_args:
                     setattr(self, style_word, True)
-                elif not style_word in self.special_words:
+                elif style_word not in self.special_words:
                     try:
                         fields = style_word.split(":")
                         kwd = fields[0]

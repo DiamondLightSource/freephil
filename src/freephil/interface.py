@@ -1,3 +1,5 @@
+# Content in this file falls under the libtbx license
+
 # XXX: this module is used exclusively by the Phenix GUI, which needs an
 # index of all current phil parameters, and an easy way to change them.
 

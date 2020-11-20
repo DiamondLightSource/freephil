@@ -1,3 +1,5 @@
+# Content in this file falls under the libtbx license
+
 from libtbx import slots_getstate_setstate
 
 

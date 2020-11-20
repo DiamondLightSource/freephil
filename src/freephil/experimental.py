@@ -1,3 +1,5 @@
+# Content in this file falls under the libtbx license
+
 import freephil as phil
 
 

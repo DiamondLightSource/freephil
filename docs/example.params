@@ -1,3 +1,8 @@
+optional {
+  legal = Content in this file falls under the libtbx license
+    .type = str
+}
+
 minimization.input {
   file_name = experiment.dat
     .type = str

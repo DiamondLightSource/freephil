@@ -1,3 +1,6 @@
+..
+    Content in this file falls under the libtbx license
+
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
  Phil - Python-based hierarchical interchange language
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++

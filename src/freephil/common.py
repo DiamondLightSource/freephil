@@ -1,3 +1,5 @@
+# Content in this file falls under the libtbx license
+
 "Documentation: https://cctbx.github.io/libtbx/libtbx.phil.html"
 
 import io
@@ -14,8 +16,6 @@ from libtbx import Auto, slots_getstate_setstate
 from libtbx.utils import Sorry, import_python_object, to_str
 
 from . import tokenizer
-
-__version__ = "0.0.1"
 
 default_print_width = 79
 

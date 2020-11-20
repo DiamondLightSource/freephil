@@ -1,3 +1,5 @@
+# Content in this file falls under the libtbx license
+
 import os
 
 from libtbx.str_utils import show_string
