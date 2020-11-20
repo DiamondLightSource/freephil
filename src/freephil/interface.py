@@ -2,10 +2,11 @@
 # index of all current phil parameters, and an easy way to change them.
 
 import os
+import pickle
 import re
 import sys
 
-from libtbx import Auto, adopt_init_args, easy_pickle, smart_open, str_utils
+from libtbx import Auto, adopt_init_args, smart_open, str_utils
 from libtbx.utils import Sorry
 
 import freephil
@@ -156,7 +157,7 @@ class index:
             f.close()
         if save_state:
             cache_file = "%s_cache.pkl" % file_name
-            easy_pickle.dump(cache_file, self)
+            pickle.dump(cache_file, self)
 
     def get_combined_phil(self, sources=None):
         if sources is None:
@@ -174,7 +175,7 @@ class index:
 
     def copy(self, preserve_changes=True):
         if preserve_changes:
-            return easy_pickle.loads(easy_pickle.dumps(self))
+            return pickle.loads(pickle.dumps(self))
         else:
             return self.copy_master()
 
