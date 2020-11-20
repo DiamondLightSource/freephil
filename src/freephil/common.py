@@ -13,9 +13,9 @@ import weakref
 from itertools import count
 
 from libtbx import Auto, slots_getstate_setstate
-from libtbx.utils import Sorry, import_python_object, to_str
+from libtbx.utils import Sorry, import_python_object
 
-from . import tokenizer
+from . import parser, tokenizer
 
 default_print_width = 79
 
@@ -2517,13 +2517,11 @@ def parse(
     process_includes=False,
     include_stack=None,
 ):
-    from freephil import parser
-
     assert source_info is None or file_name is None
     if input_string is None:
         assert file_name is not None
         with open(file_name, encoding="utf-8", errors="ignore") as f:
-            input_string = to_str(f.read())
+            input_string = f.read()
     if converter_registry is None:
         converter_registry = default_converter_registry
     result = scope(name="", primary_id=0)
