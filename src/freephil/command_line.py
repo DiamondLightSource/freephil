@@ -2,7 +2,6 @@
 
 import os
 
-from libtbx.str_utils import show_string
 from libtbx.utils import Sorry
 
 import freephil
@@ -192,13 +191,12 @@ class argument_interpreter:
 
                 raise RuntimeError(
                     "Programming error or highly unusual situation"
-                    " (while processing %sargument %s)."
-                    % (self.argument_description, show_string(arg))
+                    " (while processing %sargument %r)."
+                    % (self.argument_description, arg)
                 )
 
             raise Sorry(
-                "Uninterpretable %sargument: %s"
-                % (self.argument_description, show_string(arg))
+                "Uninterpretable %sargument: %r" % (self.argument_description, arg)
             )
         return user_phils
 

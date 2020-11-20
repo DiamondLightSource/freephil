@@ -6570,7 +6570,7 @@ Error interpreting command line argument as parameter definition:
     assert not os.path.exists("tmp0d5f6e10.phil")
     for arg in [str(tmp_path / "tmp0d5f6e10.phil"), "lmit=3"]:
         with pytest.raises(
-            Sorry, match=r'Uninterpretable command line argument: "%s"' % arg
+            Sorry, match=r"Uninterpretable command line argument: '%s'" % arg
         ):
             itpr_bar.process(args=[arg])
     tmp_path.joinpath("tmp0d5f6e10.phil").write_text("foo$limit=0")
@@ -6603,7 +6603,7 @@ Error interpreting command line argument as parameter definition:
         return True
 
     with pytest.raises(
-        Sorry, match='^Uninterpretable command line argument: "lmit=3"$'
+        Sorry, match="^Uninterpretable command line argument: 'lmit=3'$"
     ):
         itpr_bar.process(args=args, custom_processor=custom_processor)
     assert intercepted == args[:1]
