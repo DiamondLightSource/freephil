@@ -9,12 +9,10 @@ import pickle
 import re
 import sys
 
-from libtbx import adopt_init_args
-
 import freephil
 from freephil import gui_objects
 
-from .legacy import open_for_writing
+from .legacy import adopt_init_args, open_for_writing
 
 tracking_params = freephil.parse(
     """
