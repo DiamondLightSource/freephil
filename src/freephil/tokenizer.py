@@ -1,6 +1,6 @@
 # Content in this file falls under the libtbx license
 
-from libtbx import slots_getstate_setstate
+from .legacy import slots_getstate_setstate
 
 
 def escape_python_str(quote_char, string):

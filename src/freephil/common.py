@@ -12,10 +12,11 @@ import warnings
 import weakref
 from itertools import count
 
-from libtbx import Auto, slots_getstate_setstate
+from libtbx import Auto
 from libtbx.utils import Sorry
 
 from . import parser, tokenizer
+from .legacy import slots_getstate_setstate
 
 default_print_width = 79
 
