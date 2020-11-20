@@ -13,7 +13,7 @@ import weakref
 from itertools import count
 
 from libtbx import Auto, slots_getstate_setstate
-from libtbx.utils import Sorry, import_python_object
+from libtbx.utils import Sorry
 
 from . import parser, tokenizer
 
@@ -25,6 +25,36 @@ class PhilDeprecationWarning(DeprecationWarning):
 
 
 warnings.filterwarnings("always", category=PhilDeprecationWarning)
+
+
+class _import_python_object:
+    def __init__(self, import_path, error_prefix, target_must_be, where_str):
+        path_elements = import_path.split(".")
+        if len(path_elements) < 2:
+            raise ValueError(
+                '%simport path "%s" is too short%s%s'
+                % (error_prefix, import_path, target_must_be, where_str)
+            )
+        module_path = ".".join(path_elements[:-1])
+        try:
+            module = __import__(module_path)
+        except ImportError:
+            raise ImportError(
+                "%sno module %s%s or possibly import errors in "
+                "module %s" % (error_prefix, module_path, where_str, module_path)
+            )
+        for attr in path_elements[1:-1]:
+            module = getattr(module, attr)
+        try:
+            self.object = getattr(module, path_elements[-1])
+        except AttributeError:
+            raise AttributeError(
+                '%sobject "%s" not found in module "%s"%s'
+                % (error_prefix, path_elements[-1], module_path, where_str)
+            )
+        self.path_elements = path_elements
+        self.module_path = module_path
+        self.module = module
 
 
 def is_reserved_identifier(string):
@@ -923,7 +953,7 @@ def definition_converters_from_words(words, converter_registry, converter_cache)
                     % (call_expression, words[0].where_str())
                 )
         try:
-            imported = import_python_object(
+            imported = _import_python_object(
                 import_path=import_path,
                 error_prefix=".type=%s: " % call_expression,
                 target_must_be="; target must be a callable Python object",
@@ -1518,7 +1548,7 @@ def scope_extract_call_proxy(full_path, words, cache):
                     f'scope "%s" .call=%s: {e.__class__.__name__}: {e!s}%s'
                     % (full_path, call_expression, where_str)
                 )
-        imported = import_python_object(
+        imported = _import_python_object(
             import_path=import_path,
             error_prefix='scope "%s" .call: ' % full_path,
             target_must_be="; target must be a callable Python object",
@@ -2372,7 +2402,7 @@ class scope(slots_getstate_setstate):
 def process_include_scope(
     converter_registry, include_stack, object, import_path, phil_path
 ):
-    imported = import_python_object(
+    imported = _import_python_object(
         import_path=import_path,
         error_prefix="include scope: ",
         target_must_be="; target must be a phil scope object or phil string",
