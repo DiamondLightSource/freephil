@@ -16,7 +16,7 @@ import pkg_resources
 
 import freephil
 
-from . import parser, tokenizer
+from . import adapter, parser, tokenizer
 from .converters import (
     bool_converters,
     bool_from_words,
@@ -1673,11 +1673,16 @@ def process_include_scope(
     elif hasattr(source_scope, "__call__"):
         source_scope = source_scope()
     elif source_scope is None or not isinstance(source_scope, scope):
-        raise RuntimeError(
-            'include scope: python object "%s" in module "%s" is not a'
-            " freephil.scope instance%s"
-            % (imported.path_elements[-1], imported.module_path, object.where_str)
-        )
+        if getattr(source_scope, "is_scope", None):
+            # Likely a libtbx phil scope, so attempt to convert
+            # this to something sensible
+            source_scope = adapter.read_libtbx_scope(source_scope)
+        else:
+            raise RuntimeError(
+                'include scope: python object "%s" in module "%s" is not a'
+                " freephil.scope instance%s"
+                % (imported.path_elements[-1], imported.module_path, object.where_str)
+            )
     source_scope = source_scope.process_includes(
         converter_registry=converter_registry,
         reference_directory=None,
