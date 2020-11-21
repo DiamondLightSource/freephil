@@ -1,3 +1,5 @@
+# Content in this file falls under the libtbx license
+
 from __future__ import absolute_import, division, print_function
 import libtbx.phil
 from libtbx.utils import Sorry
