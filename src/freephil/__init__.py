@@ -2,9 +2,9 @@ try:
     from libtbx import Auto
     from libtbx.utils import Sorry
 except ModuleNotFoundError:
-    from .legacy import AutoType
+    from .legacy import AutoType as _AutoType
 
-    Auto = AutoType()
+    Auto = _AutoType()
 
     class Sorry(SystemExit):
         pass
