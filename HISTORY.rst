@@ -4,6 +4,10 @@
 History
 =======
 
+0.2.0 (2020-11-21)
+------------------
+* Added the :code:`phil` command line tool
+
 0.1.0 (2020-11-21)
 ------------------
 * Extendable plugin mechanism: register your custom converters at entry point :code:`freephil.converter`
