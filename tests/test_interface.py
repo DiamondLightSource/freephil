@@ -4,7 +4,7 @@ import io
 
 import pytest
 
-import freephil
+import freephil.interface
 
 
 def test(tmp_path):
