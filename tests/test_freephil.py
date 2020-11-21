@@ -511,8 +511,6 @@ x=None
 def _test_exception(input_string, exception_string=None):
     try:
         freephil.parse(input_string=input_string)
-    except KeyboardInterrupt:
-        raise
     except Exception as e:
         if exception_string is None or str(e) != exception_string:
             print(str(e))

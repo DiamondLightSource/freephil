@@ -217,8 +217,6 @@ class index:
                 elif phil_string is not None:
                     phil_object = self.parse(phil_string)
             new_phil = self.master_phil.fetch(source=phil_object)
-        except KeyboardInterrupt:
-            raise
         except Exception:
             return None
         else:
@@ -492,15 +490,11 @@ class index:
             )
         try:
             phil_object = self.parse(file_name=file_name)
-        except KeyboardInterrupt:
-            raise
         except Exception as e:
             self.log(e)
             raise freephil.Sorry("This parameter file could not be parsed correctly.")
         try:
             self.master_phil.fetch(source=phil_object)
-        except KeyboardInterrupt:
-            raise
         except Exception as e:
             self.log(e)
             self.log(open(file_name).read())
@@ -516,8 +510,6 @@ class index:
         try:
             phil_object = self.parse(phil_string)
             self.master_phil.fetch(source=phil_object)
-        except KeyboardInterrupt:
-            raise
         except Exception as e:
             print(str(e))
             print("bad string:")

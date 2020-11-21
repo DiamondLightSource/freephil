@@ -214,14 +214,10 @@ def number_from_value_string(value_string, words, path):
         return freephil.Auto
     try:
         return int(value_string)
-    except KeyboardInterrupt:
-        raise
     except Exception:
         pass
     try:
         return eval(value_string, math.__dict__, {})
-    except KeyboardInterrupt:
-        raise
     except Exception as e:
         raise RuntimeError(
             f'Error interpreting %s="%s" as a numeric expression: {e.__class__.__name__}: {e!s}%s'

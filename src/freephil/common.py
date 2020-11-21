@@ -183,8 +183,6 @@ def definition_converters_from_words(words, converter_registry, converter_cache)
             converters_instance = eval(
                 call_expression + parens, math.__dict__, {flds[0]: converters}
             )
-        except KeyboardInterrupt:
-            raise
         except Exception as e:
             raise RuntimeError(
                 f'Error constructing definition type "%s": {e.__class__.__name__}: {e!s}%s'
@@ -200,8 +198,6 @@ def definition_converters_from_words(words, converter_registry, converter_cache)
                 args, keyword_args = eval(
                     extractor, math.__dict__, {"__extract_args__": extract_args}
                 )
-            except KeyboardInterrupt:
-                raise
             except Exception as e:
                 raise RuntimeError(
                     f'Error evaluating definition type "%s": {e.__class__.__name__}: {e!s}%s'
@@ -226,8 +222,6 @@ def definition_converters_from_words(words, converter_registry, converter_cache)
             )
         try:
             converters_instance = imported.object(**keyword_args)
-        except KeyboardInterrupt:
-            raise
         except Exception as e:
             raise RuntimeError(
                 f'Error constructing definition type "%s": {e.__class__.__name__}: {e!s}%s'
@@ -796,8 +790,6 @@ def scope_extract_call_proxy(full_path, words, cache):
                 args, keyword_args = eval(
                     extractor, math.__dict__, {"__extract_args__": extract_args}
                 )
-            except KeyboardInterrupt:
-                raise
             except Exception as e:
                 raise RuntimeError(
                     f'scope "%s" .call=%s: {e.__class__.__name__}: {e!s}%s'
@@ -951,8 +943,6 @@ class scope_extract:
         effective_keyword_args.update(keyword_args)
         try:
             return call_proxy.callable(self, **effective_keyword_args)
-        except KeyboardInterrupt:
-            raise
         except Exception as e:
             raise RuntimeError(
                 f'scope "%s" .call=%s execution: {e.__class__.__name__}: {e!s}%s'
