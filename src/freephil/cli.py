@@ -1,81 +1,74 @@
 # Content in this file falls under the libtbx license
 
-from __future__ import absolute_import, division, print_function
-import libtbx.phil
-from libtbx.utils import Sorry
-from libtbx.option_parser import option_parser
+import optparse
 import sys
 
+import freephil
 
-def run(args, command_name="libtbx.phil", converter_registry=None):
-    if len(args) == 0:
-        args = ["--help"]
-    command_line = (
-        option_parser(usage="%s [options] parameter_file ..." % command_name)
-        .option(
-            None,
-            "--diff",
-            action="store_true",
-            help="Display only differences between the first file (master)"
-            " and the combined definitions from all other files.",
-        )
-        .option(
-            None,
-            "--show_help",
-            action="store_true",
-            help="Display help for each parameter if available.",
-        )
-        .option(
-            None,
-            "--show_some_attributes",
-            action="store_true",
-            help="Display non-default attributes for each parameter.",
-        )
-        .option(
-            None,
-            "--show_all_attributes",
-            action="store_true",
-            help="Display all attributes for each parameter.",
-        )
-        .option(
-            None,
-            "--process_includes",
-            action="store_true",
-            help="Inline include files.",
-        )
-        .option(
-            None,
-            "--print_width",
-            action="store",
-            type="int",
-            help="Width for output",
-            metavar="INT",
-        )
-        .option(
-            None,
-            "--print_prefix",
-            action="store",
-            type="string",
-            default="",
-            help="Prefix string for output",
-        )
-    ).process(args=args)
-    co = command_line.options
+
+def main():
+    parser = optparse.OptionParser(
+        usage="%prog [options] parameter_file ...", version=freephil.__version__
+    )
+    parser.add_option("-?", action="help", help=optparse.SUPPRESS_HELP)
+    parser.add_option(
+        "--diff",
+        action="store_true",
+        help="Display only differences between the first file (master)"
+        " and the combined definitions from all other files.",
+    )
+    parser.add_option(
+        "--show_help",
+        action="store_true",
+        help="Display help for each parameter if available.",
+    )
+    parser.add_option(
+        "--show_some_attributes",
+        action="store_true",
+        help="Display non-default attributes for each parameter.",
+    )
+    parser.add_option(
+        "--show_all_attributes",
+        action="store_true",
+        help="Display all attributes for each parameter.",
+    )
+    parser.add_option(
+        "--process_includes",
+        action="store_true",
+        help="Inline include files.",
+    )
+    parser.add_option(
+        "--print_width",
+        action="store",
+        type="int",
+        help="Width for output",
+        metavar="INT",
+    )
+    parser.add_option(
+        "--print_prefix",
+        action="store",
+        type="string",
+        default="",
+        help="Prefix string for output",
+    )
+    options, args = parser.parse_args()
+    if not args:
+        parser.print_help()
+        return
+
     attributes_level = 0
-    if co.show_all_attributes:
+    if options.show_all_attributes:
         attributes_level = 3
-    elif co.show_some_attributes:
+    elif options.show_some_attributes:
         attributes_level = 2
-    elif co.show_help:
+    elif options.show_help:
         attributes_level = 1
-    prefix = co.print_prefix
-    file_names = command_line.args
+    prefix = options.print_prefix
 
     def parse(file_name):
-        return libtbx.phil.parse(
+        return freephil.parse(
             file_name=file_name,
-            converter_registry=converter_registry,
-            process_includes=co.process_includes,
+            process_includes=options.process_includes,
         )
 
     def show(scope):
@@ -83,24 +76,20 @@ def run(args, command_name="libtbx.phil", converter_registry=None):
             out=sys.stdout,
             prefix=prefix,
             attributes_level=attributes_level,
-            print_width=co.print_width,
+            print_width=options.print_width,
         )
 
-    if not co.diff:
-        for file_name in file_names:
-            print(prefix.rstrip())
-            show(scope=parse(file_name=file_name))
-            print(prefix.rstrip())
-    else:
-        if len(file_names) < 2:
-            raise Sorry("Option --diff requires at least two file names.")
-        master = parse(file_name=file_names[0])
+    if options.diff:
+        if len(args) < 2:
+            parser.error("Option --diff requires at least two file names.")
+        master = parse(file_name=args[0])
         show(
             scope=master.fetch_diff(
-                sources=[parse(file_name=file_name) for file_name in file_names[1:]]
+                sources=[parse(file_name=file_name) for file_name in args[1:]]
             )
         )
-
-
-if __name__ == "__main__":
-    run(sys.argv[1:])
+    else:
+        for file_name in args:
+            print(prefix.rstrip())
+            show(scope=parse(file_name))
+            print(prefix.rstrip())
