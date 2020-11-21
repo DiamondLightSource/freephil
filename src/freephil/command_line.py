@@ -194,7 +194,7 @@ class argument_interpreter:
                 )
 
             raise freephil.Sorry(
-                "Uninterpretable %sargument: %r" % (self.argument_description, arg)
+                f"Uninterpretable {self.argument_description}argument: '{arg}'"
             )
         return user_phils
 
