@@ -470,21 +470,7 @@ class index:
                         old_phil, redundant_paths, only_scope=only_scope
                     )
             self.log2("Fetching new working phil")
-            new_phil = None
-            if False:  # XXX this was causing too many problems
-                # if (only_scope is not None):
-                new_scope = phil_object.get(only_scope)
-                scope_master = self.master_phil.get(only_scope)
-                fetched_scope = scope_master.fetch(source=new_scope)
-                # fetched_scope.show()
-                find_and_replace_scope(
-                    current_phil=self.working_phil,
-                    new_scope=fetched_scope,
-                    scope_name=only_scope,
-                )
-                new_phil = self.working_phil
-            else:
-                new_phil = self.master_phil.fetch(sources=[old_phil, phil_object])
+            new_phil = self.master_phil.fetch(sources=[old_phil, phil_object])
             if new_phil is not None:
                 self.working_phil = new_phil
                 if rebuild_index:
