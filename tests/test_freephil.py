@@ -3,6 +3,7 @@
 import copy
 import os
 import pickle
+import re
 import sys
 import warnings
 from io import StringIO
@@ -6571,7 +6572,8 @@ Error interpreting command line argument as parameter definition:
     assert not os.path.exists("tmp0d5f6e10.phil")
     for arg in [str(tmp_path / "tmp0d5f6e10.phil"), "lmit=3"]:
         with pytest.raises(
-            freephil.Sorry, match=r"Uninterpretable command line argument: '%s'" % arg
+            freephil.Sorry,
+            match=r"Uninterpretable command line argument: '%s'" % re.escape(arg),
         ):
             itpr_bar.process(args=[arg])
     tmp_path.joinpath("tmp0d5f6e10.phil").write_text("foo$limit=0")
