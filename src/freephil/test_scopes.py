@@ -4,7 +4,7 @@ import freephil
 import freephil.tokenizer
 
 """
-Importable scopes for tests
+Importable data structures for freephil unit tests
 """
 
 include_scope_target_0n = None
