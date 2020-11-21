@@ -14,10 +14,14 @@ Free PHIL
 .. image:: https://img.shields.io/lgtm/alerts/g/Anthchirp/freephil.svg?logo=lgtm&logoWidth=18
         :target: https://lgtm.com/projects/g/Anthchirp/freephil/alerts/
         :alt: Total alerts
-..
-  .. image:: https://readthedocs.org/projects/python-freephil/badge/?version=latest
-          :target: https://python-freephil.readthedocs.io/en/latest/?badge=latest
-          :alt: Documentation Status
+
+.. image:: https://dev.azure.com/azure-dials/dials/_apis/build/status/Anthchirp.freephil?branchName=main
+        :target: https://github.com/Anthchirp/freephil/commits/main
+        :alt: Build status
+
+.. image:: https://readthedocs.org/projects/freephil/badge/?version=latest
+        :target: https://freephil.readthedocs.io/en/latest/?badge=latest
+        :alt: Documentation Status
 
 .. image:: https://codecov.io/gh/Anthchirp/freephil/branch/main/graph/badge.svg
         :target: https://codecov.io/gh/Anthchirp/freephil
@@ -42,4 +46,4 @@ Credits
 This package is based on previous work by
 Ralf W. Grosse-Kunstleve, Nathaniel Echols, Billy Poon, Richard Gildea, Markus Gerstel,
 youdar, Johan Hattne, Derek Mendez, Oleg Sobolev, Graeme Winter, Pavel Afonine,
-Nicholas Devenish, Luc J Bourhis, JJHeadd, which we gratefully acknowledge.
+Nicholas Devenish, Luc J Bourhis, Jeff Headd, which we gratefully acknowledge.
