@@ -19,8 +19,7 @@ steps:
     testResultsFiles: '**/test-*.xml'
     testRunTitle: 'Publish test results for Python $(PYTHON_VERSION)'
 
-- script: |
-    bash <(curl -s https://codecov.io/bash) -n "Python $(PYTHON_VERSION) $(Agent.OS)"
+- bash: bash <(curl -s https://codecov.io/bash) -n "Python $(PYTHON_VERSION) $(Agent.OS)"
   displayName: 'Publish coverage stats'
   continueOnError: True
   timeoutInMinutes: 2
