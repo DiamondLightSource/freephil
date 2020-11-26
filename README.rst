@@ -37,7 +37,7 @@ Free PHIL
 Installation
 ------------
 
-:code:`pip install freephil`
+:code:`pip install freephil` or :code:`conda install -c conda-forge freephil`
 
 
 Credits
