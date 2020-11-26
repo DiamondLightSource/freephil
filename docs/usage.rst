@@ -5,22 +5,19 @@
  Phil - Python-based hierarchical interchange language
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-:Author: Ralf W. Grosse-Kunstleve
-:Contact: RWGrosse-Kunstleve@lbl.gov
-
 .. contents:: Sections
 .. section-numbering::
 
 **Links**
 
 The primary home of this document is:
-  https://cctbx.github.io/libtbx/libtbx.phil.html
+  https://freephil.readthedocs.io
 
 The source code examples below are available as one file here:
   https://github.com/cctbx/cctbx_project/blob/master/iotbx/examples/libtbx_phil_examples.py
 
-``libtbx.phil`` is part of the cctbx open source libraries:
-  https://github.com/cctbx/cctbx_project
+``freephil`` is available on pypi and conda-forge
+  https://pypi.org/project/freephil
 
 ===============
  Phil overview
@@ -134,7 +131,7 @@ interfaces. For example::
 
 The is the last part of the output of this command::
 
-  libtbx.phil --show-some-attributes example.params
+  freephil --show-some-attributes example.params
 
 Run this command with ``--show-all-attributes`` to see the full set
 of ``definition`` and ``scope`` attributes. This output tends to get
@@ -154,7 +151,7 @@ relevant parameters, classified by the software developer as
 ``.expert_level = 0`` (default). E.g. the ``minimization.parameters``
 scope in the example above is not shown. The attributes are also
 not shown. Therefore the output is much shorter compared to the
-``libtbx.phil --show-some-attributes`` output above::
+``freephil --show-some-attributes`` output above::
 
   minimization.parameters {
     method = *bfgs conjugate_gradient
@@ -197,9 +194,9 @@ combined set of "working" parameters used in running the application.
 We demonstrate this by way of a simple, self-contained Python script
 with embedded Phil syntax::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
-  from libtbx.phil import parse
+  from freephil import parse
 
   master_phil = parse("""
     minimization.input {
@@ -241,7 +238,7 @@ Having to type in fully qualified parameter names (e.g.
 Phil includes support for matching parameter names of command-line
 arguments as substrings to the parameter names in the master files::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   argument_interpreter = master_phil.command_line_argument_interpreter(
     home_scope="minimization")
@@ -281,7 +278,7 @@ core algorithms. Therefore Phil supports "extraction" of light-weight
 Python objects from the Phil objects. Based on the example above,
 this can be achieved with just one line::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   working_params = working_phil.extract()
 
@@ -289,7 +286,7 @@ this can be achieved with just one line::
 
 We can now use the extracted objects in the context of Python::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   print working_params.minimization.input.file_name
   print working_params.minimization.input.label
@@ -311,7 +308,7 @@ Phil also supports the reverse conversion compared to the
 previous section, from Python objects to Phil objects. For
 example, to change the label::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   working_params.minimization.input.label = "set3"
   modified_phil = master_phil.format(python_object=working_params)
@@ -343,7 +340,7 @@ scope with ``.multiple = True``. Please note the distinction between
 this and multiple *values* given in a user file. For example, this
 is a multiple definition in a master file::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   master_phil = parse("""
     minimization.input {
@@ -357,7 +354,7 @@ is a multiple definition in a master file::
 
 And these are multiple values for this definition in a user file::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   user_phil = parse("""
     minimization.input {
@@ -377,7 +374,7 @@ to keep all values. ``.extract()`` then returns a list of all these
 values converted to Python objects. For example, given the user
 file above::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   working_params = master_phil.fetch(source=user_phil).extract()
   print working_params.minimization.input.file_name
@@ -390,7 +387,7 @@ will show this Python list::
 
 Multiple scopes work similarly, for example::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   master_phil = parse("""
     minimization {
@@ -409,7 +406,7 @@ Multiple scopes work similarly, for example::
 
 A corresponding user file may look this this::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   user_phil = parse("""
     minimization {
@@ -428,7 +425,7 @@ A corresponding user file may look this this::
 
 The result of the usual fetch-extract sequence is::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   working_params = master_phil.fetch(source=user_phil).extract()
   for input in working_params.minimization.input:
@@ -448,7 +445,7 @@ Definitions and scopes may be nested with any combination of
 ``.multiple = False`` or ``.multiple = True``. For example, this
 would be a plausible master file::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   master_phil = parse("""
     minimization {
@@ -468,7 +465,7 @@ would be a plausible master file::
 
 This is a possible corresponding user file::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   user_phil = parse("""
     minimization {
@@ -490,7 +487,7 @@ This is a possible corresponding user file::
 
 The fetch-extract sequence is the same as before::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   working_params = master_phil.fetch(source=user_phil).extract()
   for input in working_params.minimization.input:
@@ -519,7 +516,7 @@ still have default values, and which definitions are changed.
 To get just the difference between the master and the working
 Phil objects, the ``.fetch_diff()`` method is available. For example::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   master_phil = parse("""
     minimization.parameters {
@@ -599,7 +596,7 @@ Variable substitution
 Phil supports variable substitution using $var and $(var)
 syntax. A few examples say more than many words::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   var_phil = parse("""
     root_name = peak
@@ -649,10 +646,10 @@ are::
 It is possible to extend Phil with user-defined converters.
 For example::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
-  import libtbx.phil
-  from libtbx.phil import tokenizer
+  import freephil
+  from freephil import tokenizer
 
   class upper_converters:
 
@@ -661,7 +658,7 @@ For example::
     def __str__(self): return self.phil_type
 
     def from_words(self, words, master):
-      s = libtbx.phil.str_from_words(words=words)
+      s = freephil.str_from_words(words=words)
       if (s is None): return None
       return s.upper()
 
@@ -670,7 +667,7 @@ For example::
         return [tokenizer.word(value="None")]
       return [tokenizer.word(value=python_object.upper())]
 
-  converter_registry = libtbx.phil.extended_converter_registry(
+  converter_registry = freephil.extended_converter_registry(
     additional_converters=[upper_converters])
 
   ## extract code end
@@ -678,7 +675,7 @@ For example::
 The extended ``converter_registry`` is passed as an additional
 argument to Phil's ``parse`` function::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   master_phil = parse("""
     value = None
@@ -694,7 +691,7 @@ argument to Phil's ``parse`` function::
 The ``print`` statement at the end writes "EXTRACTED". It also goes
 the other way, starting with a lower-case Python value::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   working_params.value = "formatted"
   working_phil = master_phil.format(python_object=working_params)
@@ -709,7 +706,7 @@ converters. If desired, the pre-defined converters for the basic
 types can even be replaced. All converters have to have ``__str__()``,
 ``from_words()`` and ``as_words()`` methods. More complex converters
 may optionally have a non-trivial ``__init__()`` method (an example
-is the ``choice_converters`` class in ``libtbx/phil/__init__.py``).
+is the ``choice_converters`` class in ``freephil/__init__.py``).
 
 Additional domain-specific converters are best defined in a separate
 module, along with a corresponding parse() function using the
@@ -727,7 +724,7 @@ Details
 The built-in ``ints`` and ``floats`` converters handle lists of
 integer and floating point numbers, respectively. For example::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   master_phil = parse("""
     random_integers = None
@@ -805,7 +802,7 @@ The built-in ``choice`` converters support single and multi choices.
 Here are two examples, a single choice ``gender`` and a multi choice
 ``favorite_sweets``::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   master_phil = parse("""
     gender = male female
@@ -845,7 +842,7 @@ For example, the following two definitions are equivalent::
 If the ``.optional`` attribute is not defined, it defaults to ``True``
 and this is possible::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   ignorant_choices = parse("""
     gender = male female
@@ -880,7 +877,7 @@ This message is designed to aid users in recovering from mis-spelled
 choices typed in at the command-line. Command-line choices are
 further supported by this syntax::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   greedy_choices = parse("""
     favorite_sweets=ice_cream+chocolate+cookies
@@ -898,7 +895,7 @@ Ouput::
 Finally, if the ``.optional`` attribute is not specified or ``True``,
 ``None`` can be assigned::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   no_thanks_choices = parse("""
     favorite_sweets=None
@@ -920,7 +917,7 @@ The result of ``scope.extract()`` is a ``scope_extract`` instance
 with attributes corresponding to the embedded definitions and
 sub-scopes. For example::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   master_phil = parse("""
     minimization.input {
@@ -947,7 +944,7 @@ sub-scopes. For example::
 
 Output::
 
-  <libtbx.phil.scope_extract object at 0x2ad50bae7550>
+  <freephil.scope_extract object at 0x2ad50bae7550>
   experiment.dat
   5
 
@@ -956,7 +953,7 @@ This just repeats what was shown several times before, but
 worth knowing. The first special feature is the ``.__phil_path__()``
 method::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   print working_params.minimization.input.__phil_path__()
   print working_params.minimization.parameters.__phil_path__()
@@ -1014,7 +1011,7 @@ the master file are defaults. Any instances in user files (merged via
 ``.fetch()``) are added to the default instances in the master file.
 For example::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   master_phil = parse("""
     plot
@@ -1056,7 +1053,7 @@ Output::
 
 ``.extract()`` will produce a list with two elements::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   working_params = working_phil.extract()
   print working_params.plot
@@ -1065,15 +1062,15 @@ Output::
 
 Output::
 
-  [<libtbx.phil.scope_extract object at 0x2b1ccb5b1910>,
-   <libtbx.phil.scope_extract object at 0x2b1ccb5b1c10>]
+  [<freephil.scope_extract object at 0x2b1ccb5b1910>,
+   <freephil.scope_extract object at 0x2b1ccb5b1c10>]
 
 Note that the first (i.e. master) occurrence of the scope is not
 extracted. In practice this is usually the desired behavior, but it
 can be changed by setting the ``plot`` scope attribute ``.optional
 = False``. For example::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   master_phil = parse("""
     plot
@@ -1096,7 +1093,7 @@ can be changed by setting the ``plot`` scope attribute ``.optional
 With the ``user_phil`` as before, ``.show()`` and ``.extract()`` now
 produce three entries each::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   working_phil = master_phil.fetch(source=user_phil)
   working_phil.show()
@@ -1118,9 +1115,9 @@ Output::
     style = line *bar pie_chart
     title = Bar plot (provided by user)
   }
-  [<libtbx.phil.scope_extract object at 0x2af4c307bcd0>,
-   <libtbx.phil.scope_extract object at 0x2af4c307bd50>,
-   <libtbx.phil.scope_extract object at 0x2af4c307be10>]
+  [<freephil.scope_extract object at 0x2af4c307bcd0>,
+   <freephil.scope_extract object at 0x2af4c307bd50>,
+   <freephil.scope_extract object at 0x2af4c307be10>]
 
 With ``.optional = True``, the master of a multiple definition or
 scope is *never* extracted. With ``.optional = False``, it is *always*
@@ -1144,7 +1141,7 @@ definitions that don't match anything in the master file. It it is
 possible to request a complete list of all user definitions ignored by
 ``.fetch()``. For example::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   master_phil = parse("""
     input {
@@ -1189,7 +1186,7 @@ delineating the end of definitions. This is most obvious, but for
 convenience, Phil also supports using the semicolon ``;`` instead.
 For example::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   phil_scope = parse("""
      quick .multiple=true;.optional=false{and=very;.type=str;dirty=use only on command-lines, please!;.type=str}
@@ -1232,7 +1229,7 @@ The exclamation mark can be used to easily comment out entire
 syntactical constructs, for example a complete scope including all
 attributes::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   master_phil = parse("""
     !input {
@@ -1254,7 +1251,7 @@ Output::
 As is evident from the output, Phil keeps the content "in mind",
 but the scope is not actually used by ``.fetch()``::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   user_phil = parse("""
     input.file_name = experiment.dat
@@ -1316,7 +1313,7 @@ is useful to obtain a full listing of all available attributes,
 but all information is preserved with the usually much less verbose
 ``attributes_level=2``. This is illustrated by the following example::
 
-  ## extract code begin: libtbx_phil_examples.py
+  ## extract code begin: freephil_examples.py
 
   master_phil = parse("""
     minimization {
