@@ -116,7 +116,6 @@ class character_iterator(slots_getstate_setstate):
                                 if not c.isspace():
                                     break
                             break
-        return 0
 
 
 def where(source_info, line_number):
