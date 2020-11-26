@@ -31,8 +31,8 @@ master_doc = "index"
 
 # General information about the project.
 project = "FreePHIL"
-copyright = "2020, Diamond Light Source"
-author = "Diamond Light Source - Scientific Software"
+copyright = "2020, Markus Gerstel"
+author = "Markus Gerstel"
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
