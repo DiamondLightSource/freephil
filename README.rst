@@ -40,6 +40,12 @@ Installation
 :code:`pip install freephil` or :code:`conda install -c conda-forge freephil`
 
 
+Documentation
+-------------
+
+Documentation for freephil is available on https://freephil.readthedocs.io/
+
+
 Credits
 -------
 
