@@ -4,6 +4,10 @@
 History
 =======
 
+0.2.1 (2020-11-26)
+------------------
+* Minor documentation and package changes
+
 0.2.0 (2020-11-21)
 ------------------
 * Added the :code:`phil` command line tool
