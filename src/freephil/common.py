@@ -266,6 +266,15 @@ def alias_path(self):
 
 
 def show_attributes(self, out, prefix, attributes_level, print_width):
+    '''
+
+    :param self: 
+    :param out: 
+    :param prefix: 
+    :param attributes_level: 
+    :param print_width: 
+    :return: 
+    '''
     if attributes_level <= 0:
         return
     for name in self.attribute_names:
@@ -1346,6 +1355,13 @@ class scope(slots_getstate_setstate):
         return self.primary_parent_scope.lexical_get(path=path, stop_id=stop_id)
 
     def extract(self, parent=None):
+        """
+        Extracts the Phil object into Python object.
+
+        :param parent: Set parent Phil object
+        :type parent:  freephil.scope
+        :return: freephil.scope_extract
+        """
         result = scope_extract(name=self.name, parent=parent, call=self.call)
         for object in self.objects:
             if object.is_template < 0:
@@ -1363,6 +1379,13 @@ class scope(slots_getstate_setstate):
         return result
 
     def format(self, python_object):
+        '''
+        Converts Python object into Phil object. It has to be called as a member function of the base Phil object
+
+        :param python_object: Object to be converted
+        :type python_object: freephil.scope_extract
+        :return: freephil.scope
+        '''
         multiple_scopes_done = {}
         result = []
         for object in self.master_active_objects():
@@ -1420,6 +1443,21 @@ class scope(slots_getstate_setstate):
         diff=False,
         skip_incompatible_objects=False,
     ):
+        '''
+        Combine multiple Phil objects using the base Phil (``self``). Returns full Phil object with changes from ``sources`` applied.
+
+        :param source: Input Phil object
+        :type source: freephil.scope
+        :param sources: Multiple input Phil objects
+        :type sources: list of freephil.scope
+        :param track_unused_definitions: If ``True``, the function returns a tuple, where second member contains entries not used in base Phil object (see: `fetch option: track_unused_definitions`_)
+        :type track_unused_definitions: bool
+        :param diff: If ``True``, equivalent to ``fetch_diff()``
+        :type diff: bool
+        :param skip_incompatible_objects: Skip incompatible object types
+        :type skip_incompatible_objects: bool
+        :return: freephil.scope or tuple(freephil.scope, list of freephil.object_locator)
+        '''
         combined_objects = []
         if source is not None or sources is not None:
             assert source is None or sources is None
@@ -1539,6 +1577,21 @@ class scope(slots_getstate_setstate):
         track_unused_definitions=False,
         skip_incompatible_objects=False,
     ):
+        '''
+        Creates difference Phil object containing only items, which differ between two Phil objects
+
+        :param source: Input Phil object
+        :type source: freephil.scope
+        :param sources: Multiple input Phil objects
+        :type sources: list of freephil.scope
+        :param track_unused_definitions: If ``True``, the function returns a tuple, where second member contains entries not used in base Phil object (see: `fetch option: track_unused_definitions`_)
+        :type track_unused_definitions: bool
+        :param diff: If ``True``, equivalent to ``fetch_diff()``
+        :type diff: bool
+        :param skip_incompatible_objects: Skip incompatible object types
+        :type skip_incompatible_objects: bool
+        :return: freephil.scope or tuple(freephil.scope, list of freephil.object_locator)
+        '''
         return self.fetch(
             source=source,
             sources=sources,
@@ -1637,6 +1690,14 @@ class scope(slots_getstate_setstate):
     def command_line_argument_interpreter(
         self, home_scope=None, argument_description=None
     ):
+        '''
+        Creates an interpreter of command line arguments for the scope
+
+        :param home_scope: Parse only within sub-scope
+        :param argument_description: Description of arguments source. Defaults "command line"
+        :return: freephil.command_line.argument_interpreter
+    '''
+
         from freephil.command_line import argument_interpreter as _
 
         return _(
@@ -1799,6 +1860,16 @@ def parse(
     process_includes=False,
     include_stack=None,
 ):
+    """Creates Phil scope from a string or a file
+
+    :param input_string: String to be parsed
+    :param source_info: Description of the source. Defaults to `file_name`
+    :param file_name:  Parse from a file
+    :param converter_registry: Custom converters (see `Extending Phil`_)
+    :param process_includes: Enables processing `include` statement
+    :param include_stack:
+    :return: freephil.scope (Phil object)
+    """
     assert source_info is None or file_name is None
     if input_string is None:
         assert file_name is not None

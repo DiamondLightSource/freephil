@@ -199,6 +199,14 @@ class argument_interpreter:
         return user_phils
 
     def process(self, arg=None, args=None, custom_processor=None):
+        '''
+        Process string as command line argument.
+
+        :param arg:
+        :param args: arguments to be processed
+        :param custom_processor: Use custom Phil processor.
+        :return: freephil.scope
+        '''
         assert [arg, args].count(None) == 1
         if arg is not None:
             assert custom_processor is None

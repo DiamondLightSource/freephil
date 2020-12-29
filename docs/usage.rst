@@ -6,7 +6,7 @@
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. contents:: Sections
-.. section-numbering::
+
 
 **Links**
 
@@ -184,12 +184,76 @@ file with the name ``output.plot_file=plot.pdf`` does not exist. This
 argument will therefore be interpreted with Phil. The next section
 presents an example.
 
-==============================
-fetch: merging of Phil objects
-==============================
+=========================
+Phil object (scope)
+=========================
+
+Phil files are converted to uniform Phil objects, type :class:`freephil.scope`. It holds all the information of the original Phil file (or string), and brings all the facilities needed to further work with the Phil objects.
+
+parse: Creating of Phil objects
+-------------------------------
 
 The Phil parser converts master files, user files and command line
-arguments to uniform Phil objects which can be merged to generate a
+arguments to uniform Phil objects. The input can be either a string (``input_string=``) or  a file (``file_name=``). Useful feature is ``source_info=`` which can hold information on the source of the Phil object.
+Example::
+
+  from freephil import parse
+
+  master_phil = parse("""
+    minimization.input {
+      file_name = None
+        .type = path
+      label = None
+        .type = str
+    }
+    """,
+    source="base PHIL")
+
+.. automodule:: freephil
+   :members: parse
+
+Parsing command line arguments
+------------------------------
+
+Having to type in fully qualified parameter names (e.g.
+``minimization.input.labels``) can be very inconvenient. Therefore
+Phil includes support for matching parameter names of command-line
+arguments as substrings to the parameter names in the master files::
+
+  ## extract code begin: freephil_examples.py
+
+  argument_interpreter = master_phil.command_line_argument_interpreter(
+    home_scope="minimization")
+
+  command_line_phil = argument_interpreter.process(
+    arg="minimization.input.label=set2")
+
+  ## extract code end
+
+This works even if the user writes just ``label=set2`` or even
+``put.lab=x1 x2``. The only requirement is that the substring leads
+to a unique match in the master file. Otherwise Phil produces a helpful
+error message. For example::
+
+  argument_interpreter.process("a=set2")
+
+leads to::
+
+  Sorry: Ambiguous parameter definition: a = set2
+  Best matches:
+    minimization.input.file_name
+    minimization.input.label
+
+The user can cut-and-paste the desired parameter into the command
+line for another trial to run the application.
+
+.. autofunction:: freephil.scope.command_line_argument_interpreter
+.. autofunction:: freephil.command_line.argument_interpreter.process
+
+fetch: merging of Phil objects
+------------------------------
+
+Phil objects can be merged to generate a
 combined set of "working" parameters used in running the application.
 We demonstrate this by way of a simple, self-contained Python script
 with embedded Phil syntax::
@@ -233,41 +297,63 @@ by a (fake) command-line argument. All inputs are merged via
     label = set2
   }
 
-Having to type in fully qualified parameter names (e.g.
-``minimization.input.labels``) can be very inconvenient. Therefore
-Phil includes support for matching parameter names of command-line
-arguments as substrings to the parameter names in the master files::
+.. autofunction:: freephil.scope.fetch
+
+
+fetch_diff: difference between master_phil and working_phil
+-----------------------------------------------------------
+
+The ``.fetch()`` method introduced above produces a complete copy
+of the Phil master with all user definitions and scopes merged in.
+If the Phil master is large, the output of ``working_phil.show()`` will
+therefore also be large. It may be difficult to see which definitions
+still have default values, and which definitions are changed.
+To get just the difference between the master and the working
+Phil objects, the ``.fetch_diff()`` method is available. For example::
 
   ## extract code begin: freephil_examples.py
 
-  argument_interpreter = master_phil.command_line_argument_interpreter(
-    home_scope="minimization")
+  master_phil = parse("""
+    minimization.parameters {
+      method = *bfgs conjugate_gradient
+        .type = choice
+      max_iterations = 10
+        .type = int
+    }
+    """)
 
-  command_line_phil = argument_interpreter.process(
-    arg="minimization.input.label=set2")
+  user_phil = parse("""
+    minimization.parameters {
+      method = bfgs *conjugate_gradient
+    }
+    """)
+
+  working_phil = master_phil.fetch(source=user_phil)
+  diff_phil = master_phil.fetch_diff(source=working_phil)
+  diff_phil.show()
 
   ## extract code end
 
-This works even if the user writes just ``label=set2`` or even
-``put.lab=x1 x2``. The only requirement is that the substring leads
-to a unique match in the master file. Otherwise Phil produces a helpful
-error message. For example::
+Output::
 
-  argument_interpreter.process("a=set2")
+  minimization.parameters {
+    method = bfgs *conjugate_gradient
+  }
 
-leads to::
+Here the minimization method was changed from ``bfgs``
+to ``conjugate_gradient`` but the number of iterations is
+unchanged. Therefore the latter does not appear in the output.
+``.fetch_diff()`` is completely general and works for any combination
+of definitions and scopes with ``.multiple = False`` or ``.multiple
+= True``.
 
-  Sorry: Ambiguous parameter definition: a = set2
-  Best matches:
-    minimization.input.file_name
-    minimization.input.label
+.. autofunction:: freephil.scope.fetch_diff
 
-The user can cut-and-paste the desired parameter into the command
-line for another trial to run the application.
 
-=====================================================
-extract: conversion of Phil objects to Python objects
-=====================================================
+=============================
+Python object (scope_extract)
+=============================
+
 
 The Phil parser produces objects that preserve most information
 generated in the parsing process, such as line numbers and parameter
@@ -275,8 +361,14 @@ attributes. While this information is very useful for pretty printing
 (e.g. to archive the working parameters) and the automatic generation
 of graphical user interfaces, it is only a burden in the context of
 core algorithms. Therefore Phil supports "extraction" of light-weight
-Python objects from the Phil objects. Based on the example above,
-this can be achieved with just one line::
+Python objects from the Phil objects.
+
+The python object is of the type :class:`freephil.scope_extract`. The object contains items with the values, or nested :class:`freephil.scope_extract`.
+
+extract: conversion of Phil objects to Python objects
+-----------------------------------------------------
+
+Based on the example above, the extraction can be achieved with just one line::
 
   ## extract code begin: freephil_examples.py
 
@@ -300,9 +392,10 @@ Output::
 
 ``file_name`` and ``label`` are now a simple Python strings.
 
-====================================================
+.. autofunction:: freephil.scope.extract
+
 format: conversion of Python objects to Phil objects
-====================================================
+----------------------------------------------------
 
 Phil also supports the reverse conversion compared to the
 previous section, from Python objects to Phil objects. For
@@ -329,9 +422,16 @@ produced ``working_params``. A type-specific converter is used to
 produce a string for each Python object (see the Extending Phil
 section below).
 
-================
+.. autofunction:: freephil.scope.format
+
+
+===================
+More on Phil syntax
+===================
+
+
 .multiple = True
-================
+----------------
 
 Both ``phil.definition`` and ``phil.scope`` support the ``.multiple
 = True`` attribute. For the sake of simplicity, in the following
@@ -503,220 +603,6 @@ one Python string::
   ['set1', 'set2', 'set3']
   experiment2.dat
   ['set2', 'set3']
-
-===========================================================
-fetch_diff: difference between master_phil and working_phil
-===========================================================
-
-The ``.fetch()`` method introduced above produces a complete copy
-of the Phil master with all user definitions and scopes merged in.
-If the Phil master is large, the output of ``working_phil.show()`` will
-therefore also be large. It may be difficult to see which definitions
-still have default values, and which definitions are changed.
-To get just the difference between the master and the working
-Phil objects, the ``.fetch_diff()`` method is available. For example::
-
-  ## extract code begin: freephil_examples.py
-
-  master_phil = parse("""
-    minimization.parameters {
-      method = *bfgs conjugate_gradient
-        .type = choice
-      max_iterations = 10
-        .type = int
-    }
-    """)
-
-  user_phil = parse("""
-    minimization.parameters {
-      method = bfgs *conjugate_gradient
-    }
-    """)
-
-  working_phil = master_phil.fetch(source=user_phil)
-  diff_phil = master_phil.fetch_diff(source=working_phil)
-  diff_phil.show()
-
-  ## extract code end
-
-Output::
-
-  minimization.parameters {
-    method = bfgs *conjugate_gradient
-  }
-
-Here the minimization method was changed from ``bfgs``
-to ``conjugate_gradient`` but the number of iterations is
-unchanged. Therefore the latter does not appear in the output.
-``.fetch_diff()`` is completely general and works for any combination
-of definitions and scopes with ``.multiple = False`` or ``.multiple
-= True``.
-
-========
-Includes
-========
-
-Phil also supports merging of files at the parsing level. For example::
-
-  include file general.params
-
-  minimization.parameters {
-    include file specific.params
-  }
-
-Another option for building master files from a library of building
-blocks is based on Python's import mechanism. For example::
-
-  include file general.params
-
-  minimization.parameters {
-    include scope app.module.master_phil
-  }
-
-When encountering the ``include scope``, the Phil parser automatically
-imports ``app.module`` (equivalent to ``import app.module`` in a Python
-script). The ``master_phil`` object in the imported module must be
-a pre-parsed Phil scope or a plain Phil string. The content of the
-``master_phil`` scope is inserted into the scope of the ``include
-scope`` statement.
-
-``include`` directives enable hierarchical building of
-master files without the need to copy-and-paste large fragments
-explicitly. Duplication appears only in automatically generated user
-files. I.e. the programmer is well served because a system of master
-files can be kept free of large-scale redundancies that are difficult
-to maintain. At the same time the end user is well served because
-the indirections are resolved automatically and all parameters are
-presented in one uniform view.
-
-=====================
-Variable substitution
-=====================
-
-Phil supports variable substitution using $var and $(var)
-syntax. A few examples say more than many words::
-
-  ## extract code begin: freephil_examples.py
-
-  var_phil = parse("""
-    root_name = peak
-    file_name = $root_name.mtz
-    full_path = $HOME/$file_name
-    related_file_name = $(root_name)_data.mtz
-    message = "Reading $file_name"
-    as_is = ' $file_name '
-    """)
-  var_phil.fetch(source=var_phil).show()
-
-  ## extract code end
-
-Output::
-
-  root_name = peak
-  file_name = "peak.mtz"
-  full_path = "/net/cci/rwgk/peak.mtz"
-  related_file_name = "peak_data.mtz"
-  message = "Reading peak.mtz"
-  as_is = ' $file_name '
-
-Note that the variable substitution does not happen during parsing.
-The output of ``params.show`` is identical to the input. In the
-example above, variables are substituted by the ``.fetch()`` method
-that we introduced earlier to merge user files given a master file.
-
-==============
-Extending Phil
-==============
-
-Phil comes with a number of predefined converters used by ``.extract()``
-and ``.format()`` to convert to and from pure Python objects. These
-are::
-
-  .type =
-    words     retains the "words" produced by the parser
-    strings   list of Python strings (also used for .type = None)
-    str       combines all words into one string
-    path      path name (same as str_converters)
-    key       database key (same as str_converters)
-    bool      Python bool
-    int       Python int
-    float     Python float
-    choice    string selected from a pre-defined list
-
-It is possible to extend Phil with user-defined converters.
-For example::
-
-  ## extract code begin: freephil_examples.py
-
-  import freephil
-  from freephil import tokenizer
-
-  class upper_converters:
-
-    phil_type = "upper"
-
-    def __str__(self): return self.phil_type
-
-    def from_words(self, words, master):
-      s = freephil.str_from_words(words=words)
-      if (s is None): return None
-      return s.upper()
-
-    def as_words(self, python_object, master):
-      if (python_object is None):
-        return [tokenizer.word(value="None")]
-      return [tokenizer.word(value=python_object.upper())]
-
-  converter_registry = freephil.extended_converter_registry(
-    additional_converters=[upper_converters])
-
-  ## extract code end
-
-The extended ``converter_registry`` is passed as an additional
-argument to Phil's ``parse`` function::
-
-  ## extract code begin: freephil_examples.py
-
-  master_phil = parse("""
-    value = None
-      .type = upper
-    """,
-      converter_registry=converter_registry)
-  user_phil = parse("value = extracted")
-  working_params = master_phil.fetch(source=user_phil).extract()
-  print working_params.value
-
-  ## extract code end
-
-The ``print`` statement at the end writes "EXTRACTED". It also goes
-the other way, starting with a lower-case Python value::
-
-  ## extract code begin: freephil_examples.py
-
-  working_params.value = "formatted"
-  working_phil = master_phil.format(python_object=working_params)
-  working_phil.show()
-
-  ## extract code end
-
-The output of the ``.show()`` call is "value = FORMATTED".
-
-Arbitrary new types can be added to Phil by defining similar
-converters. If desired, the pre-defined converters for the basic
-types can even be replaced. All converters have to have ``__str__()``,
-``from_words()`` and ``as_words()`` methods. More complex converters
-may optionally have a non-trivial ``__init__()`` method (an example
-is the ``choice_converters`` class in ``freephil/__init__.py``).
-
-Additional domain-specific converters are best defined in a separate
-module, along with a corresponding parse() function using the
-extended converter registry as the default. See, for example,
-``iotbx/phil.py`` in the same ``cctbx`` project that also hosts
-``libtbx``.
-
-=======
-Details
-=======
 
 .type = ints and .type = floats
 -------------------------------
@@ -910,97 +796,84 @@ Output::
 
   []
 
-scope_extract
--------------
 
-The result of ``scope.extract()`` is a ``scope_extract`` instance
-with attributes corresponding to the embedded definitions and
-sub-scopes. For example::
+
+Includes
+--------
+
+Phil also supports merging of files at the parsing level. For example::
+
+  include file general.params
+
+  minimization.parameters {
+    include file specific.params
+  }
+
+Another option for building master files from a library of building
+blocks is based on Python's import mechanism. For example::
+
+  include file general.params
+
+  minimization.parameters {
+    include scope app.module.master_phil
+  }
+
+When encountering the ``include scope``, the Phil parser automatically
+imports ``app.module`` (equivalent to ``import app.module`` in a Python
+script). The ``master_phil`` object in the imported module must be
+a pre-parsed Phil scope or a plain Phil string. The content of the
+``master_phil`` scope is inserted into the scope of the ``include
+scope`` statement.
+
+``include`` directives enable hierarchical building of
+master files without the need to copy-and-paste large fragments
+explicitly. Duplication appears only in automatically generated user
+files. I.e. the programmer is well served because a system of master
+files can be kept free of large-scale redundancies that are difficult
+to maintain. At the same time the end user is well served because
+the indirections are resolved automatically and all parameters are
+presented in one uniform view.
+
+.. note::
+   Parsing of the ``include`` statements has to be explicitly enabled when calling :func:`freephil.parse()` with ``process_includes = True``.
+
+
+Variable substitution
+---------------------
+
+Phil supports variable substitution using $var and $(var)
+syntax. A few examples say more than many words::
 
   ## extract code begin: freephil_examples.py
 
-  master_phil = parse("""
-    minimization.input {
-      file_name = None
-        .type = path
-    }
-    minimization.parameters {
-      max_iterations = 10
-        .type = int
-    }
+  var_phil = parse("""
+    root_name = peak
+    file_name = $root_name.mtz
+    full_path = $HOME/$file_name
+    related_file_name = $(root_name)_data.mtz
+    message = "Reading $file_name"
+    as_is = ' $file_name '
     """)
-
-  user_phil = parse("""
-    minimization.input.file_name = experiment.dat
-    minimization.parameters.max_iterations = 5
-    """)
-
-  working_params = master_phil.fetch(source=user_phil).extract()
-  print working_params
-  print working_params.minimization.input.file_name
-  print working_params.minimization.parameters.max_iterations
+  var_phil.fetch(source=var_phil).show()
 
   ## extract code end
 
 Output::
 
-  <freephil.scope_extract object at 0x2ad50bae7550>
-  experiment.dat
-  5
+  root_name = peak
+  file_name = "peak.mtz"
+  full_path = "/net/cci/rwgk/peak.mtz"
+  related_file_name = "peak_data.mtz"
+  message = "Reading peak.mtz"
+  as_is = ' $file_name '
 
-This just repeats what was shown several times before, but
-``scope_extract`` includes a few additional, special features that are
-worth knowing. The first special feature is the ``.__phil_path__()``
-method::
+Note that the variable substitution does not happen during parsing.
+The output of ``params.show`` is identical to the input. In the
+example above, variables are substituted by the ``.fetch()`` method
+that we introduced earlier to merge user files given a master file.
 
-  ## extract code begin: freephil_examples.py
 
-  print working_params.minimization.input.__phil_path__()
-  print working_params.minimization.parameters.__phil_path__()
 
-  ## extract code end
-
-Output::
-
-  minimization.input
-  minimization.parameters
-
-This feature is most useful for formatting informative error messages
-without having to hard-wire the fully-qualified parameter names. Use
-``.__phil_path__()`` to ensure that the names are automatically
-correct even if the master file is changed in major ways. Note that the
-``.__phil_path__()`` method is available only for extracted scopes,
-not for extracted definitions since it would be very cumbersome to
-implement. However, the fully-qualified name of a definition can
-be obtained via ``.__phil_path__(object_name="max_iterations")``;
-usually the ``object_name`` is readily available in the contexts in
-which the fully-qualified name is needed. There is also
-``.__phil_path_and_value__(object_name)`` which returns a 2-tuple
-of the fully-qualified path and the extracted value, ready to
-be used for formatting error messages.
-
-The next important feature is a safety guard: assignment to a
-non-existing attribute leads to an exception. For example,
-if the attribute is mis-spelled::
-
-  working_params.minimization.input.filename = "other.dat"
-
-Result::
-
-  AttributeError: Assignment to non-existing attribute "minimization.input.filename"
-    Please correct the attribute name, or to create
-    a new attribute use: obj.__inject__(name, value)
-
-In addition to trivial spelling errors, the safety guard traps
-overlooked dependencies related to changes in the master file.
-
-In some (unusual) situations it may be useful to attach attributes to
-an extracted scope that have no correspondence in the master file.
-Use the ``.__inject__(name, value)`` method for this purpose to
-by-pass the safety-guard. As a side-effect of this design, injected
-attributes are easily pin-pointed in the source code (simply search
-for ``__inject__``), which can be a big help in maintaining a large
-code base.
 
 Multiple definitions and scopes
 -------------------------------
@@ -1133,50 +1006,6 @@ These rules are designed to produce easily predictable results in
 situations where multiple Phil files are merged (via ``.fetch()``),
 including complete copies of the master file.
 
-fetch option: track_unused_definitions
---------------------------------------
-
-The default behavior of ``.fetch()`` is to simply ignore user
-definitions that don't match anything in the master file. It it is
-possible to request a complete list of all user definitions ignored by
-``.fetch()``. For example::
-
-  ## extract code begin: freephil_examples.py
-
-  master_phil = parse("""
-    input {
-      file_name = None
-        .type = path
-    }
-    """)
-
-  user_phil = parse("""
-    input {
-      file_name = experiment.dat
-      label = set1
-      lable = set2
-    }
-    """)
-
-  working_phil, unused = master_phil.fetch(
-    source=user_phil, track_unused_definitions=True)
-  working_phil.show()
-  for object_locator in unused:
-    print "unused:", object_locator
-
-  ## extract code end
-
-Output::
-
-  input {
-    file_name = experiment.dat
-  }
-  unused: input.label (input line 4)
-  unused: input.lable (input line 5)
-
-To catch spelling errors, or to alert users to changes in the master
-file, it is good practice to set ``track_unused_definitions=True``
-and to show warnings or errors.
 
 Semicolon syntax
 ----------------
@@ -1292,8 +1121,13 @@ backslashes are still prone to cause surprises. In unusual situations,
 probably the fastest method to obtain the desired result is trial
 and error (as opposed to studying the intricate rules).
 
-scope.show(attributes_level=3)
-------------------------------
+
+====================
+More on coding usage
+====================
+
+scope.show
+----------
 
 In this document, the ``scope.show()`` method is used extensively
 in the examples. With the defaults for the method parameters, it
@@ -1419,3 +1253,244 @@ Output with ``attributes_level=3``::
         .expert_level = None
     }
   }
+
+
+scope_extract
+-------------
+
+The result of ``scope.extract()`` is a ``scope_extract`` instance
+with attributes corresponding to the embedded definitions and
+sub-scopes. For example::
+
+  ## extract code begin: freephil_examples.py
+
+  master_phil = parse("""
+    minimization.input {
+      file_name = None
+        .type = path
+    }
+    minimization.parameters {
+      max_iterations = 10
+        .type = int
+    }
+    """)
+
+  user_phil = parse("""
+    minimization.input.file_name = experiment.dat
+    minimization.parameters.max_iterations = 5
+    """)
+
+  working_params = master_phil.fetch(source=user_phil).extract()
+  print working_params
+  print working_params.minimization.input.file_name
+  print working_params.minimization.parameters.max_iterations
+
+  ## extract code end
+
+Output::
+
+  <freephil.scope_extract object at 0x2ad50bae7550>
+  experiment.dat
+  5
+
+This just repeats what was shown several times before, but
+``scope_extract`` includes a few additional, special features that are
+worth knowing. The first special feature is the ``.__phil_path__()``
+method::
+
+  ## extract code begin: freephil_examples.py
+
+  print working_params.minimization.input.__phil_path__()
+  print working_params.minimization.parameters.__phil_path__()
+
+  ## extract code end
+
+Output::
+
+  minimization.input
+  minimization.parameters
+
+This feature is most useful for formatting informative error messages
+without having to hard-wire the fully-qualified parameter names. Use
+``.__phil_path__()`` to ensure that the names are automatically
+correct even if the master file is changed in major ways. Note that the
+``.__phil_path__()`` method is available only for extracted scopes,
+not for extracted definitions since it would be very cumbersome to
+implement. However, the fully-qualified name of a definition can
+be obtained via ``.__phil_path__(object_name="max_iterations")``;
+usually the ``object_name`` is readily available in the contexts in
+which the fully-qualified name is needed. There is also
+``.__phil_path_and_value__(object_name)`` which returns a 2-tuple
+of the fully-qualified path and the extracted value, ready to
+be used for formatting error messages.
+
+The next important feature is a safety guard: assignment to a
+non-existing attribute leads to an exception. For example,
+if the attribute is mis-spelled::
+
+  working_params.minimization.input.filename = "other.dat"
+
+Result::
+
+  AttributeError: Assignment to non-existing attribute "minimization.input.filename"
+    Please correct the attribute name, or to create
+    a new attribute use: obj.__inject__(name, value)
+
+In addition to trivial spelling errors, the safety guard traps
+overlooked dependencies related to changes in the master file.
+
+In some (unusual) situations it may be useful to attach attributes to
+an extracted scope that have no correspondence in the master file.
+Use the ``.__inject__(name, value)`` method for this purpose to
+by-pass the safety-guard. As a side-effect of this design, injected
+attributes are easily pin-pointed in the source code (simply search
+for ``__inject__``), which can be a big help in maintaining a large
+code base.
+
+fetch option: track_unused_definitions
+--------------------------------------
+
+The default behavior of ``.fetch()`` is to simply ignore user
+definitions that don't match anything in the master file. It it is
+possible to request a complete list of all user definitions ignored by
+``.fetch()``. For example::
+
+  ## extract code begin: freephil_examples.py
+
+  master_phil = parse("""
+    input {
+      file_name = None
+        .type = path
+    }
+    """)
+
+  user_phil = parse("""
+    input {
+      file_name = experiment.dat
+      label = set1
+      lable = set2
+    }
+    """)
+
+  working_phil, unused = master_phil.fetch(
+    source=user_phil, track_unused_definitions=True)
+  working_phil.show()
+  for object_locator in unused:
+    print "unused:", object_locator
+
+  ## extract code end
+
+Output::
+
+  input {
+    file_name = experiment.dat
+  }
+  unused: input.label (input line 4)
+  unused: input.lable (input line 5)
+
+To catch spelling errors, or to alert users to changes in the master
+file, it is good practice to set ``track_unused_definitions=True``
+and to show warnings or errors.
+
+
+==============
+Extending Phil
+==============
+
+Phil comes with a number of predefined converters used by ``.extract()``
+and ``.format()`` to convert to and from pure Python objects. These
+are::
+
+  .type =
+    words     retains the "words" produced by the parser
+    strings   list of Python strings (also used for .type = None)
+    str       combines all words into one string
+    path      path name (same as str_converters)
+    key       database key (same as str_converters)
+    bool      Python bool
+    int       Python int
+    float     Python float
+    choice    string selected from a pre-defined list
+
+It is possible to extend Phil with user-defined converters.
+For example::
+
+  ## extract code begin: freephil_examples.py
+
+  import freephil
+  from freephil import tokenizer
+
+  class upper_converters:
+
+    phil_type = "upper"
+
+    def __str__(self): return self.phil_type
+
+    def from_words(self, words, master):
+      s = freephil.str_from_words(words=words)
+      if (s is None): return None
+      return s.upper()
+
+    def as_words(self, python_object, master):
+      if (python_object is None):
+        return [tokenizer.word(value="None")]
+      return [tokenizer.word(value=python_object.upper())]
+
+  converter_registry = freephil.extended_converter_registry(
+    additional_converters=[upper_converters])
+
+  ## extract code end
+
+The extended ``converter_registry`` is passed as an additional
+argument to Phil's ``parse`` function::
+
+  ## extract code begin: freephil_examples.py
+
+  master_phil = parse("""
+    value = None
+      .type = upper
+    """,
+      converter_registry=converter_registry)
+  user_phil = parse("value = extracted")
+  working_params = master_phil.fetch(source=user_phil).extract()
+  print working_params.value
+
+  ## extract code end
+
+The ``print`` statement at the end writes "EXTRACTED". It also goes
+the other way, starting with a lower-case Python value::
+
+  ## extract code begin: freephil_examples.py
+
+  working_params.value = "formatted"
+  working_phil = master_phil.format(python_object=working_params)
+  working_phil.show()
+
+  ## extract code end
+
+The output of the ``.show()`` call is "value = FORMATTED".
+
+Arbitrary new types can be added to Phil by defining similar
+converters. If desired, the pre-defined converters for the basic
+types can even be replaced. All converters have to have ``__str__()``,
+``from_words()`` and ``as_words()`` methods. More complex converters
+may optionally have a non-trivial ``__init__()`` method (an example
+is the ``choice_converters`` class in ``freephil/__init__.py``).
+
+Additional domain-specific converters are best defined in a separate
+module, along with a corresponding parse() function using the
+extended converter registry as the default. See, for example,
+``iotbx/phil.py`` in the same ``cctbx`` project that also hosts
+``libtbx``.
+
+==============
+Code reference
+==============
+
+Detailed description of API
+
+scope
+-----
+
+.. autoclass:: freephil.scope
+   :members:
