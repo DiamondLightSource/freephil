@@ -184,6 +184,8 @@ file with the name ``output.plot_file=plot.pdf`` does not exist. This
 argument will therefore be interpreted with Phil. The next section
 presents an example.
 
+.. _phil-object:
+
 =========================
 Phil object (scope)
 =========================
@@ -209,8 +211,8 @@ Example::
     """,
     source="base PHIL")
 
-.. automodule:: freephil
-   :members: parse
+.. autofunction:: freephil.parse
+   :noindex:
 
 Parsing command line arguments
 ------------------------------
@@ -248,7 +250,9 @@ The user can cut-and-paste the desired parameter into the command
 line for another trial to run the application.
 
 .. autofunction:: freephil.scope.command_line_argument_interpreter
+   :noindex:
 .. autofunction:: freephil.command_line.argument_interpreter.process
+   :noindex:
 
 fetch: merging of Phil objects
 ------------------------------
@@ -298,7 +302,7 @@ by a (fake) command-line argument. All inputs are merged via
   }
 
 .. autofunction:: freephil.scope.fetch
-
+   :noindex:
 
 fetch_diff: difference between master_phil and working_phil
 -----------------------------------------------------------
@@ -348,7 +352,9 @@ of definitions and scopes with ``.multiple = False`` or ``.multiple
 = True``.
 
 .. autofunction:: freephil.scope.fetch_diff
+   :noindex:
 
+.. _python-object:
 
 =============================
 Python object (scope_extract)
@@ -393,6 +399,7 @@ Output::
 ``file_name`` and ``label`` are now a simple Python strings.
 
 .. autofunction:: freephil.scope.extract
+   :noindex:
 
 format: conversion of Python objects to Phil objects
 ----------------------------------------------------
@@ -423,7 +430,7 @@ produce a string for each Python object (see the Extending Phil
 section below).
 
 .. autofunction:: freephil.scope.format
-
+   :noindex:
 
 ===================
 More on Phil syntax
@@ -796,7 +803,7 @@ Output::
 
   []
 
-
+.. _phil-includes:
 
 Includes
 --------
@@ -1347,6 +1354,8 @@ attributes are easily pin-pointed in the source code (simply search
 for ``__inject__``), which can be a big help in maintaining a large
 code base.
 
+..  _track-unused-definitions:
+
 fetch option: track_unused_definitions
 --------------------------------------
 
@@ -1392,6 +1401,7 @@ To catch spelling errors, or to alert users to changes in the master
 file, it is good practice to set ``track_unused_definitions=True``
 and to show warnings or errors.
 
+.. _extending-phil:
 
 ==============
 Extending Phil
@@ -1483,14 +1493,3 @@ extended converter registry as the default. See, for example,
 ``iotbx/phil.py`` in the same ``cctbx`` project that also hosts
 ``libtbx``.
 
-==============
-Code reference
-==============
-
-Detailed description of API
-
-scope
------
-
-.. autoclass:: freephil.scope
-   :members:

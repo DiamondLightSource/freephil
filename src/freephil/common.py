@@ -232,6 +232,7 @@ def definition_converters_from_words(words, converter_registry, converter_cache)
 
 
 def full_path(self):
+    # should be a member function to scope? Depreceted?
     result = [self.name]
     pps = self.primary_parent_scope
     while pps is not None:
@@ -267,14 +268,21 @@ def alias_path(self):
 
 def show_attributes(self, out, prefix, attributes_level, print_width):
     '''
+    Prints attributes of the Phil object to a file
 
-    :param self: 
-    :param out: 
-    :param prefix: 
-    :param attributes_level: 
-    :param print_width: 
-    :return: 
+    :param self: Phil object to be printed
+    :type self: freephil.scope
+    :param out: Output file name
+    :type out: str
+    :param prefix:
+    :type prefix: str
+    :param attributes_level: Verbosity of the attributes
+    :type attributes_level: int
+    :param print_width: Max. lenght of a row
+    :type print_width: int
+
     '''
+    # Is this suppossed to be a member function to freephil.scope?
     if attributes_level <= 0:
         return
     for name in self.attribute_names:
@@ -964,6 +972,11 @@ class scope_extract:
 
 
 class scope(slots_getstate_setstate):
+    '''
+    Phil object. It should not be created by an user directly, but usually by parsing Phil string (see: :class:`freephil.parse`)
+
+    :ivar objects: Actual items of the scope, can be itterated over.
+    '''
 
     is_definition = False
     is_scope = True
@@ -1048,12 +1061,26 @@ class scope(slots_getstate_setstate):
             assert isinstance(sequential_format % 0, str)
 
     def copy(self):
+        '''
+        Copy the object
+
+        :rtype: freephil.scope
+        '''
         keyword_args = {}
         for keyword in self.__slots__:
             keyword_args[keyword] = getattr(self, keyword)
         return scope(**keyword_args)
 
     def customized_copy(self, name=None, objects=None):
+        '''
+        Customized object copy, changing name of the object and sets new objects.
+
+        :param name: New object name
+        :type name: str
+        :param objects: New objects
+        :return: Customized object copy
+        :rtype: freephil.scope
+        '''
         result = self.copy()
         if name is not None:
             result.name = name
@@ -1063,12 +1090,26 @@ class scope(slots_getstate_setstate):
         return result
 
     def is_empty(self):
+        '''
+        :return: True, if object is empty
+        :rtype: bool
+        '''
         return len(self.objects) == 0
 
     def full_path(self):
+        '''
+        Get full_path attribute
+
+        :return: full_path
+        '''
         return full_path(self)
 
     def alias_path(self):
+        '''
+        Get alias_path attributte
+
+        :return:
+        '''
         return alias_path(self)
 
     def assign_tmp(self, value, active_only=False):
@@ -1099,6 +1140,12 @@ class scope(slots_getstate_setstate):
         primary_parent_scope.objects.append(object)
 
     def adopt_scope(self, other):
+        '''
+        Makes other scope member of this parent scope
+
+        :param other: scope to be adopted
+        :type other: freephil.scope or object
+        '''
         assert self is not other, "Cannot adopt own scope"
         for active_object in other.active_objects():
             results = self.get_without_substitution(active_object.full_path())
@@ -1118,6 +1165,14 @@ class scope(slots_getstate_setstate):
                     result.adopt_scope(active_object)
 
     def change_primary_parent_scope(self, new_value):
+        '''
+        Changes primary parent scope
+
+        :param new_value: New parent scope
+        :type new_value: freephil.scope
+        :return: Copy of itself with new primary parent
+        '''
+
         objects = []
         for object in self.objects:
             obj = object.copy()
@@ -1128,6 +1183,12 @@ class scope(slots_getstate_setstate):
         return self.customized_copy(objects=objects)
 
     def has_attribute_with_name(self, name):
+        '''
+        Checkes for argument presence
+        :param name: Argument being checked
+        :return: True, if attribute exists in the scope
+        :rtype: bool
+        '''
         return name in self.attribute_names
 
     def assign_attribute(self, name, words, scope_extract_call_proxy_cache):
@@ -1153,6 +1214,9 @@ class scope(slots_getstate_setstate):
         setattr(self, name, value)
 
     def active_objects(self):
+        '''
+        Iterator over active objects
+        '''
         for object in self.objects:
             if object.is_disabled:
                 continue
@@ -1191,6 +1255,21 @@ class scope(slots_getstate_setstate):
         attributes_level=0,
         print_width=None,
     ):
+        '''
+        Pretty prints the Phil object
+
+        :param out: If None, prints to stdout, else to the file
+        :type out: None or str
+        :param merged_names:
+        :param prefix: Prefix
+        :param expert_level: Expert verbosity
+        :type expert_level:  int
+        :param attributes_level: Attributes verbosity
+        :type attributes_level:  int
+        :param print_width: Max. line width
+        :type print_width:  int
+        :return:
+        '''
         if self.is_template < 0 and attributes_level < 2:
             return
         if (
@@ -1248,6 +1327,18 @@ class scope(slots_getstate_setstate):
     def as_str(
         self, prefix="", expert_level=None, attributes_level=0, print_width=None
     ):
+        '''
+        Returns pretty print as a string.
+
+        :param prefix: Prefix
+        :param expert_level: Expert verbosity
+        :type expert_level:  int
+        :param attributes_level: Attributes verbosity
+        :type attributes_level:  int
+        :param print_width: Max. line width
+        :type print_width:  int
+        :rtype: str
+        '''
         out = io.StringIO()
         self.show(
             out=out,
@@ -1360,7 +1451,8 @@ class scope(slots_getstate_setstate):
 
         :param parent: Set parent Phil object
         :type parent:  freephil.scope
-        :return: freephil.scope_extract
+        :return: Python object
+        :rtype: freephil.scope_extract
         """
         result = scope_extract(name=self.name, parent=parent, call=self.call)
         for object in self.objects:
@@ -1382,9 +1474,10 @@ class scope(slots_getstate_setstate):
         '''
         Converts Python object into Phil object. It has to be called as a member function of the base Phil object
 
-        :param python_object: Object to be converted
+        :param python_object: Python object to be converted
         :type python_object: freephil.scope_extract
-        :return: freephil.scope
+        :return: Phil object
+        :rtype:  freephil.scope
         '''
         multiple_scopes_done = {}
         result = []
@@ -1423,11 +1516,27 @@ class scope(slots_getstate_setstate):
         return self.customized_copy(objects=result)
 
     def extract_format(self, source=None):
+        '''
+        Performs extract-format of its own (or source)
+
+        :param source: None, or a scope
+        :return: Filtered scope by itself
+        :rtype: freephil.scope
+        '''
         if source is None:
             source = self
         return self.format(source.extract())
 
     def clone(self, python_object, converter_registry=None):
+        '''
+        Clones Python object to new one, filtered through this scope.
+
+        :param python_object: Input Python object
+        :type python_object: freephil.scope_extract
+        :param converter_registry:
+        :return: Filtered Python object
+        :rtype: freephil.scope_extract
+        '''
         return parse(
             input_string=self.format(python_object=python_object).as_str(
                 attributes_level=3
@@ -1450,7 +1559,7 @@ class scope(slots_getstate_setstate):
         :type source: freephil.scope
         :param sources: Multiple input Phil objects
         :type sources: list of freephil.scope
-        :param track_unused_definitions: If ``True``, the function returns a tuple, where second member contains entries not used in base Phil object (see: `fetch option: track_unused_definitions`_)
+        :param track_unused_definitions: If ``True``, the function returns a tuple, where second member contains entries not used in base Phil object (see: :ref:`track-unused-definitions`)
         :type track_unused_definitions: bool
         :param diff: If ``True``, equivalent to ``fetch_diff()``
         :type diff: bool
@@ -1584,7 +1693,7 @@ class scope(slots_getstate_setstate):
         :type source: freephil.scope
         :param sources: Multiple input Phil objects
         :type sources: list of freephil.scope
-        :param track_unused_definitions: If ``True``, the function returns a tuple, where second member contains entries not used in base Phil object (see: `fetch option: track_unused_definitions`_)
+        :param track_unused_definitions: If ``True``, the function returns a tuple, where second member contains entries not used in base Phil object (see: :ref:`track-unused-definitions`)
         :type track_unused_definitions: bool
         :param diff: If ``True``, equivalent to ``fetch_diff()``
         :type diff: bool
@@ -1603,6 +1712,14 @@ class scope(slots_getstate_setstate):
     def process_includes(
         self, converter_registry, reference_directory, include_stack=None
     ):
+        '''
+        Manually for processing of :ref:`phil-includes`
+
+        :param converter_registry:
+        :param reference_directory:
+        :param include_stack:
+        :return:
+        '''
         if converter_registry is None:
             converter_registry = default_converter_registry
         if include_stack is None:
@@ -1860,15 +1977,16 @@ def parse(
     process_includes=False,
     include_stack=None,
 ):
-    """Creates Phil scope from a string or a file
+    """Creates Phil object from a string or a file
 
     :param input_string: String to be parsed
     :param source_info: Description of the source. Defaults to `file_name`
     :param file_name:  Parse from a file
-    :param converter_registry: Custom converters (see `Extending Phil`_)
+    :param converter_registry: Custom converters (see :ref:`extending-phil`)
     :param process_includes: Enables processing `include` statement
     :param include_stack:
-    :return: freephil.scope (Phil object)
+    :return: Phil object
+    :rtype: freephil.scope
     """
     assert source_info is None or file_name is None
     if input_string is None:
@@ -1941,12 +2059,32 @@ def read_default(
 
 
 def process_command_line(args, master_string, parse=None):
+    '''
+    Processes command line arguments
+
+    :param args: command line arguments
+    :type  args: list of strings
+    :param master_string: Phil string; the string is parsed internally
+    :type  master_string: str
+    :param parse: function to parse ``master_string``. Defaults to ``freephil.parse``
+    :return: Parsed arguments
+    :rtype: freephil.command_line.process
+    '''
     from freephil import command_line
 
     return command_line.process(args=args, master_string=master_string, parse=parse)
 
 
 def find_scope(current_phil, scope_name):
+    '''
+    Finds first occurence of scope within a scope
+
+    :param current_phil: Phil object to be searched
+    :type current_phil:  freephil.scope
+    :param scope_name: Scope name to be searched for
+    :return: First scope occurence
+    :rtype: freephil.scope
+    '''
     i = 0
     while i < len(current_phil.objects):
         full_path = current_phil.objects[i].full_path()
@@ -1955,6 +2093,8 @@ def find_scope(current_phil, scope_name):
         elif scope_name.startswith(full_path + "."):
             return find_scope(current_phil.objects[i], scope_name)
         i += 1
+
+    # Should report nothing found?
 
 
 def change_default_phil_values(
@@ -1967,22 +2107,20 @@ def change_default_phil_values(
     """
     Function for updating the default values in a PHIL scope
 
-    Parameters
-    ----------
-    master_phil_str: str
-    new_default_phil_str: str
-    phil_parse: function for parsing PHIL (optional, defaults to libtbx.parse)
-    expert_level: int (optional, defaults to 4)
-    attributes_level: int (optional, defaults to 4)
-
-    Returns
-    -------
-    str: the master_phil_str with the updated default values
-
-    Raises
-    ------
-    Sorry: if unrecognized PHIL parameters are encountered
-    RuntimeError: if new value cannot be interpreted (e.g str instead of float)
+    :param master_phil_str:
+    :type master_phil_str:  str
+    :param new_default_phil_str:
+    :type new_default_phil_str:  str
+    :param phil_parse: function for parsing PHIL (optional, defaults to freephil.parse)
+    :type phil_parse: function
+    :param expert_level: optional, defaults to 4
+    :type expert_level: int
+    :param attributes_level: optional, defaults to 4
+    :type attributes_level: int
+    :return: the master_phil_str with the updated default values
+    :rtype: str
+    :raise Sorry: if unrecognized PHIL parameters are encountered
+    :raise RuntimeError: if new value cannot be interpreted (e.g str instead of float)
     """
 
     if phil_parse is None:
