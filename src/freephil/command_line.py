@@ -9,13 +9,16 @@ op = os.path
 
 class argument_interpreter:
     '''
-    Class of command line argument interpreter, based on base Phil object. The class is typically returned by :func:`freephil.scope.command_line_argument_interpreter`
+    Class of command line argument interpreter, based on base Phil
+    object. The class is typically returned by
+    :func:`freephil.scope.command_line_argument_interpreter`
 
     :param master_phil: base Phil object
     :type master_phil: freephil.scope
     :param home_scope: Home scope
     :type home_scope: str
-    :param argument_description: Description of source of the arguments. Defaults to "command line"
+    :param argument_description: Description of source of the arguments.
+           Defaults to "command line"
     :type argument_description: str
     :param master_params: deprecated (raises warning about it)
     '''
@@ -234,8 +237,10 @@ class argument_interpreter:
 
         :param args: command line arguments
         :type args:  list of strings
-        :param custom_processor: If set to "collect_remaining", also unprocessed arguments are returned
-        :param extra_sources: other sources to be fetched with the parsed arguments.
+        :param custom_processor: If set to "collect_remaining", also
+               unprocessed arguments are returned
+        :param extra_sources: other sources to be fetched with
+               the parsed arguments.
         :return: Phil object
         :rtype: freephil.scope
         '''
@@ -261,13 +266,6 @@ class process:
     '''
     Governing class for command line processing
 
-    :ivar work: Phil object from processed arguments
-    :type work: freephil.scope
-    :ivar remaining_args: Arguments, which could not be parsed
-    :type remaining_args: list of str
-    :ivar master: Base Phil object
-    :type master: freephil.scope
-
     :param args: Input command line arguments
     :type args: list of str
     :param master_string: String defining base Phil
@@ -277,7 +275,14 @@ class process:
     :param extra_sources: Other Phil objects to be fetch with
     :type extra_sources: list of freephil.scope
 
+    :ivar work: Phil object from processed arguments
+    :type work: freephil.scope
+    :ivar remaining_args: Arguments, which could not be parsed
+    :type remaining_args: list of str
+    :ivar master: Base Phil object
+    :type master: freephil.scope
     '''
+
     def __init__(self, args, master_string, parse=None, extra_sources=()):
         '''
         Class constructor

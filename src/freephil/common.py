@@ -849,7 +849,10 @@ class scope_extract_list(list):
 
 class scope_extract:
     '''
-    Python object (see :ref:`python-object`). It is easy to access pythonic reprezentation of Phil object, but luckying metainformation, like expert_level. Further nested scopes and data are stored as attributes of the object.
+    Python object (see :ref:`python-object`). It is easy to access
+    pythonic reprezentation of Phil object, but luckying metainformation,
+    like expert_level. Further nested scopes and data are stored as
+    attributes of the object.
 
     :ivar __phil_name__: Phil name
     :ivar __phil_parent__: parent object
@@ -980,7 +983,8 @@ class scope_extract:
 
 class scope(slots_getstate_setstate):
     '''
-    Phil object. It should not be created by an user directly, but usually by parsing Phil string (see: :func:`freephil.parse`)
+    Phil object. It should not be created by an user directly, but
+    usually by parsing Phil string (see: :func:`freephil.parse`)
 
     :ivar objects: Actual items of the scope, can be itterated over.
     '''
@@ -1080,7 +1084,8 @@ class scope(slots_getstate_setstate):
 
     def customized_copy(self, name=None, objects=None):
         '''
-        Customized object copy, changing name of the object and sets new objects.
+        Customized object copy, changing name of the object and
+         sets new objects.
 
         :param name: New object name
         :type name: str
@@ -1265,7 +1270,8 @@ class scope(slots_getstate_setstate):
         '''
         Pretty prints the Phil object
 
-        :param out: If None, prints to stdout, else to the file. The file has to be opened for writing.
+        :param out: If None, prints to stdout, else to the file. The
+                    file has to be opened for writing.
         :type out: None or file
         :param merged_names:
         :param prefix: Prefix
@@ -1479,7 +1485,8 @@ class scope(slots_getstate_setstate):
 
     def format(self, python_object):
         '''
-        Converts Python object into Phil object. It has to be called as a member function of the base Phil object
+        Converts Python object into Phil object. It has to be called
+        as a member function of the base Phil object
 
         :param python_object: Python object to be converted
         :type python_object: freephil.scope_extract
@@ -1560,19 +1567,24 @@ class scope(slots_getstate_setstate):
         skip_incompatible_objects=False,
     ):
         '''
-        Combine multiple Phil objects using the base Phil (``self``). Returns full Phil object with changes from ``sources`` applied.
+        Combine multiple Phil objects using the base Phil (``self``).
+        Returns full Phil object with changes from ``sources`` applied.
 
         :param source: Input Phil object
         :type source: freephil.scope
         :param sources: Multiple input Phil objects
         :type sources: list of freephil.scope
-        :param track_unused_definitions: If ``True``, the function returns a tuple, where second member contains entries not used in base Phil object (see: :ref:`track-unused-definitions`)
+        :param track_unused_definitions: If ``True``, the function
+               returns a tuple, where second member contains entries
+               not used in base Phil object
+               (see: :ref:`track-unused-definitions`)
         :type track_unused_definitions: bool
         :param diff: If ``True``, equivalent to ``fetch_diff()``
         :type diff: bool
         :param skip_incompatible_objects: Skip incompatible object types
         :type skip_incompatible_objects: bool
-        :return: freephil.scope or tuple(freephil.scope, list of freephil.object_locator)
+        :return: Phil object, or Phil object and object with unprocessed data
+        :rtype: freephil.scope or tuple(freephil.scope, list of freephil.object_locator)
         '''
         combined_objects = []
         if source is not None or sources is not None:
@@ -1694,19 +1706,24 @@ class scope(slots_getstate_setstate):
         skip_incompatible_objects=False,
     ):
         '''
-        Creates difference Phil object containing only items, which differ between two Phil objects
+        Creates difference Phil object containing only items, which
+        differ between two Phil objects
 
         :param source: Input Phil object
         :type source: freephil.scope
         :param sources: Multiple input Phil objects
         :type sources: list of freephil.scope
-        :param track_unused_definitions: If ``True``, the function returns a tuple, where second member contains entries not used in base Phil object (see: :ref:`track-unused-definitions`)
+        :param track_unused_definitions: If ``True``, the function
+               returns a tuple, where second member contains entries
+               not used in base Phil object
+               (see: :ref:`track-unused-definitions`)
         :type track_unused_definitions: bool
         :param diff: If ``True``, equivalent to ``fetch_diff()``
         :type diff: bool
         :param skip_incompatible_objects: Skip incompatible object types
         :type skip_incompatible_objects: bool
-        :return: freephil.scope or tuple(freephil.scope, list of freephil.object_locator)
+        :return: Phil object, or Phil object and object with unprocessed data
+        :rtype: freephil.scope or tuple(freephil.scope, list of freephil.object_locator)
         '''
         return self.fetch(
             source=source,
@@ -1725,7 +1742,6 @@ class scope(slots_getstate_setstate):
         :param converter_registry:
         :param reference_directory:
         :param include_stack:
-        :return:
         '''
         if converter_registry is None:
             converter_registry = default_converter_registry
@@ -1818,7 +1834,8 @@ class scope(slots_getstate_setstate):
         Creates an interpreter of command line arguments for the scope
 
         :param home_scope: Parse only within sub-scope
-        :param argument_description: Description of arguments source. Defaults "command line"
+        :param argument_description: Description of arguments source.
+               Defaults "command line"
         :return: Command line interpreter
         :rtype: freephil.command_line.argument_interpreter
         '''
@@ -2074,7 +2091,8 @@ def process_command_line(args, master_string, parse=None):
     :type  args: list of strings
     :param master_string: Phil string; the string is parsed internally
     :type  master_string: str
-    :param parse: function to parse ``master_string``. Defaults to :class:`freephil.parse`
+    :param parse: function to parse ``master_string``. Defaults to
+                  :class:`freephil.parse`
     :return: Parsed arguments
     :rtype: freephil.command_line.process
     '''
@@ -2119,7 +2137,8 @@ def change_default_phil_values(
     :type master_phil_str:  str
     :param new_default_phil_str:
     :type new_default_phil_str:  str
-    :param phil_parse: function for parsing PHIL (optional, defaults to freephil.parse)
+    :param phil_parse: function for parsing PHIL
+                      (optional, defaults to freephil.parse)
     :type phil_parse: function
     :param expert_level: optional, defaults to 4
     :type expert_level: int

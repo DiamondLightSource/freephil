@@ -190,13 +190,19 @@ presents an example.
 Phil object (scope)
 =========================
 
-Phil files are converted to uniform Phil objects, type :class:`freephil.scope`. It holds all the information of the original Phil file (or string), and brings all the facilities needed to further work with the Phil objects.
+Phil files are converted to uniform Phil objects, type
+:class:`freephil.scope`. It holds all the information of the original
+Phil file (or string), and brings all the facilities needed to further
+work with the Phil objects.
 
 parse: Creating of Phil objects
 -------------------------------
 
 The Phil parser converts base files, user files and command line
-arguments to uniform Phil objects. The input can be either a string (``input_string=``) or  a file (``file_name=``). Useful feature is ``source_info=`` which can hold information on the source of the Phil object.
+arguments to uniform Phil objects. The input can be either a string
+(``input_string=``) or  a file (``file_name=``). Useful feature is
+``source_info=`` which can hold information on the source of the Phil
+object.
 Example::
 
   from freephil import parse
@@ -369,12 +375,14 @@ of graphical user interfaces, it is only a burden in the context of
 core algorithms. Therefore Phil supports "extraction" of light-weight
 Python objects from the Phil objects.
 
-The python object is of the type :class:`freephil.scope_extract`. The object contains items with the values, or nested :class:`freephil.scope_extract`.
+The python object is of the type :class:`freephil.scope_extract`. The
+object contains items with the values, or nested :class:`freephil.scope_extract`.
 
 extract: conversion of Phil objects to Python objects
 -----------------------------------------------------
 
-Based on the example above, the extraction can be achieved with just one line::
+Based on the example above, the extraction can be achieved with just
+one line::
 
   ## extract code begin: freephil_examples.py
 
@@ -842,7 +850,8 @@ the indirections are resolved automatically and all parameters are
 presented in one uniform view.
 
 .. note::
-   Parsing of the ``include`` statements has to be explicitly enabled when calling :func:`freephil.parse()` with ``process_includes = True``.
+   Parsing of the ``include`` statements has to be explicitly enabled
+   when calling :func:`freephil.parse()` with ``process_includes = True``.
 
 
 Variable substitution
