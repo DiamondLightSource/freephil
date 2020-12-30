@@ -21,3 +21,9 @@ For overview see :ref:`phil-object`
 
 .. autoclass:: freephil.scope
    :members:
+
+=============
+Python object
+=============
+
+.. autoclass:: freephil.scope_extract

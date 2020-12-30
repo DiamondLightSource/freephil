@@ -848,6 +848,13 @@ class scope_extract_list(list):
 
 
 class scope_extract:
+    '''
+    Python object (see :ref:`python-object`). It is easy to access pythonic reprezentation of Phil object, but luckying metainformation, like expert_level. Further nested scopes and data are stored as attributes of the object.
+
+    :ivar __phil_name__: Phil name
+    :ivar __phil_parent__: parent object
+    :ivar __phil_call__: function to be called, if the scope is callable
+    '''
     def __init__(self, name, parent, call):
         object.__setattr__(self, "__phil_name__", name)
         object.__setattr__(self, "__phil_parent__", parent)
