@@ -36,3 +36,13 @@ Command line processing
    :members:
 
 .. autoclass:: freephil.command_line.process
+
+..
+    ========================
+    Graphical user interface
+    ========================
+
+    FreePHIL provides some helpers for GUI creation.
+
+    .. autoclass:: freephil.gui_objects.style
+       :members:
