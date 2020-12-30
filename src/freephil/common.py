@@ -980,7 +980,7 @@ class scope_extract:
 
 class scope(slots_getstate_setstate):
     '''
-    Phil object. It should not be created by an user directly, but usually by parsing Phil string (see: :class:`freephil.parse`)
+    Phil object. It should not be created by an user directly, but usually by parsing Phil string (see: :func:`freephil.parse`)
 
     :ivar objects: Actual items of the scope, can be itterated over.
     '''
@@ -1265,8 +1265,8 @@ class scope(slots_getstate_setstate):
         '''
         Pretty prints the Phil object
 
-        :param out: If None, prints to stdout, else to the file
-        :type out: None or str
+        :param out: If None, prints to stdout, else to the file. The file has to be opened for writing.
+        :type out: None or file
         :param merged_names:
         :param prefix: Prefix
         :param expert_level: Expert verbosity
@@ -1819,8 +1819,9 @@ class scope(slots_getstate_setstate):
 
         :param home_scope: Parse only within sub-scope
         :param argument_description: Description of arguments source. Defaults "command line"
-        :return: freephil.command_line.argument_interpreter
-    '''
+        :return: Command line interpreter
+        :rtype: freephil.command_line.argument_interpreter
+        '''
 
         from freephil.command_line import argument_interpreter as _
 
@@ -2073,7 +2074,7 @@ def process_command_line(args, master_string, parse=None):
     :type  args: list of strings
     :param master_string: Phil string; the string is parsed internally
     :type  master_string: str
-    :param parse: function to parse ``master_string``. Defaults to ``freephil.parse``
+    :param parse: function to parse ``master_string``. Defaults to :class:`freephil.parse`
     :return: Parsed arguments
     :rtype: freephil.command_line.process
     '''
