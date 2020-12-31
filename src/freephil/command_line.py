@@ -220,7 +220,9 @@ class argument_interpreter:
         Process string as command line argument.
 
         :param arg: One argument
+        :type arg:  str
         :param args: Arguments to be processed
+        :type args: list of str
         :param custom_processor: Use custom Phil processor.
         :return: Phil object
         :rtype: freephil.scope

@@ -268,7 +268,7 @@ def alias_path(self):
 
 def show_attributes(self, out, prefix, attributes_level, print_width):
     '''
-    Prints attributes of the Phil object to a file
+    Prints attributes of the Phil object (scope or definition) to a file
 
     :param self: Phil object to be printed
     :type self: freephil.scope
@@ -282,7 +282,6 @@ def show_attributes(self, out, prefix, attributes_level, print_width):
     :type print_width: int
 
     '''
-    # Is this suppossed to be a member function to freephil.scope?
     if attributes_level <= 0:
         return
     for name in self.attribute_names:
@@ -362,6 +361,56 @@ class try_format_proxy:
 
 
 class definition(slots_getstate_setstate):
+    '''
+    One line definitions used in Phil objects. The class is usually
+    generated as part of parent :class:`freephil.scope`
+
+    Attributes possible from parsing Phil string/file. Attribute levels are:
+
+    1. level: ``help`` and ``alias``
+    2. level: everything, whose value is not None
+    3. level: everything else
+
+    :ivar help: Help entry for the parameter
+    :vartype help: str
+    :ivar caption: Caption
+    :vartype caption: str
+    :ivar short_caption: Short caption
+    :vartype shot_caption: str
+    :ivar optional: Is optional?
+    :vartype optional: bool
+    :ivar type: Type (see :ref:`phil-type`)
+    :ivar multiple: Possible mltiple times? (see :ref:`phil-multiple`)
+    :vartype multiple: bool
+    :ivar input_size: Input size
+    :ivar style:
+    :ivar expert_level: Expert level
+    :vartype expert_level: int
+    :ivar deprecated:
+    :ivar alias: Alias
+
+    Other class variables:
+
+    :ivar is_definition: Always ``True``
+    :vartype is_definition: bool
+    :ivar is_scope: Always ``False``
+    :vartype is_scope: bool
+
+    Other instance variables:
+
+    :ivar name:
+    :ivar words: Actual value (equivalent of ``objects`` in :class:`freephil.scope`)
+    :ivar primary_id:
+    :ivar primary_parent_scope: Parent scope
+    :vartype primary_parent_scope: freephil.scope
+    :ivar is_disabled:
+    :ivar is_template:
+    :ivar where_str:
+    :ivar merge_names:
+    :ivar tmp:
+
+    '''
+
     is_definition = True
     is_scope = False
 
@@ -446,12 +495,25 @@ class definition(slots_getstate_setstate):
             setattr(self, "deprecated", None)
 
     def copy(self):
+        '''
+        Copy of itself
+
+        :rtype: freephil.definition
+        '''
         keyword_args = {}
         for keyword in self.__slots__:
             keyword_args[keyword] = getattr(self, keyword)
         return definition(**keyword_args)
 
     def customized_copy(self, name=None, words=None):
+        '''
+        Customized copy of itself, with new name and words
+
+        :param name: New name
+        :type name: str
+        :param words: new value(s)
+        :rtype: freephil.definition
+        '''
         result = self.copy()
         if name is not None:
             result.name = name
@@ -461,9 +523,19 @@ class definition(slots_getstate_setstate):
         return result
 
     def full_path(self):
+        '''
+        Returns full path to the definition
+
+        :rtype: str
+        '''
         return full_path(self)
 
     def alias_path(self):
+        '''
+        Returns alias of the definition.
+
+        :rtype: str
+        '''
         return alias_path(self)
 
     def assign_tmp(self, value, active_only=False):
@@ -505,6 +577,15 @@ class definition(slots_getstate_setstate):
             return type_fetch(source_words=source.words, master=self)
 
     def fetch_diff(self, source, skip_incompatible_objects=False):
+        '''
+        Merges the definition with defintions from others sources,
+        returns only difference
+
+        :param source:
+        :param skip_incompatible_objects:
+        :return: Phil object definition
+        :rtype: freephil.definition
+        '''
         result = self.fetch_value(
             source=source,
             diff_mode=True,
@@ -517,6 +598,17 @@ class definition(slots_getstate_setstate):
         return result
 
     def fetch(self, source, diff=False, skip_incompatible_objects=False):
+        '''
+        Merge the definition with definitions from other source
+
+        :param source: Other definition to merge with
+        :type source: freephil.definition
+        :param diff: If ``True``, returns only differences.
+        :type diff: bool
+        :param skip_incompatible_objects: Skip incompatible objects
+        :type skip_incompatible_objects: bool
+        :return:
+        '''
         if diff:
             return self.fetch_diff(
                 source=source, skip_incompatible_objects=skip_incompatible_objects
@@ -526,6 +618,13 @@ class definition(slots_getstate_setstate):
         )
 
     def has_attribute_with_name(self, name):
+        '''
+        Returns ``True``, if the atribute exists
+
+        :param name: Attribue name
+        :type name: str
+        :rtype: bool
+        '''
         return name in self.attribute_names
 
     def assign_attribute(self, name, words, converter_registry, converter_cache):
@@ -553,6 +652,22 @@ class definition(slots_getstate_setstate):
         attributes_level=0,
         print_width=None,
     ):
+        '''
+        Pretty prints the definition
+
+        :param out: If provided, writes to the file. The file had to be opened
+        :type out: None or file object
+        :param merged_names:
+        :type merged_names: list of str
+        :param prefix: Prefix
+        :type prefix: str
+        :param expert_level: Maximal expert level
+        :type expert_level: int
+        :param attributes_level: Attribute level
+        :type attributes_level: int
+        :param print_width: Maximum linewidth
+        :type print_width: int
+        '''
         if self.is_template < 0 and attributes_level < 2:
             return
         elif self.deprecated and attributes_level < 3:
@@ -597,6 +712,20 @@ class definition(slots_getstate_setstate):
     def as_str(
         self, prefix="", expert_level=None, attributes_level=0, print_width=None
     ):
+        '''
+        Returns pretty print of the definition as string
+
+        :param prefix: Prefix
+        :type prefix: str
+        :param expert_level: Maximal expert level
+        :type expert_level: int
+        :param attributes_level: Attribute level
+        :type attributes_level: int
+        :param print_width: Maximum linewidth
+        :type print_width: int
+        :return: Pretty print of the definition
+        :rtype: str
+        '''
         out = io.StringIO()
         self.show(
             out=out,
@@ -650,11 +779,29 @@ class definition(slots_getstate_setstate):
             return try_extract_proxy(error_message=str(e), extracted=None)
 
     def extract(self, parent=None):
+        '''
+        Extracts the Phil object definition into Python object.
+
+        :param parent: Set parent Phil object
+        :type parent:  freephil.scope
+        :return: Python object
+        :rtype: freephil.scope_extract
+
+        '''
         if self.type is None:
             return strings_from_words(words=self.words)
         return self._type_from_words()(self.words, master=self)
 
     def format(self, python_object):
+        '''
+        Converts Python object into Phil object definition. It has to be called
+        as a member function of the base Phil object definition to recover Phil metadata.
+
+        :param python_object: Python object to be converted
+        :type python_object: freephil.scope_extract
+        :return: Phil definitio
+        :rtype:  freephil.definition
+        '''
         if self.type is None:
             words = strings_as_words(python_object=python_object)
         else:
@@ -669,6 +816,14 @@ class definition(slots_getstate_setstate):
         return self.customized_copy(words=words)
 
     def extract_format(self, source=None):
+        '''
+        Performs extract-format of itself (or source)
+
+        :param source: None, or a scope
+        :type source: freephil.scope or None
+        :return: Filtered scope by itself
+        :rtype: freephil.scope
+                '''
         if source is None:
             source = self
         return self.format(python_object=source.extract())
@@ -863,6 +1018,19 @@ class scope_extract:
         object.__setattr__(self, "__phil_call__", call)
 
     def __phil_path__(self, object_name=None):
+        '''
+        Returns fully qualified path of the scope. If ``object_name``
+        is given, path to the object is given
+
+        :meta public:
+
+        :param object_name: Object of the ``scope_extract``
+        :type object_name: str
+        :return: Fully qualified path
+        :rtype: str
+
+
+        '''
         if (
             self.__phil_parent__ is None
             or self.__phil_parent__.__phil_name__ is None
@@ -879,6 +1047,14 @@ class scope_extract:
         return ".".join(result)
 
     def __phil_path_and_value__(self, object_name):
+        '''
+        Retruns fully qualified path of the object and its value
+
+        :param object_name: Object of the ``scope_extract``
+        :type object_name: str
+        :return: Fully qualified name and object value
+        :rtype: tuple
+        '''
         return (self.__phil_path__(object_name=object_name), getattr(self, object_name))
 
     def __setattr__(self, name, value):
@@ -899,6 +1075,13 @@ class scope_extract:
         object.__setattr__(self, name, value)
 
     def __inject__(self, name, value):
+        '''
+        Creates new member object with ``name`` and ``value``
+
+        :param name: Object name
+        :type name:  str
+        :param value: Object
+        '''
         if (
             getattr(self, name, scope_extract_attribute_error)
             is not scope_extract_attribute_error
@@ -986,6 +1169,59 @@ class scope(slots_getstate_setstate):
     usually by parsing Phil string (see: :func:`freephil.parse`)
 
     :ivar objects: Actual items of the scope, can be itterated over.
+    :vartype objects: list of freephil.scope or freephil.definition
+
+    .. note::
+       Nesting depth of the scope is limited by Python recursion limit
+       (default 1000).
+
+    Attributes possible from parsing Phil string/file. Attribute levels
+    are:
+
+    1. level: ``help`` and ``alias``
+    2. level: everything, whose value is not None
+    3. level: everything else
+
+    :ivar help: Help entry for the parameter
+    :vartype help: str
+    :ivar caption: Caption
+    :vartype caption: str
+    :ivar short_caption: Short caption
+    :vartype shot_caption: str
+    :ivar optional: Is optional?
+    :vartype optional: bool
+    :ivar type: Type (see :ref:`phil-type`)
+    :ivar multiple: Possible mltiple times? (see :ref:`phil-multiple`)
+    :vartype multiple: bool
+    :ivar input_size: Input size
+    :ivar style:
+    :ivar call: A function, if the scope should be callable
+    :vartype call: function
+    :ivar sequential_format:
+    :ivar disable_add:
+    :ivar disable_delete:
+    :ivar expert_level: Expert level
+    :vartype expert_level: int
+    :ivar deprecated:
+    :ivar alias: Alias
+
+    Other class variables:
+
+    :cvar is_definition: Always ``True``
+    :vartype is_definition: bool
+    :cvar is_scope: Always ``False``
+    :vartype is_scope: bool
+
+    Other instance variables:
+
+    :ivar name:
+    :ivar primary_id:
+    :ivar primary_parent_scope: Parent scope
+    :vartype primary_parent_scope: freephil.scope
+    :ivar is_disabled:
+    :ivar is_template:
+    :ivar where_str:
+    :ivar merge_names:
     '''
 
     is_definition = False
@@ -1838,8 +2074,10 @@ class scope(slots_getstate_setstate):
         Creates an interpreter of command line arguments for the scope
 
         :param home_scope: Parse only within sub-scope
+        :type home_scope: freephil.scope
         :param argument_description: Description of arguments source.
                Defaults "command line"
+        :type argument_description: str
         :return: Command line interpreter
         :rtype: freephil.command_line.argument_interpreter
         '''

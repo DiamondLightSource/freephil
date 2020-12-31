@@ -162,7 +162,7 @@ not shown. Therefore the output is much shorter compared to the
 Command-line arguments
 ======================
 
-In theory the user could save and edit the generated parameter files.
+In theory, the user could save and edit the generated parameter files.
 However, in many practical situations this manual step can be
 avoided. Phil is designed with the idea that the application inspects
 all input files and uses the information found to fill in the blanks
@@ -181,8 +181,16 @@ First the application should check if an argument is the name of a
 file that can be opened. Assume this succeeds for the first argument,
 so the processing of this argument is finished. Assume further that a
 file with the name ``output.plot_file=plot.pdf`` does not exist. This
-argument will therefore be interpreted with Phil. The next section
-presents an example.
+argument will therefore be interpreted with Phil. The next sections
+presents an examples.
+
+.. note::
+   Checking for application-compatible files is not provided by FreePHIL.
+   However, parsing arguments mimicking Phil syntax is provided.
+
+.. note::
+   In the syntax of command line arguments, ``=`` signs cannot be separated
+   with spaces from neither parameter name nor value.
 
 .. _phil-object:
 
@@ -191,15 +199,14 @@ Phil object (scope)
 =========================
 
 Phil files are converted to uniform Phil objects, type
-:class:`freephil.scope`. It holds all the information of the original
-Phil file (or string), and brings all the facilities needed to further
-work with the Phil objects.
+:class:`freephil.scope` or :class:`freephil.definition`. It holds all
+the information of the original Phil file (or string), and brings all
+the facilities needed to further work with the Phil objects.
 
 parse: Creating of Phil objects
 -------------------------------
 
-The Phil parser converts base files, user files and command line
-arguments to uniform Phil objects. The input can be either a string
+The Phil parser converts base files, user files (or equivalent strings) to uniform Phil objects. The input can be either a string
 (``input_string=``) or  a file (``file_name=``). Useful feature is
 ``source_info=`` which can hold information on the source of the Phil
 object.
@@ -442,15 +449,92 @@ section below).
 .. autofunction:: freephil.scope.format
    :noindex:
 
+Special features
+----------------
+
+The Python object (:class:`freephil.scope_extract`) includes a few
+additional, special features that are worth knowing:
+
+  1. `.__phil_path__()`_
+  2. `Safety guard`_
+
+
+.__phil_path__()
+++++++++++++++++
+
+The first special feature is the :func:`freephil.scope_extract.__phil_path__()`
+method::
+
+  ## extract code begin: freephil_examples.py
+
+  print working_params.minimization.input.__phil_path__()
+  print working_params.minimization.parameters.__phil_path__()
+
+  ## extract code end
+
+Output::
+
+  minimization.input
+  minimization.parameters
+
+This feature is most useful for formatting informative error messages
+without having to hard-wire the fully-qualified parameter names. Use
+``.__phil_path__()`` to ensure that the names are automatically
+correct even if the base file is changed in major ways. Note that the
+``.__phil_path__()`` method is available only for extracted scopes,
+not for extracted definitions since it would be very cumbersome to
+implement. However, the fully-qualified name of a definition can
+be obtained via ``.__phil_path__(object_name="max_iterations")``;
+usually the ``object_name`` is readily available in the contexts in
+which the fully-qualified name is needed.
+
+There is also :func:`freephil.scope_extract.__phil_path_and_value__`
+which returns a 2-tuple of the fully-qualified path and the extracted
+value, ready to be used for formatting error messages.
+
+Safety guard
+++++++++++++
+
+The next important feature is a safety guard: assignment to a
+non-existing attribute leads to an exception. For example,
+if the attribute is mis-spelled::
+
+  working_params.minimization.input.filename = "other.dat"
+
+Result::
+
+  AttributeError: Assignment to non-existing attribute "minimization.input.filename"
+    Please correct the attribute name, or to create
+    a new attribute use: obj.__inject__(name, value)
+
+In addition to trivial spelling errors, the safety guard traps
+overlooked dependencies related to changes in the base file.
+
+In some (unusual) situations it may be useful to attach attributes to
+an extracted scope that have no correspondence in the base file.
+Use the :func:`freephil.scope_extract.__inject__` method for this purpose to
+by-pass the safety-guard. As a side-effect of this design, injected
+attributes are easily pin-pointed in the source code (simply search
+for ``__inject__``), which can be a big help in maintaining a large
+code base.
+
+
 ===================
 More on Phil syntax
 ===================
 
+Available attributes
+--------------------
+
+Possible attributes in base phil files are listed in description of
+:class:`phil.definition` and :class:`phil.scope`.
+
+.. _phil-multiple:
 
 .multiple = True
 ----------------
 
-Both ``phil.definition`` and ``phil.scope`` support the ``.multiple
+Both :class:`phil.definition` and :class:`phil.scope` support the ``.multiple
 = True`` attribute. For the sake of simplicity, in the following
 "multiple definition" and "multiple scope" means a base definition or
 scope with ``.multiple = True``. Please note the distinction between
@@ -521,7 +605,7 @@ Multiple scopes work similarly, for example::
 
   ## extract code end
 
-A corresponding user file may look this this::
+A corresponding user file may look like this::
 
   ## extract code begin: freephil_examples.py
 
@@ -621,6 +705,160 @@ one Python string::
   experiment2.dat
   ['set2', 'set3']
 
+
+Multiple definitions and scopes
+-------------------------------
+
+All Phil attributes of multiple definitions or scopes are determined
+by the first occurrence in the base file. All following instances in
+the base file are defaults. Any instances in user files (merged via
+``.fetch()``) are added to the default instances in the base file.
+For example::
+
+  ## extract code begin: freephil_examples.py
+
+  base_phil = parse("""
+    plot
+      .multiple = True
+    {
+      style = line bar pie_chart
+        .type=choice
+      title = None
+        .type = str
+    }
+    plot {
+      style = line
+      title = Line plot (default in base)
+    }
+    """)
+
+  user_phil = parse("""
+    plot {
+      style = bar
+      title = Bar plot (provided by user)
+    }
+    """)
+
+  working_phil = base_phil.fetch(source=user_phil)
+  working_phil.show()
+
+  ## extract code end
+
+Output::
+
+  plot {
+    style = *line bar pie_chart
+    title = Line plot (default in base)
+  }
+  plot {
+    style = line *bar pie_chart
+    title = Bar plot (provided by user)
+  }
+
+``.extract()`` will produce a list with two elements::
+
+  ## extract code begin: freephil_examples.py
+
+  working_params = working_phil.extract()
+  print working_params.plot
+
+  ## extract code end
+
+Output::
+
+  [<freephil.scope_extract object at 0x2b1ccb5b1910>,
+   <freephil.scope_extract object at 0x2b1ccb5b1c10>]
+
+Note that the first (i.e. base) occurrence of the scope is not
+extracted. In practice this is usually the desired behavior, but it
+can be changed by setting the ``plot`` scope attribute ``.optional
+= False``. For example::
+
+  ## extract code begin: freephil_examples.py
+
+  base_phil = parse("""
+    plot
+      .multiple = True
+      .optional = False
+    {
+      style = line bar pie_chart
+        .type=choice
+      title = None
+        .type = str
+    }
+    plot {
+      style = line
+      title = Line plot (default in base)
+    }
+    """)
+
+  ## extract code end
+
+With the ``user_phil`` as before, ``.show()`` and ``.extract()`` now
+produce three entries each::
+
+  ## extract code begin: freephil_examples.py
+
+  working_phil = base_phil.fetch(source=user_phil)
+  working_phil.show()
+  print working_phil.extract().plot
+
+  ## extract code end
+
+Output::
+
+  plot {
+    style = line bar pie_chart
+    title = None
+  }
+  plot {
+    style = *line bar pie_chart
+    title = Line plot (default in base)
+  }
+  plot {
+    style = line *bar pie_chart
+    title = Bar plot (provided by user)
+  }
+  [<freephil.scope_extract object at 0x2af4c307bcd0>,
+   <freephil.scope_extract object at 0x2af4c307bd50>,
+   <freephil.scope_extract object at 0x2af4c307be10>]
+
+With ``.optional = True``, the base of a multiple definition or
+scope is *never* extracted. With ``.optional = False``, it is *always*
+extracted, and always first in the list.
+
+The "always first in the list" rule for multiple base objects is
+special. Other instances of multiple scopes are shown and extracted
+in the order in which they appear in the base file and the merged
+user file(s), with all *exact* duplicates removed. If duplicates are
+detected, the earlier copy is removed, unless it is the base.
+
+These rules are designed to produce easily predictable results in
+situations where multiple Phil files are merged (via ``.fetch()``),
+including complete copies of the base file.
+
+
+.. _phil-type:
+
+Available .type
+----------------
+
+FreePHIL specifies following optinos for attribute ``.type``::
+
+  .type =
+    words     retains the "words" produced by the parser
+    strings   list of Python strings (also used for .type = None)
+    str       combines all words into one string
+    path      path name (same as str_converters)
+    key       database key (same as str_converters)
+    bool      Python bool
+    int       Python int
+    float     Python float
+    choice    string selected from a pre-defined list
+
+See :ref:`extending-phil` for instructions, how to add custom options.
+
+
 .type = ints and .type = floats
 -------------------------------
 
@@ -695,8 +933,11 @@ Lists of values can optionally use commas or semicolons as separators
 between values. In this context, both characters are equivalent to
 a white-space. ``.format()`` always uses spaces as separators, i.e.
 commas and semicolons are not preserved in an ``.extract()``-``.format()``
-cycle. (Note that lists using semicolons as separators must be quoted;
-see the "Semicolon syntax" section below.)
+cycle.
+
+.. note::
+   Lists using semicolons as separators must be quoted;
+   see the `Semicolon syntax`_ section below.
 
 .type = choice
 --------------
@@ -893,138 +1134,6 @@ that we introduced earlier to merge user files given a base file.
 
 
 
-Multiple definitions and scopes
--------------------------------
-
-All Phil attributes of multiple definitions or scopes are determined
-by the first occurrence in the base file. All following instances in
-the base file are defaults. Any instances in user files (merged via
-``.fetch()``) are added to the default instances in the base file.
-For example::
-
-  ## extract code begin: freephil_examples.py
-
-  base_phil = parse("""
-    plot
-      .multiple = True
-    {
-      style = line bar pie_chart
-        .type=choice
-      title = None
-        .type = str
-    }
-    plot {
-      style = line
-      title = Line plot (default in base)
-    }
-    """)
-
-  user_phil = parse("""
-    plot {
-      style = bar
-      title = Bar plot (provided by user)
-    }
-    """)
-
-  working_phil = base_phil.fetch(source=user_phil)
-  working_phil.show()
-
-  ## extract code end
-
-Output::
-
-  plot {
-    style = *line bar pie_chart
-    title = Line plot (default in base)
-  }
-  plot {
-    style = line *bar pie_chart
-    title = Bar plot (provided by user)
-  }
-
-``.extract()`` will produce a list with two elements::
-
-  ## extract code begin: freephil_examples.py
-
-  working_params = working_phil.extract()
-  print working_params.plot
-
-  ## extract code end
-
-Output::
-
-  [<freephil.scope_extract object at 0x2b1ccb5b1910>,
-   <freephil.scope_extract object at 0x2b1ccb5b1c10>]
-
-Note that the first (i.e. base) occurrence of the scope is not
-extracted. In practice this is usually the desired behavior, but it
-can be changed by setting the ``plot`` scope attribute ``.optional
-= False``. For example::
-
-  ## extract code begin: freephil_examples.py
-
-  base_phil = parse("""
-    plot
-      .multiple = True
-      .optional = False
-    {
-      style = line bar pie_chart
-        .type=choice
-      title = None
-        .type = str
-    }
-    plot {
-      style = line
-      title = Line plot (default in base)
-    }
-    """)
-
-  ## extract code end
-
-With the ``user_phil`` as before, ``.show()`` and ``.extract()`` now
-produce three entries each::
-
-  ## extract code begin: freephil_examples.py
-
-  working_phil = base_phil.fetch(source=user_phil)
-  working_phil.show()
-  print working_phil.extract().plot
-
-  ## extract code end
-
-Output::
-
-  plot {
-    style = line bar pie_chart
-    title = None
-  }
-  plot {
-    style = *line bar pie_chart
-    title = Line plot (default in base)
-  }
-  plot {
-    style = line *bar pie_chart
-    title = Bar plot (provided by user)
-  }
-  [<freephil.scope_extract object at 0x2af4c307bcd0>,
-   <freephil.scope_extract object at 0x2af4c307bd50>,
-   <freephil.scope_extract object at 0x2af4c307be10>]
-
-With ``.optional = True``, the base of a multiple definition or
-scope is *never* extracted. With ``.optional = False``, it is *always*
-extracted, and always first in the list.
-
-The "always first in the list" rule for multiple base objects is
-special. Other instances of multiple scopes are shown and extracted
-in the order in which they appear in the base file and the merged
-user file(s), with all *exact* duplicates removed. If duplicates are
-detected, the earlier copy is removed, unless it is the base.
-
-These rules are designed to produce easily predictable results in
-situations where multiple Phil files are merged (via ``.fetch()``),
-including complete copies of the base file.
-
-
 Semicolon syntax
 ----------------
 
@@ -1147,9 +1256,9 @@ More on coding usage
 scope.show
 ----------
 
-In this document, the ``scope.show()`` method is used extensively
+In this document, the :func:`freephil.scope.show()` method is used extensively
 in the examples. With the defaults for the method parameters, it
-only shows the Phil scope or definition names and and associated
+only shows the Phil scope or definition names and associated
 values. It is also possible to include some or all Phil scope or
 definition attributes in the ``.show()`` output, as directed by the
 ``attributes_level`` parameter::
@@ -1273,104 +1382,13 @@ Output with ``attributes_level=3``::
   }
 
 
-scope_extract
--------------
-
-The result of ``scope.extract()`` is a ``scope_extract`` instance
-with attributes corresponding to the embedded definitions and
-sub-scopes. For example::
-
-  ## extract code begin: freephil_examples.py
-
-  base_phil = parse("""
-    minimization.input {
-      file_name = None
-        .type = path
-    }
-    minimization.parameters {
-      max_iterations = 10
-        .type = int
-    }
-    """)
-
-  user_phil = parse("""
-    minimization.input.file_name = experiment.dat
-    minimization.parameters.max_iterations = 5
-    """)
-
-  working_params = base_phil.fetch(source=user_phil).extract()
-  print working_params
-  print working_params.minimization.input.file_name
-  print working_params.minimization.parameters.max_iterations
-
-  ## extract code end
-
-Output::
-
-  <freephil.scope_extract object at 0x2ad50bae7550>
-  experiment.dat
-  5
-
-This just repeats what was shown several times before, but
-``scope_extract`` includes a few additional, special features that are
-worth knowing. The first special feature is the ``.__phil_path__()``
-method::
-
-  ## extract code begin: freephil_examples.py
-
-  print working_params.minimization.input.__phil_path__()
-  print working_params.minimization.parameters.__phil_path__()
-
-  ## extract code end
-
-Output::
-
-  minimization.input
-  minimization.parameters
-
-This feature is most useful for formatting informative error messages
-without having to hard-wire the fully-qualified parameter names. Use
-``.__phil_path__()`` to ensure that the names are automatically
-correct even if the base file is changed in major ways. Note that the
-``.__phil_path__()`` method is available only for extracted scopes,
-not for extracted definitions since it would be very cumbersome to
-implement. However, the fully-qualified name of a definition can
-be obtained via ``.__phil_path__(object_name="max_iterations")``;
-usually the ``object_name`` is readily available in the contexts in
-which the fully-qualified name is needed. There is also
-``.__phil_path_and_value__(object_name)`` which returns a 2-tuple
-of the fully-qualified path and the extracted value, ready to
-be used for formatting error messages.
-
-The next important feature is a safety guard: assignment to a
-non-existing attribute leads to an exception. For example,
-if the attribute is mis-spelled::
-
-  working_params.minimization.input.filename = "other.dat"
-
-Result::
-
-  AttributeError: Assignment to non-existing attribute "minimization.input.filename"
-    Please correct the attribute name, or to create
-    a new attribute use: obj.__inject__(name, value)
-
-In addition to trivial spelling errors, the safety guard traps
-overlooked dependencies related to changes in the base file.
-
-In some (unusual) situations it may be useful to attach attributes to
-an extracted scope that have no correspondence in the base file.
-Use the ``.__inject__(name, value)`` method for this purpose to
-by-pass the safety-guard. As a side-effect of this design, injected
-attributes are easily pin-pointed in the source code (simply search
-for ``__inject__``), which can be a big help in maintaining a large
-code base.
 
 ..  _track-unused-definitions:
 
 fetch option: track_unused_definitions
 --------------------------------------
 
-The default behavior of ``.fetch()`` is to simply ignore user
+The default behavior of :func:`freephil.scope.fetch` is to simply ignore user
 definitions that don't match anything in the base file. It it is
 possible to request a complete list of all user definitions ignored by
 ``.fetch()``. For example::
