@@ -1,6 +1,6 @@
 
 ++++++++++++++++++++++++++
-Code reference of freephil
+Code reference of FreePHIL
 ++++++++++++++++++++++++++
 
 .. contents:: Sections

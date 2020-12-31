@@ -1081,6 +1081,8 @@ class scope_extract:
         :param name: Object name
         :type name:  str
         :param value: Object
+
+        :raises AttributeError: When attribute already exists
         '''
         if (
             getattr(self, name, scope_extract_attribute_error)
