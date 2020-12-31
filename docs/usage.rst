@@ -49,8 +49,8 @@ Phil is designed with a minimal syntax. An important goal is to
 enable users to get started just by looking at defaults and examples,
 without having to read documentation.
 
-The Phil syntax has only two main elements, ``phil.definition`` (e.g.
-``max_iterations = 10`` and ``phil.scope`` (e.g. ``minimization.input { }``).
+The Phil syntax has only two main elements, :class:`freephil.definition` (e.g.
+``max_iterations = 10`` and :class:`freephil.scope` (e.g. ``minimization.input { }``).
 To make this syntax as user-friendly as possible, strings
 do not have to be quoted and, unlike Python, indentation is not
 syntactically significant. E.g. this::
@@ -259,6 +259,8 @@ line for another trial to run the application.
    :noindex:
 .. autofunction:: freephil.command_line.argument_interpreter.process
    :noindex:
+
+.. _phil-fetch:
 
 fetch: merging of Phil objects
 ------------------------------

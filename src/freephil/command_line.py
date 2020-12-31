@@ -241,6 +241,7 @@ class argument_interpreter:
                unprocessed arguments are returned
         :param extra_sources: other sources to be fetched with
                the parsed arguments.
+        :type extra_sources: list of freephil.scope
         :return: Phil object
         :rtype: freephil.scope
         '''
@@ -276,11 +277,11 @@ class process:
     :type extra_sources: list of freephil.scope
 
     :ivar work: Phil object from processed arguments
-    :type work: freephil.scope
+    :vartype work: freephil.scope
     :ivar remaining_args: Arguments, which could not be parsed
-    :type remaining_args: list of str
+    :vartype remaining_args: list of str
     :ivar master: Base Phil object
-    :type master: freephil.scope
+    :vartype master: freephil.scope
     '''
 
     def __init__(self, args, master_string, parse=None, extra_sources=()):
@@ -302,7 +303,7 @@ class process:
         Pretty prints the ``self.work``.
 
         :param out: Target of the print. If ``None``, prints to stdout
-        :type out:
+        :type out: None or file object
 
         '''
 

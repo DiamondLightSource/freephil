@@ -362,7 +362,6 @@ class try_format_proxy:
 
 
 class definition(slots_getstate_setstate):
-
     is_definition = True
     is_scope = False
 
@@ -1085,7 +1084,7 @@ class scope(slots_getstate_setstate):
     def customized_copy(self, name=None, objects=None):
         '''
         Customized object copy, changing name of the object and
-         sets new objects.
+        sets new objects.
 
         :param name: New object name
         :type name: str
@@ -1110,17 +1109,17 @@ class scope(slots_getstate_setstate):
 
     def full_path(self):
         '''
-        Get full_path attribute
+        Retuns full path to the scope as a string
 
-        :return: full_path
+        :rtype: str
         '''
         return full_path(self)
 
     def alias_path(self):
         '''
-        Get alias_path attributte
+        Get path alias
 
-        :return:
+        :rtype: str
         '''
         return alias_path(self)
 
@@ -1196,7 +1195,8 @@ class scope(slots_getstate_setstate):
 
     def has_attribute_with_name(self, name):
         '''
-        Checkes for argument presence
+        Checks for argument presence
+
         :param name: Argument being checked
         :return: True, if attribute exists in the scope
         :rtype: bool
@@ -1270,7 +1270,7 @@ class scope(slots_getstate_setstate):
         '''
         Pretty prints the Phil object
 
-        :param out: If None, prints to stdout, else to the file. The
+        :param out: If None, prints to ``sys.stdout``, else to the file. The
                     file has to be opened for writing.
         :type out: None or file
         :param merged_names:
@@ -1486,7 +1486,7 @@ class scope(slots_getstate_setstate):
     def format(self, python_object):
         '''
         Converts Python object into Phil object. It has to be called
-        as a member function of the base Phil object
+        as a member function of the base Phil object to recover Phil metadata.
 
         :param python_object: Python object to be converted
         :type python_object: freephil.scope_extract
@@ -1531,9 +1531,10 @@ class scope(slots_getstate_setstate):
 
     def extract_format(self, source=None):
         '''
-        Performs extract-format of its own (or source)
+        Performs extract-format of itself (or source)
 
         :param source: None, or a scope
+        :type source: freephil.scope or None
         :return: Filtered scope by itself
         :rtype: freephil.scope
         '''
@@ -1569,6 +1570,9 @@ class scope(slots_getstate_setstate):
         '''
         Combine multiple Phil objects using the base Phil (``self``).
         Returns full Phil object with changes from ``sources`` applied.
+        If an arguments occurs multiple times in different sources,
+        the first from the list is used. For more details see
+        :ref:`phil-fetch`.
 
         :param source: Input Phil object
         :type source: freephil.scope
@@ -1707,7 +1711,7 @@ class scope(slots_getstate_setstate):
     ):
         '''
         Creates difference Phil object containing only items, which
-        differ between two Phil objects
+        differ between the base Phil object and source(s).
 
         :param source: Input Phil object
         :type source: freephil.scope
@@ -1737,7 +1741,7 @@ class scope(slots_getstate_setstate):
         self, converter_registry, reference_directory, include_stack=None
     ):
         '''
-        Manually for processing of :ref:`phil-includes`
+        Manually triggers processing of :ref:`phil-includes`
 
         :param converter_registry:
         :param reference_directory:

@@ -36,6 +36,7 @@ Command line processing
    :members:
 
 .. autoclass:: freephil.command_line.process
+   :members:
 
 ..
     ========================
