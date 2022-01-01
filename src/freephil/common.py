@@ -1097,6 +1097,12 @@ class scope_extract:
         object.__setattr__(self, name, value)
 
     def __phil_join__(self, other):
+        '''
+        Joins other object. The other object can have only subset of attributes
+
+        :param other: Object to be joined in
+        :type other: freephil.scope_extract
+        '''
         for key, other_value in other.__dict__.items():
             if is_reserved_identifier(key):
                 continue

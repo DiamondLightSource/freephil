@@ -37,7 +37,7 @@ Python object (scope_extract)
 =============================
 
 .. autoclass:: freephil.scope_extract
-   :members: __phil_path__, __inject__, __phil_path_and_value__
+   :members: __phil_path__, __inject__, __phil_path_and_value__, __phil_join__
    :private-members:
 
 =======================
