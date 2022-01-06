@@ -1,4 +1,4 @@
-### How do I free my PHIL?
+### How do I migrate from cctbx PHIL to freephil?
 
 a good start:
 ```
