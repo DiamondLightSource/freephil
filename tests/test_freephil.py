@@ -53,6 +53,7 @@ def test_string_quote_and_tokenize():
                         c0123 = c012 + c3
                         check(string=c0123)
     assert n_ok[0] == 3120
+
     #
     def tvl(input_string):
         return freephil.tokenize_value_literal(
@@ -5861,7 +5862,7 @@ a=None
 
 def test_auto():
     for nao in [None, freephil.Auto]:
-        na = str(nao)
+        na = str(nao)  # noqa
         master = freephil.parse(
             input_string="""\
 abool=%(na)s
@@ -6352,7 +6353,7 @@ a=1 2 3
     ):
         master_phil.format(python_object=work_params)
     #
-    Auto = freephil.Auto
+    Auto = freephil.Auto  # noqa
     for value in ["None", "Auto"]:
         user_phil = freephil.parse(
             input_string="""\
