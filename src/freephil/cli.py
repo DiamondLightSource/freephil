@@ -1,4 +1,8 @@
 # Content in this file falls under the libtbx license
+"""
+A script Freephil, which is intended for analysisng Phil files
+"""
+
 
 import optparse
 import sys
