@@ -267,7 +267,7 @@ def alias_path(self):
 
 
 def show_attributes(self, out, prefix, attributes_level, print_width):
-    '''
+    """
     Prints attributes of the Phil object (scope or definition) to a file
 
     :param self: Phil object to be printed
@@ -281,7 +281,7 @@ def show_attributes(self, out, prefix, attributes_level, print_width):
     :param print_width: Max. lenght of a row
     :type print_width: int
 
-    '''
+    """
     if attributes_level <= 0:
         return
     for name in self.attribute_names:
@@ -361,7 +361,7 @@ class try_format_proxy:
 
 
 class definition(slots_getstate_setstate):
-    '''
+    """
     One line definitions used in Phil objects. The class is usually
     generated as part of parent :class:`freephil.scope`
 
@@ -409,7 +409,7 @@ class definition(slots_getstate_setstate):
     :ivar merge_names:
     :ivar tmp:
 
-    '''
+    """
 
     is_definition = True
     is_scope = False
@@ -495,25 +495,25 @@ class definition(slots_getstate_setstate):
             setattr(self, "deprecated", None)
 
     def copy(self):
-        '''
+        """
         Copy of itself
 
         :rtype: freephil.definition
-        '''
+        """
         keyword_args = {}
         for keyword in self.__slots__:
             keyword_args[keyword] = getattr(self, keyword)
         return definition(**keyword_args)
 
     def customized_copy(self, name=None, words=None):
-        '''
+        """
         Customized copy of itself, with new name and words
 
         :param name: New name
         :type name: str
         :param words: new value(s)
         :rtype: freephil.definition
-        '''
+        """
         result = self.copy()
         if name is not None:
             result.name = name
@@ -523,19 +523,19 @@ class definition(slots_getstate_setstate):
         return result
 
     def full_path(self):
-        '''
+        """
         Returns full path to the definition
 
         :rtype: str
-        '''
+        """
         return full_path(self)
 
     def alias_path(self):
-        '''
+        """
         Returns alias of the definition.
 
         :rtype: str
-        '''
+        """
         return alias_path(self)
 
     def assign_tmp(self, value, active_only=False):
@@ -577,7 +577,7 @@ class definition(slots_getstate_setstate):
             return type_fetch(source_words=source.words, master=self)
 
     def fetch_diff(self, source, skip_incompatible_objects=False):
-        '''
+        """
         Merges the definition with defintions from others sources,
         returns only difference
 
@@ -585,7 +585,7 @@ class definition(slots_getstate_setstate):
         :param skip_incompatible_objects:
         :return: Phil object definition
         :rtype: freephil.definition
-        '''
+        """
         result = self.fetch_value(
             source=source,
             diff_mode=True,
@@ -598,7 +598,7 @@ class definition(slots_getstate_setstate):
         return result
 
     def fetch(self, source, diff=False, skip_incompatible_objects=False):
-        '''
+        """
         Merge the definition with definitions from other source
 
         :param source: Other definition to merge with
@@ -608,7 +608,7 @@ class definition(slots_getstate_setstate):
         :param skip_incompatible_objects: Skip incompatible objects
         :type skip_incompatible_objects: bool
         :return:
-        '''
+        """
         if diff:
             return self.fetch_diff(
                 source=source, skip_incompatible_objects=skip_incompatible_objects
@@ -618,13 +618,13 @@ class definition(slots_getstate_setstate):
         )
 
     def has_attribute_with_name(self, name):
-        '''
+        """
         Returns ``True``, if the atribute exists
 
         :param name: Attribue name
         :type name: str
         :rtype: bool
-        '''
+        """
         return name in self.attribute_names
 
     def assign_attribute(self, name, words, converter_registry, converter_cache):
@@ -652,7 +652,7 @@ class definition(slots_getstate_setstate):
         attributes_level=0,
         print_width=None,
     ):
-        '''
+        """
         Pretty prints the definition
 
         :param out: If provided, writes to the file. The file had to be opened
@@ -667,7 +667,7 @@ class definition(slots_getstate_setstate):
         :type attributes_level: int
         :param print_width: Maximum linewidth
         :type print_width: int
-        '''
+        """
         if self.is_template < 0 and attributes_level < 2:
             return
         elif self.deprecated and attributes_level < 3:
@@ -712,7 +712,7 @@ class definition(slots_getstate_setstate):
     def as_str(
         self, prefix="", expert_level=None, attributes_level=0, print_width=None
     ):
-        '''
+        """
         Returns pretty print of the definition as string
 
         :param prefix: Prefix
@@ -725,7 +725,7 @@ class definition(slots_getstate_setstate):
         :type print_width: int
         :return: Pretty print of the definition
         :rtype: str
-        '''
+        """
         out = io.StringIO()
         self.show(
             out=out,
@@ -779,7 +779,7 @@ class definition(slots_getstate_setstate):
             return try_extract_proxy(error_message=str(e), extracted=None)
 
     def extract(self, parent=None):
-        '''
+        """
         Extracts the Phil object definition into Python object.
 
         :param parent: Set parent Phil object
@@ -787,13 +787,13 @@ class definition(slots_getstate_setstate):
         :return: Python object
         :rtype: freephil.scope_extract
 
-        '''
+        """
         if self.type is None:
             return strings_from_words(words=self.words)
         return self._type_from_words()(self.words, master=self)
 
     def format(self, python_object):
-        '''
+        """
         Converts Python object into Phil object definition. It has to be called
         as a member function of the base Phil object definition to recover Phil metadata.
 
@@ -801,7 +801,7 @@ class definition(slots_getstate_setstate):
         :type python_object: freephil.scope_extract
         :return: Phil definitio
         :rtype:  freephil.definition
-        '''
+        """
         if self.type is None:
             words = strings_as_words(python_object=python_object)
         else:
@@ -816,14 +816,14 @@ class definition(slots_getstate_setstate):
         return self.customized_copy(words=words)
 
     def extract_format(self, source=None):
-        '''
+        """
         Performs extract-format of itself (or source)
 
         :param source: None, or a scope
         :type source: freephil.scope or None
         :return: Filtered scope by itself
         :rtype: freephil.scope
-                '''
+        """
         if source is None:
             source = self
         return self.format(python_object=source.extract())
@@ -1002,7 +1002,7 @@ class scope_extract_list(list):
 
 
 class scope_extract:
-    '''
+    """
     Python object (see :ref:`python-object`). It is easy to access
     pythonic reprezentation of Phil object, but luckying metainformation,
     like expert_level. Further nested scopes and data are stored as
@@ -1011,14 +1011,15 @@ class scope_extract:
     :ivar __phil_name__: Phil name
     :ivar __phil_parent__: parent object
     :ivar __phil_call__: function to be called, if the scope is callable
-    '''
+    """
+
     def __init__(self, name, parent, call):
         object.__setattr__(self, "__phil_name__", name)
         object.__setattr__(self, "__phil_parent__", parent)
         object.__setattr__(self, "__phil_call__", call)
 
     def __phil_path__(self, object_name=None):
-        '''
+        """
         Returns fully qualified path of the scope. If ``object_name``
         is given, path to the object is given
 
@@ -1030,7 +1031,7 @@ class scope_extract:
         :rtype: str
 
 
-        '''
+        """
         if (
             self.__phil_parent__ is None
             or self.__phil_parent__.__phil_name__ is None
@@ -1047,14 +1048,14 @@ class scope_extract:
         return ".".join(result)
 
     def __phil_path_and_value__(self, object_name):
-        '''
+        """
         Retruns fully qualified path of the object and its value
 
         :param object_name: Object of the ``scope_extract``
         :type object_name: str
         :return: Fully qualified name and object value
         :rtype: tuple
-        '''
+        """
         return (self.__phil_path__(object_name=object_name), getattr(self, object_name))
 
     def __setattr__(self, name, value):
@@ -1075,7 +1076,7 @@ class scope_extract:
         object.__setattr__(self, name, value)
 
     def __inject__(self, name, value):
-        '''
+        """
         Creates new member object with ``name`` and ``value``
 
         :param name: Object name
@@ -1083,7 +1084,7 @@ class scope_extract:
         :param value: Object
 
         :raises AttributeError: When attribute already exists
-        '''
+        """
         if (
             getattr(self, name, scope_extract_attribute_error)
             is not scope_extract_attribute_error
@@ -1097,12 +1098,12 @@ class scope_extract:
         object.__setattr__(self, name, value)
 
     def __phil_join__(self, other):
-        '''
+        """
         Joins other object. The other object can have only subset of attributes
 
         :param other: Object to be joined in
         :type other: freephil.scope_extract
-        '''
+        """
         for key, other_value in other.__dict__.items():
             if is_reserved_identifier(key):
                 continue
@@ -1172,7 +1173,7 @@ class scope_extract:
 
 
 class scope(slots_getstate_setstate):
-    '''
+    """
     Phil object. It should not be created by an user directly, but
     usually by parsing Phil string (see: :func:`freephil.parse`)
 
@@ -1230,7 +1231,7 @@ class scope(slots_getstate_setstate):
     :ivar is_template:
     :ivar where_str:
     :ivar merge_names:
-    '''
+    """
 
     is_definition = False
     is_scope = True
@@ -1315,18 +1316,18 @@ class scope(slots_getstate_setstate):
             assert isinstance(sequential_format % 0, str)
 
     def copy(self):
-        '''
+        """
         Copy the object
 
         :rtype: freephil.scope
-        '''
+        """
         keyword_args = {}
         for keyword in self.__slots__:
             keyword_args[keyword] = getattr(self, keyword)
         return scope(**keyword_args)
 
     def customized_copy(self, name=None, objects=None):
-        '''
+        """
         Customized object copy, changing name of the object and
         sets new objects.
 
@@ -1335,7 +1336,7 @@ class scope(slots_getstate_setstate):
         :param objects: New objects
         :return: Customized object copy
         :rtype: freephil.scope
-        '''
+        """
         result = self.copy()
         if name is not None:
             result.name = name
@@ -1345,26 +1346,26 @@ class scope(slots_getstate_setstate):
         return result
 
     def is_empty(self):
-        '''
+        """
         :return: True, if object is empty
         :rtype: bool
-        '''
+        """
         return len(self.objects) == 0
 
     def full_path(self):
-        '''
+        """
         Retuns full path to the scope as a string
 
         :rtype: str
-        '''
+        """
         return full_path(self)
 
     def alias_path(self):
-        '''
+        """
         Get path alias
 
         :rtype: str
-        '''
+        """
         return alias_path(self)
 
     def assign_tmp(self, value, active_only=False):
@@ -1395,12 +1396,12 @@ class scope(slots_getstate_setstate):
         primary_parent_scope.objects.append(object)
 
     def adopt_scope(self, other):
-        '''
+        """
         Makes other scope member of this parent scope
 
         :param other: scope to be adopted
         :type other: freephil.scope or object
-        '''
+        """
         assert self is not other, "Cannot adopt own scope"
         for active_object in other.active_objects():
             results = self.get_without_substitution(active_object.full_path())
@@ -1420,13 +1421,13 @@ class scope(slots_getstate_setstate):
                     result.adopt_scope(active_object)
 
     def change_primary_parent_scope(self, new_value):
-        '''
+        """
         Changes primary parent scope
 
         :param new_value: New parent scope
         :type new_value: freephil.scope
         :return: Copy of itself with new primary parent
-        '''
+        """
 
         objects = []
         for object in self.objects:
@@ -1438,13 +1439,13 @@ class scope(slots_getstate_setstate):
         return self.customized_copy(objects=objects)
 
     def has_attribute_with_name(self, name):
-        '''
+        """
         Checks for argument presence
 
         :param name: Argument being checked
         :return: True, if attribute exists in the scope
         :rtype: bool
-        '''
+        """
         return name in self.attribute_names
 
     def assign_attribute(self, name, words, scope_extract_call_proxy_cache):
@@ -1470,9 +1471,9 @@ class scope(slots_getstate_setstate):
         setattr(self, name, value)
 
     def active_objects(self):
-        '''
+        """
         Iterator over active objects
-        '''
+        """
         for object in self.objects:
             if object.is_disabled:
                 continue
@@ -1511,7 +1512,7 @@ class scope(slots_getstate_setstate):
         attributes_level=0,
         print_width=None,
     ):
-        '''
+        """
         Pretty prints the Phil object
 
         :param out: If None, prints to ``sys.stdout``, else to the file. The
@@ -1526,7 +1527,7 @@ class scope(slots_getstate_setstate):
         :param print_width: Max. line width
         :type print_width:  int
         :return:
-        '''
+        """
         if self.is_template < 0 and attributes_level < 2:
             return
         if (
@@ -1584,7 +1585,7 @@ class scope(slots_getstate_setstate):
     def as_str(
         self, prefix="", expert_level=None, attributes_level=0, print_width=None
     ):
-        '''
+        """
         Returns pretty print as a string.
 
         :param prefix: Prefix
@@ -1595,7 +1596,7 @@ class scope(slots_getstate_setstate):
         :param print_width: Max. line width
         :type print_width:  int
         :rtype: str
-        '''
+        """
         out = io.StringIO()
         self.show(
             out=out,
@@ -1728,7 +1729,7 @@ class scope(slots_getstate_setstate):
         return result
 
     def format(self, python_object):
-        '''
+        """
         Converts Python object into Phil object. It has to be called
         as a member function of the base Phil object to recover Phil metadata.
 
@@ -1736,7 +1737,7 @@ class scope(slots_getstate_setstate):
         :type python_object: freephil.scope_extract
         :return: Phil object
         :rtype:  freephil.scope
-        '''
+        """
         multiple_scopes_done = {}
         result = []
         for object in self.master_active_objects():
@@ -1774,20 +1775,20 @@ class scope(slots_getstate_setstate):
         return self.customized_copy(objects=result)
 
     def extract_format(self, source=None):
-        '''
+        """
         Performs extract-format of itself (or source)
 
         :param source: None, or a scope
         :type source: freephil.scope or None
         :return: Filtered scope by itself
         :rtype: freephil.scope
-        '''
+        """
         if source is None:
             source = self
         return self.format(source.extract())
 
     def clone(self, python_object, converter_registry=None):
-        '''
+        """
         Clones Python object to new one, filtered through this scope.
 
         :param python_object: Input Python object
@@ -1795,7 +1796,7 @@ class scope(slots_getstate_setstate):
         :param converter_registry:
         :return: Filtered Python object
         :rtype: freephil.scope_extract
-        '''
+        """
         return parse(
             input_string=self.format(python_object=python_object).as_str(
                 attributes_level=3
@@ -1811,7 +1812,7 @@ class scope(slots_getstate_setstate):
         diff=False,
         skip_incompatible_objects=False,
     ):
-        '''
+        """
         Combine multiple Phil objects using the base Phil (``self``).
         Returns full Phil object with changes from ``sources`` applied.
         If an arguments occurs multiple times in different sources,
@@ -1833,7 +1834,7 @@ class scope(slots_getstate_setstate):
         :type skip_incompatible_objects: bool
         :return: Phil object, or Phil object and object with unprocessed data
         :rtype: freephil.scope or tuple(freephil.scope, list of freephil.object_locator)
-        '''
+        """
         combined_objects = []
         if source is not None or sources is not None:
             assert source is None or sources is None
@@ -1953,7 +1954,7 @@ class scope(slots_getstate_setstate):
         track_unused_definitions=False,
         skip_incompatible_objects=False,
     ):
-        '''
+        """
         Creates difference Phil object containing only items, which
         differ between the base Phil object and source(s).
 
@@ -1972,7 +1973,7 @@ class scope(slots_getstate_setstate):
         :type skip_incompatible_objects: bool
         :return: Phil object, or Phil object and object with unprocessed data
         :rtype: freephil.scope or tuple(freephil.scope, list of freephil.object_locator)
-        '''
+        """
         return self.fetch(
             source=source,
             sources=sources,
@@ -1984,13 +1985,13 @@ class scope(slots_getstate_setstate):
     def process_includes(
         self, converter_registry, reference_directory, include_stack=None
     ):
-        '''
+        """
         Manually triggers processing of :ref:`phil-includes`
 
         :param converter_registry:
         :param reference_directory:
         :param include_stack:
-        '''
+        """
         if converter_registry is None:
             converter_registry = default_converter_registry
         if include_stack is None:
@@ -2078,7 +2079,7 @@ class scope(slots_getstate_setstate):
     def command_line_argument_interpreter(
         self, home_scope=None, argument_description=None
     ):
-        '''
+        """
         Creates an interpreter of command line arguments for the scope
 
         :param home_scope: Parse only within sub-scope
@@ -2088,7 +2089,7 @@ class scope(slots_getstate_setstate):
         :type argument_description: str
         :return: Command line interpreter
         :rtype: freephil.command_line.argument_interpreter
-        '''
+        """
 
         from freephil.command_line import argument_interpreter as _
 
@@ -2334,7 +2335,7 @@ def read_default(
 
 
 def process_command_line(args, master_string, parse=None):
-    '''
+    """
     Processes command line arguments
 
     :param args: command line arguments
@@ -2345,14 +2346,14 @@ def process_command_line(args, master_string, parse=None):
                   :class:`freephil.parse`
     :return: Parsed arguments
     :rtype: freephil.command_line.process
-    '''
+    """
     from freephil import command_line
 
     return command_line.process(args=args, master_string=master_string, parse=parse)
 
 
 def find_scope(current_phil, scope_name):
-    '''
+    """
     Finds first occurence of scope within a scope
 
     :param current_phil: Phil object to be searched
@@ -2360,7 +2361,7 @@ def find_scope(current_phil, scope_name):
     :param scope_name: Scope name to be searched for
     :return: First scope occurence
     :rtype: freephil.scope
-    '''
+    """
     i = 0
     while i < len(current_phil.objects):
         full_path = current_phil.objects[i].full_path()

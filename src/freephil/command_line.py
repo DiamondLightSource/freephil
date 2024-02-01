@@ -8,7 +8,7 @@ op = os.path
 
 
 class argument_interpreter:
-    '''
+    """
     Class of command line argument interpreter, based on base Phil
     object. The class is typically returned by
     :func:`freephil.scope.command_line_argument_interpreter`
@@ -21,7 +21,8 @@ class argument_interpreter:
            Defaults to "command line"
     :type argument_description: str
     :param master_params: deprecated (raises warning about it)
-    '''
+    """
+
     def __init__(
         self,
         master_phil=None,
@@ -29,9 +30,9 @@ class argument_interpreter:
         argument_description=None,
         master_params=None,
     ):
-        '''
+        """
         Class constructor
-        '''
+        """
         if argument_description is None:
             argument_description = "command line "
         assert [master_params, master_phil].count(None) == 1
@@ -216,7 +217,7 @@ class argument_interpreter:
         return user_phils
 
     def process(self, arg=None, args=None, custom_processor=None):
-        '''
+        """
         Process string as command line argument.
 
         :param arg: One argument
@@ -226,7 +227,7 @@ class argument_interpreter:
         :param custom_processor: Use custom Phil processor.
         :return: Phil object
         :rtype: freephil.scope
-        '''
+        """
         assert [arg, args].count(None) == 1
         if arg is not None:
             assert custom_processor is None
@@ -234,7 +235,7 @@ class argument_interpreter:
         return self.process_args(args=args, custom_processor=custom_processor)
 
     def process_and_fetch(self, args, custom_processor=None, extra_sources=()):
-        '''
+        """
         Performs process and fetch in single command.
 
         :param args: command line arguments
@@ -246,7 +247,7 @@ class argument_interpreter:
         :type extra_sources: list of freephil.scope
         :return: Phil object
         :rtype: freephil.scope
-        '''
+        """
         if isinstance(custom_processor, str):
             assert custom_processor == "collect_remaining"
             remaining_args = []
@@ -266,7 +267,7 @@ class argument_interpreter:
 
 
 class process:
-    '''
+    """
     Governing class for command line processing
 
     :param args: Input command line arguments
@@ -284,12 +285,12 @@ class process:
     :vartype remaining_args: list of str
     :ivar master: Base Phil object
     :vartype master: freephil.scope
-    '''
+    """
 
     def __init__(self, args, master_string, parse=None, extra_sources=()):
-        '''
+        """
         Class constructor
-        '''
+        """
         if parse is None:
             parse = freephil.parse
         self.parse = parse
@@ -301,13 +302,13 @@ class process:
         )
 
     def show(self, out=None):
-        '''
+        """
         Pretty prints the ``self.work``.
 
         :param out: Target of the print. If ``None``, prints to stdout
         :type out: None or file object
 
-        '''
+        """
 
         self.work.show(out=out)
         return self
